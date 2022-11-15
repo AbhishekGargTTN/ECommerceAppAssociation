@@ -37,7 +37,7 @@ class ECommerceAppApplicationTests {
 	public void addCustomer(){
 		User user=new User();
 		Role role= new Role();
-		role= roleRepo.findByRole("Customer");
+		role= roleRepo.findByRole("CUSTOMER");
 		Customer customer= new Customer();
 		user.setEmail("abhishek@gmail.com");
 		user.setFirstName("Abhishek");
@@ -56,7 +56,6 @@ class ECommerceAppApplicationTests {
 		address1.setLabel("Home");
 		address1.setCountry("India");
 		address1.setCustomer(customer);
-//		address1.setCustomer(customer);
 		addresses.add(address1);
 
 		Address address2= new Address();
@@ -67,17 +66,10 @@ class ECommerceAppApplicationTests {
 		address2.setLabel("Office");
 		address2.setCountry("India");
 		address2.setCustomer(customer);
-//		address2.setCustomer(customer);
 		addresses.add(address2);
 
 		customer.setAddresses(addresses);
 
-//		System.out.println(role.getRole());
-//		Set<Role> roles = new HashSet<>();
-////		role.getRole();
-//		Role role= roleRepo.findByRole("Customer");
-//		roles.add(role);
-//		customer.setRoles(roles);
 		customerRepo.save(customer);
 	}
 
@@ -87,7 +79,7 @@ class ECommerceAppApplicationTests {
 		User user= new User();
 		Seller seller= new Seller();
 		Role role= new Role();
-		role= roleRepo.findByRole("Seller");
+		role= roleRepo.findByRole("SELLER");
 		user.setEmail("tarun@gmail.com");
 		user.setFirstName("Tarun");
 		user.setMiddleName("K");
@@ -98,7 +90,7 @@ class ECommerceAppApplicationTests {
 		seller.setCompanyName("TTN");
 		seller.setCompanyContact(12345678);
 		seller.setUser(user);
-//		Set<Address> addresses= new HashSet<>();
+
 		Address address1= new Address();
 		address1.setCity("Noida");
 		address1.setState("UP");
@@ -107,8 +99,7 @@ class ECommerceAppApplicationTests {
 		address1.setLabel("Office");
 		address1.setCountry("India");
 		address1.setSeller(seller);
-//		address1.setCustomer(seller);
-//		addresses.add(address1);
+
 		seller.setAddress(address1);
 		sellerRepo.save(seller);
 	}
@@ -116,15 +107,15 @@ class ECommerceAppApplicationTests {
 	@Test
 	public void addRole(){
 		Role role1= new Role();
-		role1.setRole("Admin");
+		role1.setRole("ADMIN");
 		roleRepo.save(role1);
 
 		Role role2= new Role();
-		role2.setRole("Customer");
+		role2.setRole("CUSTOMER");
 		roleRepo.save(role2);
 
 		Role role3= new Role();
-		role3.setRole("Seller");
+		role3.setRole("SELLER");
 		roleRepo.save(role3);
 	}
 

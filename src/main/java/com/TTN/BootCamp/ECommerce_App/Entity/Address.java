@@ -1,5 +1,7 @@
 package com.TTN.BootCamp.ECommerce_App.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -32,12 +34,14 @@ public class Address {
     @Column(name = "Label")
     private String label;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Customer_ID")
+    @JsonBackReference
     private Customer customer;
 
-    @OneToOne
-    @JoinColumn(name = "Seller_ID")//,insertable = false,updatable = false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "Seller_ID")
+    @JsonBackReference
     private Seller seller;
 
     @Override

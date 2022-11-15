@@ -1,5 +1,6 @@
 package com.TTN.BootCamp.ECommerce_App.Entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -52,19 +53,45 @@ public class User {
     @Column(name = "Password_Update_Date")
     private Date passwordUpdateDate;
 
-    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
+//    public boolean isDeleted() {
+//        return isDeleted;
+//    }
+//
+//    public void setDeleted(boolean deleted) {
+//        isDeleted = deleted;
+//    }
+//
+//    public boolean isActive() {
+//        return isActive;
+//    }
+//
+//    public void setActive(boolean active) {
+//        isActive = active;
+//    }
+//
+//    public boolean isExpired() {
+//        return isExpired;
+//    }
+//
+//    public void setExpired(boolean expired) {
+//        isExpired = expired;
+//    }
+//
+//    public boolean isLocked() {
+//        return isLocked;
+//    }
+//
+//    public void setLocked(boolean locked) {
+//        isLocked = locked;
+//    }
+
+    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @JsonManagedReference
     private Customer customer;
 
-    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @JsonManagedReference
     private Seller seller;
-//
-//    public Role getRole() {
-//        return role;
-//    }
-//
-//    public void setRole(Role role) {
-//        this.role = role;
-//    }
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinTable(name = "User_Role"

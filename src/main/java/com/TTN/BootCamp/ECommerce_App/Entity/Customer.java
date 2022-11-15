@@ -1,6 +1,8 @@
 package com.TTN.BootCamp.ECommerce_App.Entity;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,13 +23,13 @@ public class Customer {//extends User{
     @Column(name = "Contact")
     private long contact;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JoinColumn(name = "User_Id")
+    @JsonBackReference
     private User user;
 
-    @OneToMany(mappedBy = "customer",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "customer",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @JsonManagedReference
     private Set<Address> addresses;
 
-//    @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL)
-//    private Role role;
 }
