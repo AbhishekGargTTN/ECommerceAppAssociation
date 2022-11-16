@@ -4,15 +4,13 @@ import com.TTN.BootCamp.ECommerce_App.DTO.CustomerDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.SellerDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UserDTO;
 import com.TTN.BootCamp.ECommerce_App.Entity.*;
-import com.TTN.BootCamp.ECommerce_App.Repository.CustomerRepo;
-import com.TTN.BootCamp.ECommerce_App.Repository.RoleRepo;
-import com.TTN.BootCamp.ECommerce_App.Repository.SellerRepo;
-import com.TTN.BootCamp.ECommerce_App.Repository.UserRepo;
+import com.TTN.BootCamp.ECommerce_App.Repository.*;
 import com.TTN.BootCamp.ECommerce_App.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,9 +25,10 @@ public class UserServiceImpl implements UserService {
     RoleRepo roleRepo;
     @Autowired
     CustomerRepo customerRepo;
-
     @Autowired
     SellerRepo sellerRepo;
+    @Autowired
+    AddressRepo addressRepo;
     public User createUser(UserDTO userDTO) {
         User user = new User();
         user.setFirstName(userDTO.getFirstName());
@@ -55,12 +54,20 @@ public class UserServiceImpl implements UserService {
 
         Role newrole= new Role();
         newrole= roleRepo.findByRole(role);
-        newUser.addRole(newrole);
+        newUser.setRole(newrole);
 
         Customer customer = new Customer();
         customer.setContact(customerDTO.getContact());
         customer.setUser(newUser);
-//        Set<Address> addresses= new HashSet<>();
+
+//        List<Address> addresses= new ArrayList<>();
+
+//        customerDTO.getAddresses().forEach(a-> );
+
+//        int numberOfAddresses= customerDTO.getAddresses().size();
+
+
+//        addresses= customerDTO.getAddresses();
 //        Address address1= new Address();
 //        address1.setCity(userDTO.getCity());
 //        address1.setState(userDTO.getState());
@@ -80,6 +87,7 @@ public class UserServiceImpl implements UserService {
 //        address2.setCountry(userDTO.getCountry());
 //        address2.setCustomer(customer);
 //        addresses.add(address2);
+
 //        customer.setAddressLine1(userDTO.getAddressLine1());
 //        customer.setAddressLine2(userDTO.getAddressLine2());
 //        customer.setCity(userDTO.getCity());
@@ -106,13 +114,23 @@ public class UserServiceImpl implements UserService {
 
         Role newrole= new Role();
         newrole= roleRepo.findByRole(role);
-        newUser.addRole(newrole);
+        newUser.setRole(newrole);
 
         Seller seller = new Seller();
         seller.setCompanyName(sellerDTO.getCompanyName());
         seller.setGst(sellerDTO.getGst());
         seller.setCompanyContact(sellerDTO.getCompanyContact());
         seller.setUser(newUser);
+
+        Address address= new Address();
+        address.setCity(sellerDTO.getAddress().getCity());
+        address.setState(sellerDTO.getAddress().getState());
+        address.setAddressLine(sellerDTO.getAddress().getAddressLine());
+        address.setZipCode(sellerDTO.getAddress().getZipCode());
+        address.setCountry(sellerDTO.getAddress().getCountry());
+        address.setLabel(sellerDTO.getAddress().getLabel());
+        address.setSeller(seller);
+        addressRepo.save(address);
         sellerRepo.save(seller);
         userRepo.save(newUser);
 

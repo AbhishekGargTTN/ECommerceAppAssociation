@@ -1,47 +1,55 @@
 package com.TTN.BootCamp.ECommerce_App.Config;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 //@Configuration
 //@EnableAuthorizationServer
 public class AuthorizationServerConfig {//extends AuthorizationServerConfigurerAdapter {
-//    @Autowired
-//    DataSource ds;
 //
 //    @Autowired
-//    AuthenticationManager authMgr;
-//
+//    BCryptPasswordEncoder passwordEncoder;
 //    @Autowired
-//    private UserDetailsService usrSvc;
+//    private AuthenticationManager authenticationManager;
+//    @Autowired
+//    private TokenStore tokenStore;
+//    @Autowired
+//    private CustomUserDetailsService userDetailsService;
 //
-//    @Bean
-//    public TokenStore tokenStore() {
-//        return new JdbcTokenStore(ds);
-//    }
-//
-//    @Bean("clientPasswordEncoder")
-//    PasswordEncoder clientPasswordEncoder() {
-//        return new BCryptPasswordEncoder(4);
-//    }
 //
 //    @Override
-//    public void configure(AuthorizationServerSecurityConfigurer cfg) throws Exception {
+//    public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
+//        endpoints
+//                .tokenStore(this.tokenStore)
+//                .authenticationManager(authenticationManager)
+//                .userDetailsService(userDetailsService);
+//    }
 //
-//        // This will enable /oauth/check_token access
-//        cfg.checkTokenAccess("permitAll");
 //
-//        // BCryptPasswordEncoder(4) is used for oauth_client_details.user_secret
-//        cfg.passwordEncoder(clientPasswordEncoder());
+//    @Override
+//    public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
+//        oauthServer.tokenKeyAccess("permitAll()")
+//                .checkTokenAccess("isAuthenticated()")
+//                .passwordEncoder(passwordEncoder);
 //    }
 //
 //    @Override
 //    public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-//        clients.jdbc(ds);
+//        clients.inMemory()
+//                .withClient("ecommerce-app")
+//                .secret(passwordEncoder.encode("supersecret"))
+//                .accessTokenValiditySeconds(7 * 24 * 60)                // expire time for access token
+//                .refreshTokenValiditySeconds(30 * 24 * 3600)            // expire time for refresh token
+//                .scopes("app")                                          // scope related to resource server
+//                .authorizedGrantTypes("password", "refresh_token")      // grant type
+//                .resourceIds("e-commerce app");
 //    }
 //
-//    @Override
-//    public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-//
-//        endpoints.tokenStore(tokenStore());
-//        endpoints.authenticationManager(authMgr);
-//        endpoints.userDetailsService(usrSvc);
+//    @Bean
+//    @Primary
+//    public DefaultTokenServices tokenServices() {
+//        DefaultTokenServices tokenServices = new DefaultTokenServices();
+//        tokenServices.setSupportRefreshToken(true);
+//        tokenServices.setTokenStore(this.tokenStore);
+//        return tokenServices;
 //    }
 }

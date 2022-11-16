@@ -7,13 +7,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Getter
 @Setter
-//@PrimaryKeyJoinColumn(name = "User_ID")
-public class Customer {//extends User{
+public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,6 +29,6 @@ public class Customer {//extends User{
 
     @OneToMany(mappedBy = "customer",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JsonManagedReference
-    private Set<Address> addresses;
+    private List<Address> addresses;
 
 }

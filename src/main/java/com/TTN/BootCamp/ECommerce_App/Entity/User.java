@@ -98,8 +98,5 @@ public class User {
             ,joinColumns = @JoinColumn(name = "User_id", referencedColumnName = "id")
             ,inverseJoinColumns = @JoinColumn(name = "Role_id", referencedColumnName = "id"))
     private Role role;
-    public void addRole(Role role){
-        this.role=role;
-    }
 
 }

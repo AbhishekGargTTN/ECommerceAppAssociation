@@ -44,10 +44,10 @@ class ECommerceAppApplicationTests {
 		user.setMiddleName("Ab");
 		user.setLastName("Garg");
 		user.setPassword("1234");
-		user.addRole(role);
+		user.setRole(role);
 		customer.setContact(1234567890);
 		customer.setUser(user);
-		Set<Address> addresses= new HashSet<>();
+		List<Address> addresses= new ArrayList<>();
 		Address address1= new Address();
 		address1.setCity("Shastri Nagar");
 		address1.setState("Delhi");
@@ -85,7 +85,7 @@ class ECommerceAppApplicationTests {
 		user.setMiddleName("K");
 		user.setLastName("Singh");
 		user.setPassword("1234");
-		user.addRole(role);
+		user.setRole(role);
 		seller.setGst("abcgst123");
 		seller.setCompanyName("TTN");
 		seller.setCompanyContact(12345678);
