@@ -25,7 +25,6 @@ public class MailServiceImpl implements MailService {
 
     @Value("${spring.mail.username}")
     private String sender;
-
 //    @Async
 //    public void sendEmail(String to, String subject, String content, boolean isMultipart, boolean isHtml) {
 //
