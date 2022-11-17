@@ -79,7 +79,7 @@ class ECommerceAppApplicationTests {
 		User user= new User();
 		Seller seller= new Seller();
 		Role role= new Role();
-		role= roleRepo.findByRole("SELLER");
+		role= roleRepo.findByRole("ADMIN");
 		user.setEmail("tarun@gmail.com");
 		user.setFirstName("Tarun");
 		user.setMiddleName("K");

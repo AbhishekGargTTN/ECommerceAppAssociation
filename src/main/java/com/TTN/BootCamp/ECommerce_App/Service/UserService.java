@@ -6,10 +6,12 @@ import com.TTN.BootCamp.ECommerce_App.DTO.UserDTO;
 import com.TTN.BootCamp.ECommerce_App.Entity.Customer;
 import com.TTN.BootCamp.ECommerce_App.Entity.Seller;
 import com.TTN.BootCamp.ECommerce_App.Entity.User;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Service
 public interface UserService {
 
     public User createUser(UserDTO userDTO);

@@ -4,10 +4,12 @@ import com.TTN.BootCamp.ECommerce_App.Entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface UserRepo extends JpaRepository<User, Long> {
 
     @Query(value = "select * from User where First_Name=:firstName", nativeQuery = true)
@@ -18,4 +20,6 @@ public interface UserRepo extends JpaRepository<User, Long> {
     Optional<User> findOneByEmail(String login);
 
     Optional<User> findOneByEmailIgnoreCase(String email);
+
+    User findUserByEmail(String mail);
 }

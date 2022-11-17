@@ -1,22 +1,16 @@
 package com.TTN.BootCamp.ECommerce_App.Service.ServiceImpl;
 
 import com.TTN.BootCamp.ECommerce_App.Entity.EmailDetails;
-import com.TTN.BootCamp.ECommerce_App.Entity.User;
 import com.TTN.BootCamp.ECommerce_App.Service.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.mail.internet.MimeMessage;
-import java.nio.charset.StandardCharsets;
-import java.util.Locale;
-
-@Service
+@Component
 @Transactional
 public class MailServiceImpl implements MailService {
 

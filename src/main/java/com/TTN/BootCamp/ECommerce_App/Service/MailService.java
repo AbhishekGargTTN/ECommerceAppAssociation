@@ -1,11 +1,10 @@
 package com.TTN.BootCamp.ECommerce_App.Service;
 
 import com.TTN.BootCamp.ECommerce_App.Entity.EmailDetails;
-import com.TTN.BootCamp.ECommerce_App.Entity.User;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-
+@Service
 public interface MailService {
 
 //    public void sendActivationEmail(User user);

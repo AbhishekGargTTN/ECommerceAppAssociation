@@ -7,6 +7,7 @@ import com.TTN.BootCamp.ECommerce_App.Entity.*;
 import com.TTN.BootCamp.ECommerce_App.Repository.*;
 import com.TTN.BootCamp.ECommerce_App.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Service
+@Component
 @Transactional
 public class UserServiceImpl implements UserService {
     @Autowired
@@ -130,6 +131,8 @@ public class UserServiceImpl implements UserService {
         address.setCountry(sellerDTO.getAddress().getCountry());
         address.setLabel(sellerDTO.getAddress().getLabel());
         address.setSeller(seller);
+
+//        seller.setAddress(address);
         addressRepo.save(address);
         sellerRepo.save(seller);
         userRepo.save(newUser);
