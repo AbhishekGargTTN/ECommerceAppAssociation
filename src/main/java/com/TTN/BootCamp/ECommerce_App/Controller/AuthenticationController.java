@@ -16,15 +16,13 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2RefreshToken;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
+@RequestMapping("/api")
 public class AuthenticationController {
 
     @Autowired
@@ -81,8 +79,11 @@ public class AuthenticationController {
         return new ResponseEntity<>("User signed-in successfully!.", HttpStatus.OK);
     }
 
-    @PostMapping("/dologout")
-    public String logout(HttpServletRequest request){
+    @PostMapping("/logout")
+    public String logout(HttpServletRequest request,HttpServletResponse response){
+
+        removeSecurityContext(request,response);
+
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null) {
             String tokenValue = authHeader.replace("Bearer", "").trim();
@@ -95,13 +96,10 @@ public class AuthenticationController {
         return "Logged out successfully";
     }
 
-//    @PostMapping(value="/dologout")
-//    public String logoutPage(HttpServletRequest request, HttpServletResponse response) {
-//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//        if (auth != null){
-//            new SecurityContextLogoutHandler().logout(request, response, auth);
-//        }
-////        return "redirect:/";
-//        return "User logged out";
-//    }
+    private void removeSecurityContext(HttpServletRequest request, HttpServletResponse response) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            new SecurityContextLogoutHandler().logout(request, response, auth);
+        }
+    }
 }

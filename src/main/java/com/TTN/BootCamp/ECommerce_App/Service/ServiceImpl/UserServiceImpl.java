@@ -5,16 +5,16 @@ import com.TTN.BootCamp.ECommerce_App.DTO.SellerDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UserDTO;
 import com.TTN.BootCamp.ECommerce_App.Entity.*;
 import com.TTN.BootCamp.ECommerce_App.Repository.*;
+import com.TTN.BootCamp.ECommerce_App.Service.MailService;
 import com.TTN.BootCamp.ECommerce_App.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import javax.mail.MessagingException;
+import java.io.UnsupportedEncodingException;
+import java.util.*;
 
 @Component
 @Transactional
@@ -30,6 +30,10 @@ public class UserServiceImpl implements UserService {
     SellerRepo sellerRepo;
     @Autowired
     AddressRepo addressRepo;
+    @Autowired
+    SecureTokenRepo secureTokenRepo;
+    @Autowired
+    MailService mailService;
     public User createUser(UserDTO userDTO) {
         User user = new User();
         user.setFirstName(userDTO.getFirstName());
@@ -42,7 +46,7 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-    public Customer addCustomerDetails(CustomerDTO customerDTO, String role) {
+    public Customer addCustomerDetails(CustomerDTO customerDTO, String role, String siteURL)  {
         System.out.println(customerDTO.toString());
         User newUser = new User();
         newUser.setEmail(customerDTO.getEmail());
@@ -60,6 +64,24 @@ public class UserServiceImpl implements UserService {
         Customer customer = new Customer();
         customer.setContact(customerDTO.getContact());
         customer.setUser(newUser);
+
+        customerDTO.getAddresses().forEach(addressDTO -> {
+            Address address= new Address();
+            address.setCity(addressDTO.getCity());
+            address.setState(addressDTO.getState());
+            address.setAddressLine(addressDTO.getAddressLine());
+            address.setZipCode(addressDTO.getZipCode());
+            address.setCountry(addressDTO.getCountry());
+            address.setLabel(addressDTO.getLabel());
+            address.setCustomer(customer);
+
+            addressRepo.save(address);
+
+        });
+
+//
+//        mailService.register();
+//        mailService.sendEmailVerification(customerDTO,siteURL);
 
 //        List<Address> addresses= new ArrayList<>();
 
@@ -97,6 +119,18 @@ public class UserServiceImpl implements UserService {
 //        customer.setAddresses(addresses);
         customerRepo.save(customer);
         userRepo.save(newUser);
+
+        SecureToken secureToken=new SecureToken(newUser);
+        secureTokenRepo.save(secureToken);
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(newUser.getEmail());
+        mailMessage.setSubject("Complete Registration!");
+        mailMessage.setFrom("abhishekgarg919@gmail.com");
+        mailMessage.setText("To confirm your account, please click here : "
+                +"http://localhost:8080/confirm-account?token="+secureToken.getSecureToken());
+
+        mailService.sendEmail(mailMessage);
+        System.out.println("email sent");
 
         return customer;
     }
@@ -143,4 +177,14 @@ public class UserServiceImpl implements UserService {
     public List<User> getAllUsers() {
         return userRepo.findAll();
     }
+
+//    public Optional<User> activateRegistration(String key) {
+//        return secureTokenRepo.findOneByActivationKey(key)
+//                .map(user -> {
+//                    user.setActive(true);
+//                    secureTokenRepo.deleteByActivationKey(key);
+//                    userRepo.save(user);
+//                    return user;
+//                });
+//    }
 }

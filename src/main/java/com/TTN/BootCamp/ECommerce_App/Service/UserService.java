@@ -9,17 +9,22 @@ import com.TTN.BootCamp.ECommerce_App.Entity.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.mail.MessagingException;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public interface UserService {
 
     public User createUser(UserDTO userDTO);
 
-    public Customer addCustomerDetails(CustomerDTO customerDTO, String role);
+    public Customer addCustomerDetails(CustomerDTO customerDTO, String role, String siteURL) throws MessagingException, UnsupportedEncodingException;
 
     public Seller addSellerDetails(SellerDTO sellerDTO, String role);
 
     @Transactional
     public List<User> getAllUsers();
+
+//    public Optional<User> activateRegistration(String key);
 }

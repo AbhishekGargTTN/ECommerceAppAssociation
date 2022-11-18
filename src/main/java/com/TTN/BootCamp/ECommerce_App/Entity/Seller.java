@@ -11,8 +11,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Setter
-//@PrimaryKeyJoinColumn(name = "User_ID")
-public class Seller {//extends User{
+public class Seller {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
