@@ -3,6 +3,7 @@ package com.TTN.BootCamp.ECommerce_App.Controller;
 import com.TTN.BootCamp.ECommerce_App.DTO.CustomerDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.SellerDTO;
 import com.TTN.BootCamp.ECommerce_App.Entity.*;
+import com.TTN.BootCamp.ECommerce_App.Enums.Role;
 import com.TTN.BootCamp.ECommerce_App.Repository.SecureTokenRepo;
 import com.TTN.BootCamp.ECommerce_App.Repository.UserRepo;
 import com.TTN.BootCamp.ECommerce_App.Service.MailService;
@@ -46,6 +47,7 @@ public class RegisterController {
     public void registerCustomer(@Valid @RequestBody CustomerDTO customerDTO,@RequestHeader(value = "Role") String role){
 
         Customer customer = userService.addCustomerDetails(customerDTO, role);
+
     }
 
     @PostMapping(path = "/register", headers = "Role=SELLER")

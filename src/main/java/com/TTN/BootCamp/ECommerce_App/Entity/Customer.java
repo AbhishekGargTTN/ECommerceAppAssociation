@@ -20,7 +20,7 @@ public class Customer {
     private long id;
 
     @Column(name = "Contact")
-    private long contact;
+    private String contact;
 
     @OneToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JoinColumn(name = "User_Id")

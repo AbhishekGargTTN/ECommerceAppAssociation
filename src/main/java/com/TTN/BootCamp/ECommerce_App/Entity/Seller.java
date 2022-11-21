@@ -22,7 +22,7 @@ public class Seller {
     private String gst;
 
     @Column(name = "Company_Contact")
-    private long companyContact;
+    private String companyContact;
 
     @Column(name = "Company_Name")
     private String companyName;
