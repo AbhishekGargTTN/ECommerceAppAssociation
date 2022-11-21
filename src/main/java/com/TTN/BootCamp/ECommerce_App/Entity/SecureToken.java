@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -22,17 +23,16 @@ public class SecureToken {
     @Column(name = "Secure_Token")
     private String secureToken;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdDate;
+    private LocalDateTime createdDate;
 
-    @OneToOne(targetEntity = Customer.class,cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToOne()
     @JoinColumn(name = "User_Id")
 //    @JsonBackReference
     private User user;
 
     public SecureToken(User user) {
         secureToken = UUID.randomUUID().toString();
-        createdDate = new Date();
+        createdDate = LocalDateTime.now();
         this.user = user;
     }
 }

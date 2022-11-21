@@ -19,12 +19,20 @@ public interface UserService {
 
     public User createUser(UserDTO userDTO);
 
-    public Customer addCustomerDetails(CustomerDTO customerDTO, String role, String siteURL) throws MessagingException, UnsupportedEncodingException;
+    public Customer addCustomerDetails(CustomerDTO customerDTO, String role);//, String siteURL) throws MessagingException, UnsupportedEncodingException;
 
     public Seller addSellerDetails(SellerDTO sellerDTO, String role);
 
     @Transactional
     public List<User> getAllUsers();
+
+    public String resetPassword(String token, String password, String confirmPassword);
+
+    public String forgotPassword(String email);
+
+    public String resendActivationMail(String email);
+
+    public String activateUserAccount(String token);
 
 //    public Optional<User> activateRegistration(String key);
 }

@@ -13,20 +13,13 @@ import java.io.UnsupportedEncodingException;
 @Service
 public interface MailService {
 
-////    public void sendActivationEmail(User user);
-//
-////    public void sendEmailFromTemplate(User user, String templateName, String titleKey);
-//
-////    public void sendEmail(String to, String subject, String content, boolean isMultipart, boolean isHtml);
-//
-//    @Async
-//    public void sendEmail(EmailDetails emailDetails);
-////    @Async
-////    public void sendActivationEmail(User user)
-//
-//    public void sendEmailVerification(CustomerDTO customerDTO, String siteURL) throws MessagingException, UnsupportedEncodingException;
-//
-//    public void register(User user) throws UnsupportedEncodingException, MessagingException;
+    public void sendEmail(String toEmail, String body, String subject);
 
-    public void sendEmail(SimpleMailMessage email);
+    public void sendActivationMail(User user);
+
+    public void sendIsActivatedMail(User user);
+
+    public void sendForgotPasswordMail(User user);
+
+    public void sendSuccessfulChangeMail(User user);
 }

@@ -8,9 +8,9 @@ import java.util.Optional;
 
 public interface SecureTokenRepo extends JpaRepository<SecureToken, Long> {
 
-   SecureToken findBySecureToken(String confirmationToken);
+   SecureToken findBySecureToken(String secureToken);
 
-//   void deleteByActivationKey(String activationKey);
+   SecureToken findByUser(User user);
 
 
 }

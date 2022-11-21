@@ -43,58 +43,19 @@ public class RegisterController {
 
     @PostMapping(path = "/register", headers = "Role=CUSTOMER")
     @ResponseStatus(HttpStatus.CREATED)
-    public void registerCustomer(@Valid @RequestBody CustomerDTO customerDTO,@RequestHeader(value = "Role") String role, HttpServletRequest request) throws MessagingException, UnsupportedEncodingException {
+    public void registerCustomer(@Valid @RequestBody CustomerDTO customerDTO,@RequestHeader(value = "Role") String role){
 
-        Customer customer = userService.addCustomerDetails(customerDTO, role, getSiteURL(request));
-        SecureToken secureToken =new SecureToken();
-//        EmailDetails emailDetails= new EmailDetails();
-//        emailDetails.setRecipient(customerDTO.getEmail());
-//        emailDetails.setSubject("Customer Registered");
-//        emailDetails.setMsgBody("A new customer has been registered");
-//        mailService.sendEmail(emailDetails);
+        Customer customer = userService.addCustomerDetails(customerDTO, role);
     }
 
-    private String getSiteURL(HttpServletRequest request) {
-        String siteURL = request.getRequestURL().toString();
-        return siteURL.replace(request.getServletPath(), "");
-    }
     @PostMapping(path = "/register", headers = "Role=SELLER")
     @ResponseStatus(HttpStatus.CREATED)
     public void registerSeller(@Valid @RequestBody SellerDTO sellerDTO,@RequestHeader(value = "Role") String role) {
 
         Seller seller = userService.addSellerDetails(sellerDTO, role);
-//        EmailDetails emailDetails= new EmailDetails();
-//        emailDetails.setRecipient(sellerDTO.getEmail());
-//        emailDetails.setSubject("Seller Registered");
-//        emailDetails.setMsgBody("A new seller has been registered");
-//        mailService.sendEmail(emailDetails);
-    }
-
-//    @GetMapping("/activate")
-//    public String  activateAccount(@Param("key") String key) {
-//        Optional<User> user = userService.activateRegistration(key);
-//        return "Account Activated Successfully";
-//    }
-
-    @RequestMapping(value="/activate-account", method= {RequestMethod.GET, RequestMethod.POST})
-    public ResponseEntity<String > confirmUserAccount(@RequestParam("token")String confirmationToken)
-    {
-        SecureToken token = secureTokenRepo.findBySecureToken(confirmationToken);
-        System.out.println(token);
-        if(token != null)
-        {
-            User user = userRepo.findOneByEmail(token.getUser().getEmail());
-            user.setActive(true);
-            userRepo.save(user);
-            System.out.println("verified");
-            return new ResponseEntity<>("Activation successful",HttpStatus.OK) ;
-        }
-        else
-        {
-            return new ResponseEntity<>("unsuccessful",HttpStatus.OK) ;
-        }
-
 
     }
+
+
 
 }
