@@ -3,12 +3,15 @@ package com.TTN.BootCamp.ECommerce_App.Service.ServiceImpl;
 import com.TTN.BootCamp.ECommerce_App.DTO.CustomerDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.SellerDTO;
 import com.TTN.BootCamp.ECommerce_App.Entity.*;
+import com.TTN.BootCamp.ECommerce_App.Exception.InActiveAccountException;
 import com.TTN.BootCamp.ECommerce_App.Exception.LinkExpiredException;
 import com.TTN.BootCamp.ECommerce_App.Exception.PasswordDoNotMatchException;
 import com.TTN.BootCamp.ECommerce_App.Exception.UserAlreadyExistsException;
 import com.TTN.BootCamp.ECommerce_App.Repository.*;
 import com.TTN.BootCamp.ECommerce_App.Service.MailService;
 import com.TTN.BootCamp.ECommerce_App.Service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,6 +25,8 @@ import java.util.List;
 @Component
 @Transactional
 public class UserServiceImpl implements UserService {
+
+    Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     @Autowired
     private UserRepo userRepo;
 
@@ -59,22 +64,24 @@ public class UserServiceImpl implements UserService {
 
     public String addCustomerDetails(CustomerDTO customerDTO, String role) {
 
-//        logger.info("RegistrationService::createCustomer execution started.");
+        logger.info("UserService: addCustomerDetails started execution");
 
-        // checking if username(email) already exists
         String providedEmail = customerDTO.getEmail();
         User existingUser = userRepo.findUserByEmail(providedEmail);
         if (existingUser != null) {
-//            logger.error("Exception occurred while persisting customer to the database");
+            logger.error("Exception occurred while persisting customer " +
+                    "to the database-- Email already exist in database");
             throw new UserAlreadyExistsException("User with the provided email already exists.");
         }
-        // checking if password and reEnterPassword match
+
         else if (!(customerDTO.getPassword().equals(customerDTO.getConfirmPassword()))) {
-//            logger.error("Exception occurred while persisting customer to the database");
+            logger.error("Exception occurred while persisting customer " +
+                    "to the database-- password and confirm password does not match");
             throw new PasswordDoNotMatchException("Passwords do not match.");
         } else {
 
-//            logger.debug("RegistrationService::createCustomer persisting customer to the database and sending email");
+            logger.debug("UserService: addCustomerDetails persisting customer " +
+                    "to the database and sending activation mail");
             User newUser = new User();
             newUser.setEmail(customerDTO.getEmail());
             newUser.setPassword(passwordEncoder.encode(customerDTO.getPassword()));
@@ -113,20 +120,24 @@ public class UserServiceImpl implements UserService {
     }
     public String addSellerDetails(SellerDTO sellerDTO, String role){
 
-//        logger.info("RegistrationService::createSeller execution started.");
+        logger.info("UserService: addSellerDetails started execution");
 
         String providedEmail = sellerDTO.getEmail();
         User existingUser = userRepo.findUserByEmail(providedEmail);
         if(existingUser!=null){
-//            logger.error("Exception occurred while persisting seller to the database");
+            logger.error("Exception occurred while persisting seller " +
+                    "to the database-- Email already exist in database");
             throw new UserAlreadyExistsException("User with the provided email already exists.");
         }
         // checking if password and reEnterPassword match
         else if( !(sellerDTO.getPassword().equals(sellerDTO.getConfirmPassword())) ){
-//            logger.error("Exception occurred while persisting seller to the database");
+            logger.error("Exception occurred while persisting seller " +
+                    "to the database-- password and confirm password does not match");
             throw new PasswordDoNotMatchException("Passwords do not match");
         }
         else {
+            logger.debug("UserService: addSellerDetails persisting user details " +
+                    "to the database");
             User newUser = new User();
             newUser.setEmail(sellerDTO.getEmail());
             newUser.setPassword(passwordEncoder.encode(sellerDTO.getPassword()));
@@ -143,13 +154,15 @@ public class UserServiceImpl implements UserService {
             String providedCompanyName = sellerDTO.getCompanyName();
             Seller existingCompanyName = sellerRepo.findByCompanyNameIgnoreCase(providedCompanyName);
             if (existingGst != null) {
-//                logger.error("Exception occurred while persisting seller to the database");
+                logger.error("Exception occurred while persisting seller " +
+                        "to the database-- GST already exists in database");
                 throw new UserAlreadyExistsException("Seller with the provided GST number already exists.");
             } else if (existingCompanyName != null) {
-//                logger.error("Exception occurred while persisting seller to the database");
+                logger.error("Exception occurred while persisting seller " +
+                        "to the database-- Company name already exists in database");
                 throw new UserAlreadyExistsException("Seller with the provided Company Name already exists.");
             } else {
-//                logger.debug("RegistrationService::createSeller persisting seller to the database");
+                logger.debug("UserService: addSellerDetails persisting seller to the database");
                 Seller seller = new Seller();
                 seller.setCompanyName(sellerDTO.getCompanyName());
                 seller.setGst(sellerDTO.getGst());
@@ -183,39 +196,38 @@ public class UserServiceImpl implements UserService {
 
     public String activateUserAccount(String token){
 
-//        logger.info("NotificationTokenService::activateUserAccount execution started.");
-//
-//        logger.debug("NotificationTokenService::activateUserAccount activating account");
+        logger.info("UserService: activateUserAccount started execution");
+        logger.debug("UserService: activateUserAccount activating customer account");
 
         SecureToken secureToken = secureTokenRepo.findBySecureToken(token);
-        // checks if provided token exists
+
         if(secureToken!=null){
             User user = userRepo.findUserByEmail(secureToken.getUser().getEmail());
-            // check to see whether token has expired
-            // Expires after 3hrs
-            if(secureToken.getCreatedDate().isBefore(LocalDateTime.now().minusMinutes(3*60l))){
-                // delete the token and trigger a new mail
+
+            if(secureToken.getCreatedDate().isBefore(LocalDateTime.now().minusMinutes(3*60L))){
+
                 secureTokenRepo.delete(secureToken);
                 mailService.sendActivationMail(user);
-//                logger.error("Exception occurred while activating account");
+                logger.error("Exception occurred while activating " +
+                        "customer account-- link expired");
                 throw new LinkExpiredException("The link you followed has expired, " +
                         "a new activation mail has been sent to the registered email.\"");
             }
             else{
-                // activate account, delete token & trigger a new mail notifying that account is active
+
                 user.setActive(true);
                 secureTokenRepo.delete(secureToken);
                 userRepo.save(user);
                 mailService.sendIsActivatedMail(user);
 
-//                logger.debug("NotificationTokenService::activateUserAccount activated account");
-//                logger.info("NotificationTokenService::activateUserAccount execution ended.");
+                logger.debug("UserService: activateUserAccount account activated");
+                logger.info("UserService: activateUserAccount ended execution");
 
                 return "Account activated.";
             }
         }
         else {
-//            logger.error("Exception occurred while activating account");
+            logger.error("Exception occurred while activating account-- Invalid Token");
             throw new InvalidTokenException("Invalid token.") ;
         }
     }
@@ -223,48 +235,47 @@ public class UserServiceImpl implements UserService {
 
     public String resendActivationMail(String email){
 
-//        logger.info("NotificationTokenService::resendActivationMail execution started.");
-
-//        logger.debug("NotificationTokenService::resendActivationMail resending mail");
+        logger.info("UserService: resendActivationMail started execution");
+        logger.debug("UserService: resendActivationMail resending activation mail");
 
         User user = userRepo.findUserByEmail(email);
         if(user==null){
-//            logger.error("Exception occurred while resending the mail");
+            logger.error("Exception occurred while resending the mail-- Invalid email");
             throw new BadCredentialsException("Invalid Email.");
         } else{
-            // check if account is already active
+
             if(user.isActive()){
-//                logger.debug("NotificationTokenService::resendActivationMail account is already active");
-//                logger.info("NotificationTokenService::resendActivationMail execution ended.");
+                logger.debug("UserService: resendActivationMail account is already active");
+                logger.info("UserService: resendActivationMail ended execution");
                 return "Account is already active.";
             }
-            // if inactive, check if there is an existing activation token
+
             else{
 
                 SecureToken token = secureTokenRepo.findByUser(user);
-                // delete if activation token already exists & trigger activation mail
+
                 if(token!=null){
                     secureTokenRepo.delete(token);
                     mailService.sendActivationMail(user);
                 }
-                // trigger activation mail
+
                 else {
                     mailService.sendActivationMail(user);
                 }
             }
         }
-//        logger.debug("NotificationTokenService::resendActivationMail mail sent.");
-//        logger.info("NotificationTokenService::resendActivationMail execution ended.");
+        logger.debug("UserService: resendActivationMail mail sent.");
+        logger.info("UserService: resendActivationMail ended execution");
         return "Activation mail has been sent to the provided email.";
     }
 
     public String forgotPassword(String email){
-//        logger.info("NotificationTokenService::forgotPassword execution started.");
+        logger.info("UserService: forgotPassword started execution");
 
-//        logger.debug("NotificationTokenService::forgotPassword sending mail");
+        logger.debug("UserService: forgotPassword sending password reset mail");
         User user = userRepo.findUserByEmail(email);
         if(user==null){
-//            logger.error("Exception occurred while sending the mail");
+            logger.error("Exception occurred while sending the mail-- Invalid email");
             throw new BadCredentialsException("Invalid Email.");
         } else{
             // check if account is active
@@ -282,21 +293,21 @@ public class UserServiceImpl implements UserService {
             }
             // in case account is inactive
             else{
-//                logger.error("Exception occurred while sending the mail");
-//                throw new AccountInActiveException("Account is in-active. Request cannot be processed.");
+                logger.error("Exception occurred while sending the mail-- Inactive account");
+                throw new InActiveAccountException("Account is in-active. Request cannot be processed.");
 
             }
         }
-//        logger.debug("NotificationTokenService::forgotPassword mail sent");
-//        logger.info("NotificationTokenService::forgotPassword execution ended.");
+        logger.debug("UserService: forgotPassword mail sent");
+        logger.info("UserService: forgotPassword ended execution");
         return "A mail has been sent to the provided email.";
     }
 
     public String resetPassword(String token, String password, String confirmPassword){
 
-//        logger.info("NotificationTokenService::resetPassword execution started.");
+        logger.info("UserService: resetPassword started execution");
 
-//        logger.debug("NotificationTokenService::resetPassword changing the password");
+        logger.debug("UserService: resetPassword updating password");
         SecureToken passwordToken = secureTokenRepo.findBySecureToken(token);
         // checks if provided token exists
         if(passwordToken!=null){
@@ -306,28 +317,29 @@ public class UserServiceImpl implements UserService {
             if(passwordToken.getCreatedDate().isBefore(LocalDateTime.now().minusMinutes(15l))){
                 // delete the token
                 secureTokenRepo.delete(passwordToken);
-//                logger.error("Exception occurred while changing the password");
-//                throw new LinkExpiredException("Link has expired. Request cannot be processed further.") ;
+                logger.error("Exception occurred while changing the password-- Link expired");
+                throw new LinkExpiredException("Link has expired. Request cannot be processed further.") ;
             }
             else{
                 // check if passwords match
                 if(!(password.equals(confirmPassword))){
-//                    logger.error("Exception occurred while changing the password");
-//                    throw new PasswordDoNotMatchException("Passwords do not match.");
+                    logger.error("Exception occurred while changing " +
+                            "the password-- password and confirm password does not match");
+                    throw new PasswordDoNotMatchException("Passwords do not match.");
                 }
                 // change password
                 user.setPassword(passwordEncoder.encode(password));
                 userRepo.save(user);
                 secureTokenRepo.delete(passwordToken);
                 mailService.sendSuccessfulChangeMail(user);
-//                logger.info("NotificationTokenService::resetPassword execution ended.");
+                logger.info("UserService: resetPassword ended execution");
                 return "Password successfully changed.";
             }
         }
         else {
-//            logger.error("Exception occurred while changing the password");
+            logger.error("Exception occurred while changing the password-- Invalid token");
             throw new InvalidTokenException("Invalid token. Request cannot be processed further.");
         }
-        return token;
+
     }
 }

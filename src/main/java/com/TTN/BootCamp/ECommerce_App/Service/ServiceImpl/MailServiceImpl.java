@@ -1,9 +1,12 @@
 package com.TTN.BootCamp.ECommerce_App.Service.ServiceImpl;
 
+import com.TTN.BootCamp.ECommerce_App.Controller.AuthenticationController;
 import com.TTN.BootCamp.ECommerce_App.Entity.SecureToken;
 import com.TTN.BootCamp.ECommerce_App.Entity.User;
 import com.TTN.BootCamp.ECommerce_App.Repository.SecureTokenRepo;
 import com.TTN.BootCamp.ECommerce_App.Service.MailService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -16,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class MailServiceImpl implements MailService {
 
+    Logger logger = LoggerFactory.getLogger(MailServiceImpl.class);
     @Autowired
     private JavaMailSender javaMailSender;
 
@@ -31,9 +35,9 @@ public class MailServiceImpl implements MailService {
 
     @Async
     public void sendEmail(String toEmail, String body, String subject) {
-//        logger.info("EmailService::sendMail execution started.");
-//
-//        logger.debug("EmailService::sendMail configuring email details");
+        logger.info("MailService: started execution");
+        logger.debug("MailService: configuring email details");
+
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setFrom("abhishekgarg919@gmail.com");
         mailMessage.setTo(toEmail);
@@ -41,15 +45,15 @@ public class MailServiceImpl implements MailService {
         mailMessage.setText(body);
 
         javaMailSender.send(mailMessage);
-//        logger.info("EmailService::sendMail execution ended.");
+        logger.info("MailService: ended execution");
 
     }
 
 
     public void sendActivationMail(User user){
-//        logger.info("EmailService::sendActivationMail execution started.");
+        logger.info("MailService: sendActivationMail started execution");
+        logger.debug("MailService: sendActivationMail generating token and composing activation mail");
 
-//        logger.debug("EmailService::sendActivationMail generating token, composing email to send");
         SecureToken secureToken = new SecureToken(user);
         secureTokenRepo.save(secureToken);
 
@@ -60,30 +64,28 @@ public class MailServiceImpl implements MailService {
                 "- Team 'Dummy Ecommerce Application' ";
 
         sendEmail(user.getEmail(), emailBody, ACTIVATION_SUBJECT);
-//        logger.info("EmailService::sendActivationMail execution ended.");
+        logger.info("MailService: sendActivationMail ended execution");
 
     }
 
-    // method to trigger a mail to notify that account is activated
     public void sendIsActivatedMail(User user){
-//        logger.info("EmailService::sendIsActivatedMail execution started.");
+        logger.info("MailService: sendIsActivatedMail started execution");
+        logger.debug("MailService: sendIsActivatedMail composing activation confirmation mail");
 
-//        logger.debug("EmailService::sendIsActivatedMail composing email to send");
         String emailBody = "Hi " + user.getFirstName() +", " + "\n" +
                 "Welcome to 'Dummy Ecommerce Application', your account has been activated. " +
                 "\n" +
                 "- Team 'Dummy Ecommerce Application' ";
 
         sendEmail(user.getEmail(), emailBody, ACTIVATION_SUBJECT);
-//        logger.info("EmailService::sendIsActivatedMail execution ended.");
+        logger.info("MailService: sendIsActivatedMail ended execution");
     }
 
 
     // method to trigger a mail to reset the password
     public void sendForgotPasswordMail(User user){
-//        logger.info("EmailService::sendForgotPasswordMail execution started.");
-
-//        logger.debug("EmailService::sendForgotPasswordMail generating token, composing email to send");
+        logger.info("MailService: sendForgotPasswordMail started execution");
+        logger.debug("MailService: sendForgotPasswordMail generating token and composing password reset mail");
 
         SecureToken secureToken = new SecureToken(user);
         secureTokenRepo.save(secureToken);
@@ -95,20 +97,20 @@ public class MailServiceImpl implements MailService {
                 "- Team 'Dummy Ecommerce Application' ";
 
         sendEmail(user.getEmail(), emailBody, RESET_SUBJECT);
-//        logger.info("EmailService::sendForgotPasswordMail execution ended.");
+        logger.info("MailService: sendForgotPasswordMail ended execution");
     }
 
-    // method to trigger a mail to notify successful password change
     public void sendSuccessfulChangeMail(User user) {
-//        logger.info("EmailService::sendSuccessfulChangeMail execution started.");
+        logger.info("MailService: sendSuccessfulChangeMail started execution");
+        logger.debug("MailService: sendSuccessfulChangeMail composing password reset confirmation mail");
 
-//        logger.debug("EmailService::sendSuccessfulChangeMail composing email to send");
         String emailBody = "Hi " + user.getFirstName() +", " + "\n" +
-                "Your password has been changed successfully. Please use your new password to access your account." +
+                "Your password has been changed successfully. " +
+                "Please use your new password to access your account." +
                 "\n" +
                 "- Team 'Dummy Ecommerce Application' ";
 
         sendEmail(user.getEmail(), emailBody, RESET_SUBJECT);
-//        logger.info("EmailService::sendSuccessfulChangeMail execution ended.");
+        logger.info("MailService: sendSuccessfulChangeMail ended execution");
     }
 }

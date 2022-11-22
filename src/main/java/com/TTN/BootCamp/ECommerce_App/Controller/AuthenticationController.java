@@ -1,8 +1,11 @@
 package com.TTN.BootCamp.ECommerce_App.Controller;
 
+import com.TTN.BootCamp.ECommerce_App.Config.AuthenticationManagerConfig;
 import com.TTN.BootCamp.ECommerce_App.DTO.LoginDTO;
 import com.TTN.BootCamp.ECommerce_App.Repository.RoleRepo;
 import com.TTN.BootCamp.ECommerce_App.Repository.UserRepo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 @RequestMapping("/api")
 public class AuthenticationController {
 
+    Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
     @Autowired
     private AuthenticationManager authenticationManager;
 
@@ -71,19 +75,19 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<String> authenticateUser(@RequestBody LoginDTO loginDto){
-//        logger.info("AuthenticationService::userSignIn execution started.");
+        logger.info("AuthenticationController: started execution");
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(
                 loginDto.getEmail(), loginDto.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-//        logger.info("AuthenticationService::userSignIn execution ended.");
+        logger.info("AuthenticationController: ended execution");
         return new ResponseEntity<>("User signed-in successfully!.", HttpStatus.OK);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request,HttpServletResponse response){
-//        logger.info("AuthenticationService::userSignOut execution started.");
+        logger.info("AuthenticationController: started execution");
         removeSecurityContext(request,response);
 
         try {
@@ -98,10 +102,10 @@ public class AuthenticationController {
             }
         }
         catch (Exception e){
-//            logger.error("An exception occurred while signing out");
+            logger.error("An exception occurred while execution");
             return ResponseEntity.badRequest().body("Invalid access token");
         }
-//        logger.info("AuthenticationService::userSignOut execution ended.");
+        logger.info("AuthenticationController: ended execution");
         return ResponseEntity.ok().body("User logged out successfully");
     }
 
