@@ -17,11 +17,11 @@ import java.util.Optional;
 @Service
 public interface UserService {
 
-    public User createUser(UserDTO userDTO);
+//    public User createUser(UserDTO userDTO);
 
-    public Customer addCustomerDetails(CustomerDTO customerDTO, String role);//, String siteURL) throws MessagingException, UnsupportedEncodingException;
+    public String addCustomerDetails(CustomerDTO customerDTO, String role);
 
-    public Seller addSellerDetails(SellerDTO sellerDTO, String role);
+    public String addSellerDetails(SellerDTO sellerDTO, String role);
 
     @Transactional
     public List<User> getAllUsers();

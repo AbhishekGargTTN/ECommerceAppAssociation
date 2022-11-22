@@ -40,60 +40,69 @@ public class AuthenticationController {
     @Autowired
     TokenStore tokenStore;
 
-    @GetMapping("/")
-    public String index(){
-        return "Products";
-    }
-
-    @GetMapping("/admin/home")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public String adminHome(){
-        return "Admin home";
-    }
-
-    @GetMapping("/user/home")
-    @PreAuthorize("hasAuthority('USER')")
-    public String userHome(){
-        return "User home";
-    }
-
-    @GetMapping("/customer/home")
-    @PreAuthorize("hasAuthority('CUSTOMER')")
-    public String customerHome(){
-        return "Customer home";
-    }
-
-    @GetMapping("/seller/home")
-    @PreAuthorize("hasAuthority('SELLER')")
-    public String sellerHome(){
-        return "Seller home";
-    }
+//    @GetMapping("/")
+//    public String index(){
+//        return "Products";
+//    }
+//
+//    @GetMapping("/admin/home")
+//    @PreAuthorize("hasAuthority('ADMIN')")
+//    public String adminHome(){
+//        return "Admin home";
+//    }
+//
+//    @GetMapping("/user/home")
+//    @PreAuthorize("hasAuthority('USER')")
+//    public String userHome(){
+//        return "User home";
+//    }
+//
+//    @GetMapping("/customer/home")
+//    @PreAuthorize("hasAuthority('CUSTOMER')")
+//    public String customerHome(){
+//        return "Customer home";
+//    }
+//
+//    @GetMapping("/seller/home")
+//    @PreAuthorize("hasAuthority('SELLER')")
+//    public String sellerHome(){
+//        return "Seller home";
+//    }
 
     @PostMapping("/login")
     public ResponseEntity<String> authenticateUser(@RequestBody LoginDTO loginDto){
+//        logger.info("AuthenticationService::userSignIn execution started.");
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(
                 loginDto.getEmail(), loginDto.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
+//        logger.info("AuthenticationService::userSignIn execution ended.");
         return new ResponseEntity<>("User signed-in successfully!.", HttpStatus.OK);
     }
 
     @PostMapping("/logout")
-    public String logout(HttpServletRequest request,HttpServletResponse response){
-
+    public ResponseEntity<String> logout(HttpServletRequest request,HttpServletResponse response){
+//        logger.info("AuthenticationService::userSignOut execution started.");
         removeSecurityContext(request,response);
 
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader != null) {
-            String tokenValue = authHeader.replace("Bearer", "").trim();
-            OAuth2AccessToken accessToken = tokenStore.readAccessToken(tokenValue);
-            tokenStore.removeAccessToken(accessToken);
+        try {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null) {
+                String tokenValue = authHeader.replace("Bearer", "").trim();
+                OAuth2AccessToken accessToken = tokenStore.readAccessToken(tokenValue);
+                tokenStore.removeAccessToken(accessToken);
 
-            OAuth2RefreshToken refreshToken= accessToken.getRefreshToken();
-            tokenStore.removeRefreshToken(refreshToken);
+                OAuth2RefreshToken refreshToken = accessToken.getRefreshToken();
+                tokenStore.removeRefreshToken(refreshToken);
+            }
         }
-        return "Logged out successfully";
+        catch (Exception e){
+//            logger.error("An exception occurred while signing out");
+            return ResponseEntity.badRequest().body("Invalid access token");
+        }
+//        logger.info("AuthenticationService::userSignOut execution ended.");
+        return ResponseEntity.ok().body("User logged out successfully");
     }
 
     private void removeSecurityContext(HttpServletRequest request, HttpServletResponse response) {

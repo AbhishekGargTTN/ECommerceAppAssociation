@@ -1,6 +1,7 @@
 package com.TTN.BootCamp.ECommerce_App.Entity;
 
 
+import com.TTN.BootCamp.ECommerce_App.DTO.Auditing.Auditable;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
@@ -11,7 +12,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Setter
-public class Seller {
+public class Seller extends Auditable<String> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

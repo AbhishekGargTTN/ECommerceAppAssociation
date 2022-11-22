@@ -44,18 +44,20 @@ public class RegisterController {
 
     @PostMapping(path = "/register", headers = "Role=CUSTOMER")
     @ResponseStatus(HttpStatus.CREATED)
-    public void registerCustomer(@Valid @RequestBody CustomerDTO customerDTO,@RequestHeader(value = "Role") String role){
+    public String registerCustomer(@Valid @RequestBody CustomerDTO customerDTO,@RequestHeader(value = "Role") String role){
 
-        Customer customer = userService.addCustomerDetails(customerDTO, role);
+        String  response = userService.addCustomerDetails(customerDTO, role);
 
+        return response;
     }
 
     @PostMapping(path = "/register", headers = "Role=SELLER")
     @ResponseStatus(HttpStatus.CREATED)
-    public void registerSeller(@Valid @RequestBody SellerDTO sellerDTO,@RequestHeader(value = "Role") String role) {
+    public String  registerSeller(@Valid @RequestBody SellerDTO sellerDTO,@RequestHeader(value = "Role") String role) {
 
-        Seller seller = userService.addSellerDetails(sellerDTO, role);
+        String response = userService.addSellerDetails(sellerDTO, role);
 
+        return response;
     }
 
 

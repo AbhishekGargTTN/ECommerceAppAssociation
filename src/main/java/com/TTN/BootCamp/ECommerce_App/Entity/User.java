@@ -1,5 +1,6 @@
 package com.TTN.BootCamp.ECommerce_App.Entity;
 
+import com.TTN.BootCamp.ECommerce_App.DTO.Auditing.Auditable;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,8 +13,7 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
-//@Inheritance(strategy = InheritanceType.JOINED)
-public class User {
+public class User extends Auditable<String> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

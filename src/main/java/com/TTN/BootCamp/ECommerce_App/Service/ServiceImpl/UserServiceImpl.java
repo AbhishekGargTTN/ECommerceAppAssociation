@@ -2,133 +2,178 @@ package com.TTN.BootCamp.ECommerce_App.Service.ServiceImpl;
 
 import com.TTN.BootCamp.ECommerce_App.DTO.CustomerDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.SellerDTO;
-import com.TTN.BootCamp.ECommerce_App.DTO.UserDTO;
 import com.TTN.BootCamp.ECommerce_App.Entity.*;
+import com.TTN.BootCamp.ECommerce_App.Exception.LinkExpiredException;
+import com.TTN.BootCamp.ECommerce_App.Exception.PasswordDoNotMatchException;
+import com.TTN.BootCamp.ECommerce_App.Exception.UserAlreadyExistsException;
 import com.TTN.BootCamp.ECommerce_App.Repository.*;
 import com.TTN.BootCamp.ECommerce_App.Service.MailService;
 import com.TTN.BootCamp.ECommerce_App.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.mail.MessagingException;
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
 
 @Component
 @Transactional
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepo userRepo;
-//    private PasswordEncoder passwordEncoder;
+
     @Autowired
     RoleRepo roleRepo;
+
     @Autowired
     CustomerRepo customerRepo;
+
     @Autowired
     SellerRepo sellerRepo;
+
     @Autowired
     AddressRepo addressRepo;
+
     @Autowired
     SecureTokenRepo secureTokenRepo;
+
     @Autowired
     MailService mailService;
 
     @Autowired
-    PasswordEncoder passwordEncoder;
-    public User createUser(UserDTO userDTO) {
-        User user = new User();
-        user.setFirstName(userDTO.getFirstName());
-        user.setMiddleName(userDTO.getMiddleName());
-        user.setLastName(userDTO.getLastName());
-        user.setEmail(userDTO.getEmail());
-        user.setPassword(userDTO.getPassword());
+    BCryptPasswordEncoder passwordEncoder;
+//    public User createUser(UserDTO userDTO) {
+//        User user = new User();
+//        user.setFirstName(userDTO.getFirstName());
+//        user.setMiddleName(userDTO.getMiddleName());
+//        user.setLastName(userDTO.getLastName());
+//        user.setEmail(userDTO.getEmail());
+//        user.setPassword(userDTO.getPassword());
+//
+//        userRepo.save(user);
+//        return user;
+//    }
 
-        userRepo.save(user);
-        return user;
+    public String addCustomerDetails(CustomerDTO customerDTO, String role) {
+
+//        logger.info("RegistrationService::createCustomer execution started.");
+
+        // checking if username(email) already exists
+        String providedEmail = customerDTO.getEmail();
+        User existingUser = userRepo.findUserByEmail(providedEmail);
+        if (existingUser != null) {
+//            logger.error("Exception occurred while persisting customer to the database");
+            throw new UserAlreadyExistsException("User with the provided email already exists.");
+        }
+        // checking if password and reEnterPassword match
+        else if (!(customerDTO.getPassword().equals(customerDTO.getConfirmPassword()))) {
+//            logger.error("Exception occurred while persisting customer to the database");
+            throw new PasswordDoNotMatchException("Passwords do not match.");
+        } else {
+
+//            logger.debug("RegistrationService::createCustomer persisting customer to the database and sending email");
+            User newUser = new User();
+            newUser.setEmail(customerDTO.getEmail());
+            newUser.setPassword(passwordEncoder.encode(customerDTO.getPassword()));
+            newUser.setFirstName(customerDTO.getFirstName());
+            newUser.setMiddleName(customerDTO.getMiddleName());
+            newUser.setLastName(customerDTO.getLastName());
+
+            Role newrole = roleRepo.findByRole(role);
+            newUser.setRole(newrole);
+
+            Customer customer = new Customer();
+            customer.setContact(customerDTO.getContact());
+            customer.setUser(newUser);
+
+            customerDTO.getAddresses().forEach(addressDTO -> {
+                Address address = new Address();
+                address.setCity(addressDTO.getCity());
+                address.setState(addressDTO.getState());
+                address.setAddressLine(addressDTO.getAddressLine());
+                address.setZipCode(addressDTO.getZipCode());
+                address.setCountry(addressDTO.getCountry());
+                address.setLabel(addressDTO.getLabel());
+                address.setCustomer(customer);
+
+                addressRepo.save(address);
+
+            });
+
+            customerRepo.save(customer);
+            userRepo.save(newUser);
+
+            mailService.sendActivationMail(newUser);
+
+            return "Customer Registered Successfully";
+        }
     }
+    public String addSellerDetails(SellerDTO sellerDTO, String role){
 
-    public Customer addCustomerDetails(CustomerDTO customerDTO, String role)  {
-        System.out.println(customerDTO.toString());
-        User newUser = new User();
-        newUser.setEmail(customerDTO.getEmail());
-//        String encryptedPassword = passwordEncoder.encode(userDTO.getPassword());
-        newUser.setPassword(customerDTO.getPassword());
-        newUser.setFirstName(customerDTO.getFirstName());
-        newUser.setMiddleName(customerDTO.getMiddleName());
-        newUser.setLastName(customerDTO.getLastName());
+//        logger.info("RegistrationService::createSeller execution started.");
 
-        Role newrole= roleRepo.findByRole(role);
-        newUser.setRole(newrole);
+        String providedEmail = sellerDTO.getEmail();
+        User existingUser = userRepo.findUserByEmail(providedEmail);
+        if(existingUser!=null){
+//            logger.error("Exception occurred while persisting seller to the database");
+            throw new UserAlreadyExistsException("User with the provided email already exists.");
+        }
+        // checking if password and reEnterPassword match
+        else if( !(sellerDTO.getPassword().equals(sellerDTO.getConfirmPassword())) ){
+//            logger.error("Exception occurred while persisting seller to the database");
+            throw new PasswordDoNotMatchException("Passwords do not match");
+        }
+        else {
+            User newUser = new User();
+            newUser.setEmail(sellerDTO.getEmail());
+            newUser.setPassword(passwordEncoder.encode(sellerDTO.getPassword()));
+            newUser.setFirstName(sellerDTO.getFirstName());
+            newUser.setMiddleName(sellerDTO.getMiddleName());
+            newUser.setLastName(sellerDTO.getLastName());
 
-        Customer customer = new Customer();
-        customer.setContact(customerDTO.getContact());
-        customer.setUser(newUser);
+            Role newrole = roleRepo.findByRole(role);
+            newUser.setRole(newrole);
 
-        customerDTO.getAddresses().forEach(addressDTO -> {
-            Address address= new Address();
-            address.setCity(addressDTO.getCity());
-            address.setState(addressDTO.getState());
-            address.setAddressLine(addressDTO.getAddressLine());
-            address.setZipCode(addressDTO.getZipCode());
-            address.setCountry(addressDTO.getCountry());
-            address.setLabel(addressDTO.getLabel());
-            address.setCustomer(customer);
+            String providedGst = sellerDTO.getGst();
+            Seller existingGst = sellerRepo.findByGst(providedGst);
 
-            addressRepo.save(address);
+            String providedCompanyName = sellerDTO.getCompanyName();
+            Seller existingCompanyName = sellerRepo.findByCompanyNameIgnoreCase(providedCompanyName);
+            if (existingGst != null) {
+//                logger.error("Exception occurred while persisting seller to the database");
+                throw new UserAlreadyExistsException("Seller with the provided GST number already exists.");
+            } else if (existingCompanyName != null) {
+//                logger.error("Exception occurred while persisting seller to the database");
+                throw new UserAlreadyExistsException("Seller with the provided Company Name already exists.");
+            } else {
+//                logger.debug("RegistrationService::createSeller persisting seller to the database");
+                Seller seller = new Seller();
+                seller.setCompanyName(sellerDTO.getCompanyName());
+                seller.setGst(sellerDTO.getGst());
+                seller.setCompanyContact(sellerDTO.getCompanyContact());
+                seller.setUser(newUser);
 
-        });
+                Address address = new Address();
+                address.setCity(sellerDTO.getAddress().getCity());
+                address.setState(sellerDTO.getAddress().getState());
+                address.setAddressLine(sellerDTO.getAddress().getAddressLine());
+                address.setZipCode(sellerDTO.getAddress().getZipCode());
+                address.setCountry(sellerDTO.getAddress().getCountry());
+                address.setLabel(sellerDTO.getAddress().getLabel());
+                address.setSeller(seller);
 
-        customerRepo.save(customer);
-        userRepo.save(newUser);
 
-        mailService.sendActivationMail(newUser);
+                addressRepo.save(address);
+                sellerRepo.save(seller);
+                userRepo.save(newUser);
 
-        return customer;
-    }
+            }
+        }
+                return "Seller Registered Successfully";
 
-    public Seller addSellerDetails(SellerDTO sellerDTO, String role){
-
-        System.out.println(sellerDTO.toString());
-        User newUser = new User();
-        newUser.setEmail(sellerDTO.getEmail());
-//        String encryptedPassword = passwordEncoder.encode(userDTO.getPassword());
-        newUser.setPassword(sellerDTO.getPassword());
-        newUser.setFirstName(sellerDTO.getFirstName());
-        newUser.setMiddleName(sellerDTO.getMiddleName());
-        newUser.setLastName(sellerDTO.getLastName());
-//        newUser.setActive(false);
-
-        Role newrole= new Role();
-        newrole= roleRepo.findByRole(role);
-        newUser.setRole(newrole);
-
-        Seller seller = new Seller();
-        seller.setCompanyName(sellerDTO.getCompanyName());
-        seller.setGst(sellerDTO.getGst());
-        seller.setCompanyContact(sellerDTO.getCompanyContact());
-        seller.setUser(newUser);
-
-        Address address= new Address();
-        address.setCity(sellerDTO.getAddress().getCity());
-        address.setState(sellerDTO.getAddress().getState());
-        address.setAddressLine(sellerDTO.getAddress().getAddressLine());
-        address.setZipCode(sellerDTO.getAddress().getZipCode());
-        address.setCountry(sellerDTO.getAddress().getCountry());
-        address.setLabel(sellerDTO.getAddress().getLabel());
-        address.setSeller(seller);
-
-//        seller.setAddress(address);
-        addressRepo.save(address);
-        sellerRepo.save(seller);
-        userRepo.save(newUser);
-
-        return seller;
     }
 
     public List<User> getAllUsers() {
@@ -153,8 +198,8 @@ public class UserServiceImpl implements UserService {
                 secureTokenRepo.delete(secureToken);
                 mailService.sendActivationMail(user);
 //                logger.error("Exception occurred while activating account");
-//                throw new LinkExpiredException("The link you followed has expired, " +
-//                        "a new activation mail has been sent to the registered email.\"");
+                throw new LinkExpiredException("The link you followed has expired, " +
+                        "a new activation mail has been sent to the registered email.\"");
             }
             else{
                 // activate account, delete token & trigger a new mail notifying that account is active
@@ -173,7 +218,6 @@ public class UserServiceImpl implements UserService {
 //            logger.error("Exception occurred while activating account");
             throw new InvalidTokenException("Invalid token.") ;
         }
-        return token;
     }
 
 
