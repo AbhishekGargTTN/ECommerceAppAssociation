@@ -1,5 +1,6 @@
 package com.TTN.BootCamp.ECommerce_App.DTO.Auditing;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
@@ -21,16 +22,20 @@ import static javax.persistence.TemporalType.TIMESTAMP;
 @Setter
 public abstract class Auditable<U>{
 
+    @JsonIgnore
     @CreatedBy
     protected U createdBy;
 
+    @JsonIgnore
     @CreatedDate
     @Temporal(TIMESTAMP)
     protected Date createdDate;
 
+    @JsonIgnore
     @LastModifiedBy
     protected U lastModifiedBy;
 
+    @JsonIgnore
     @LastModifiedDate
     @Temporal(TIMESTAMP)
     protected Date lastModifiedDate;

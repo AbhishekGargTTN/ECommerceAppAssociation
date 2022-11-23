@@ -11,11 +11,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //    @Autowired
 //    private CustomUserDetailsServiceImpl userDetailsService;
 
-    @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
-    }
+//    @Bean
+//    @Override
+//    public AuthenticationManager authenticationManagerBean() throws Exception {
+//        return super.authenticationManagerBean();
+//    }
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {

@@ -15,4 +15,6 @@ public interface MailService {
     public void sendForgotPasswordMail(User user);
 
     public void sendSuccessfulChangeMail(User user);
+
+    public void sendDeActivatedMail(User user);
 }

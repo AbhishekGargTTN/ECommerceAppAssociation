@@ -31,7 +31,7 @@ public class MailServiceImpl implements MailService {
 
     private static final String ACTIVATION_SUBJECT = "Account Activation | Dummy Ecommerce Application";
     private static final String RESET_SUBJECT = "Password Reset Request | Dummy Ecommerce Application";
-
+    private static final String DEACTIVATION_SUBJECT = "Account Deactivation | Dummy Ecommerce Application";
 
     @Async
     public void sendEmail(String toEmail, String body, String subject) {
@@ -112,5 +112,21 @@ public class MailServiceImpl implements MailService {
 
         sendEmail(user.getEmail(), emailBody, RESET_SUBJECT);
         logger.info("MailService: sendSuccessfulChangeMail ended execution");
+    }
+
+    public void sendDeActivatedMail(User user) {
+        logger.info("MailService: sendDeActivatedMail started execution");
+
+        logger.debug("MailService: sendDeActivatedMail composing user " +
+                "account deactivation confirmation mail");
+
+        String emailBody = "Hi " + user.getFirstName() +", " + "\n\n" +
+                "Your account has been temporarily deactivated. " +
+                "Please contact technical support team if you think was a mistake." +
+                "\n\n" +
+                "- Team 'Dummy Ecommerce Application' ";
+
+        sendEmail(user.getEmail(), emailBody, DEACTIVATION_SUBJECT);
+        logger.info("MailService: sendDeActivatedMail ended execution");
     }
 }

@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.Valid;
 import javax.validation.constraints.*;
 
 @Getter
@@ -23,5 +24,6 @@ public class SellerDTO extends UserDTO{
     @Pattern(regexp = "^\\d{10}$", message = "Enter a valid ten-digit contact number.")
     private String companyContact;
 
+    @Valid
     private AddressDTO address;
 }
