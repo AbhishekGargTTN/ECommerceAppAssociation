@@ -32,7 +32,7 @@ public class AdminController {
 
         logger.info("AdminController: getAllCustomers started execution");
         List<CustomerResponseDTO> customers = adminService.listAllCustomers(pageNo, pageSize, sortBy);
-        logger.info("AdminController::getAllCustomers ended execution ");
+        logger.info("AdminController: getAllCustomers ended execution ");
         return new ResponseEntity<>(customers, HttpStatus.OK);
     }
 
@@ -44,9 +44,9 @@ public class AdminController {
             ,@RequestParam(defaultValue = "10") Integer pageSize
             ,@RequestParam(defaultValue = "id") String sortBy){
 
-        logger.info("AdminController::getAllSellers started execution");
+        logger.info("AdminController: getAllSellers started execution");
         List<SellerResponseDTO> sellers = adminService.listAllSellers(pageNo, pageSize, sortBy);
-        logger.info("AdminController::getAllCustomers ended execution");
+        logger.info("AdminController: getAllCustomers ended execution");
         return new ResponseEntity<>(sellers,HttpStatus.OK);
     }
 

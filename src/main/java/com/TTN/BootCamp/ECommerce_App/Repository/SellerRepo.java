@@ -2,6 +2,7 @@ package com.TTN.BootCamp.ECommerce_App.Repository;
 
 import com.TTN.BootCamp.ECommerce_App.Entity.Customer;
 import com.TTN.BootCamp.ECommerce_App.Entity.Seller;
+import com.TTN.BootCamp.ECommerce_App.Entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,6 +19,8 @@ public interface SellerRepo extends JpaRepository<Seller, Long> {
     public Seller findByGst(String gst);
 
     Seller findByCompanyNameIgnoreCase(String companyName);
+
+    Seller findByUser(User user);
 
 
 }

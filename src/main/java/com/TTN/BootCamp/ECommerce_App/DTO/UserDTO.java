@@ -1,5 +1,6 @@
 package com.TTN.BootCamp.ECommerce_App.DTO;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,10 +39,14 @@ public class UserDTO {
     @Pattern(regexp = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&+=])(?=\\S+$).{8,15}",
             message = "Enter a valid password. Password must be between 8-15 characters " +
                     "and contains at least 1 lower case, 1 upper case, 1 special character and 1 number.")
+    @JsonIgnore
     private String password;
 
     @NotEmpty(message = "Password is a mandatory field.")
+    @JsonIgnore
     private String confirmPassword;
+
+    private boolean isActive;
 
 }
 
