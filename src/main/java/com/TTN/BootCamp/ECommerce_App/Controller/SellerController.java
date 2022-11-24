@@ -1,10 +1,11 @@
 package com.TTN.BootCamp.ECommerce_App.Controller;
 
-import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.CustomerResponseDTO;
-import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.SellerResponseDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.AddressUpdateDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.PasswordDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.SellerDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.SellerUpdateDTO;
+import com.TTN.BootCamp.ECommerce_App.Exception.PasswordDoNotMatchException;
 import com.TTN.BootCamp.ECommerce_App.Service.SellerService;
-import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.security.core.Authentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +16,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/seller")
@@ -39,10 +38,29 @@ public class SellerController {
     @PatchMapping(path = "/update_profile")
     @PreAuthorize("hasAuthority('SELLER')")
     public ResponseEntity<String> updateProfile(Authentication authentication
-            ,@RequestBody @Valid SellerDTO sellerDTO){
+            ,@RequestBody @Valid SellerUpdateDTO sellerDTO){
         logger.info("SellerController: updateProfile started execution");
         String response = sellerService.updateProfile(authentication.getName(), sellerDTO);
         logger.info("SellerController: updateProfile ended execution ");
         return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+
+    @PatchMapping(path="/change_password")
+    @PreAuthorize("hasAuthority('SELLER')")
+    public ResponseEntity<String> changePassword(Authentication authentication
+            ,@Valid @RequestBody PasswordDTO passwordDTO){
+        if(!passwordDTO.getPassword().equals(passwordDTO.getConfirmPassword())) {
+            throw new PasswordDoNotMatchException("Password do not match.");
+        }
+            String response = sellerService.updatePassword(authentication.getName(), passwordDTO.getPassword());
+        return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+
+    @PatchMapping("/update_address")
+    @PreAuthorize("hasAuthority('SELLER')")
+    public ResponseEntity<String> updateAddress(Authentication authentication,@Valid @RequestBody AddressUpdateDTO addressDTO){
+        String email = authentication.getName();
+        String responseMessage = sellerService.updateAddress(email,addressDTO);
+        return new ResponseEntity<>(responseMessage,HttpStatus.OK);
     }
 }

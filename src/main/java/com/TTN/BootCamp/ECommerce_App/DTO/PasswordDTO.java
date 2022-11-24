@@ -17,6 +17,6 @@ public class PasswordDTO {
                     "and contains at least 1 lower case, 1 upper case, 1 special character and 1 number.")
     private String password;
 
-    @NotEmpty(message = "Password is a mandatory field.")
+    @NotEmpty(message = "Confirm Password is a mandatory field.")
     private String confirmPassword;
 }
