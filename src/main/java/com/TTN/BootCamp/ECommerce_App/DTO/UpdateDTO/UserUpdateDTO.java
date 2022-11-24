@@ -32,8 +32,6 @@ public class UserUpdateDTO {
             "Name can only contain alphabets.")
     private String lastName;
 
-
-
     private boolean isActive;
 
 }

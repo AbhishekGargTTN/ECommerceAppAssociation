@@ -42,7 +42,7 @@ public class UserDTO {
     @JsonIgnore
     private String password;
 
-    @NotEmpty(message = "Password is a mandatory field.")
+    @NotEmpty(message = "Confirm Password is a mandatory field.")
     @JsonIgnore
     private String confirmPassword;
 
