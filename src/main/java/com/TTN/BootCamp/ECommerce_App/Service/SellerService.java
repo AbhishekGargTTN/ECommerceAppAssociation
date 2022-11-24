@@ -1,7 +1,7 @@
 package com.TTN.BootCamp.ECommerce_App.Service;
 
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.AddressUpdateDTO;
-import com.TTN.BootCamp.ECommerce_App.DTO.SellerDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.SellerDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.SellerUpdateDTO;
 import org.springframework.stereotype.Service;
 

@@ -1,18 +1,15 @@
 package com.TTN.BootCamp.ECommerce_App.Service;
 
-import com.TTN.BootCamp.ECommerce_App.DTO.CustomerDTO;
-import com.TTN.BootCamp.ECommerce_App.DTO.SellerDTO;
-import com.TTN.BootCamp.ECommerce_App.DTO.UserDTO;
-import com.TTN.BootCamp.ECommerce_App.Entity.Customer;
-import com.TTN.BootCamp.ECommerce_App.Entity.Seller;
+import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.CustomerDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.SellerDTO;
 import com.TTN.BootCamp.ECommerce_App.Entity.User;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.mail.MessagingException;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public interface UserService {
@@ -33,6 +30,8 @@ public interface UserService {
     public String resendActivationMail(String email);
 
     public String activateUserAccount(String token);
+
+    public String uploadImage(@RequestParam("file") MultipartFile file, String email);
 
 //    public Optional<User> activateRegistration(String key);
 }

@@ -1,7 +1,6 @@
 package com.TTN.BootCamp.ECommerce_App.Controller;
 
-import com.TTN.BootCamp.ECommerce_App.Config.AuthenticationManagerConfig;
-import com.TTN.BootCamp.ECommerce_App.DTO.LoginDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.LoginDTO;
 import com.TTN.BootCamp.ECommerce_App.Repository.RoleRepo;
 import com.TTN.BootCamp.ECommerce_App.Repository.UserRepo;
 import org.slf4j.Logger;
@@ -9,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

@@ -1,12 +1,10 @@
 package com.TTN.BootCamp.ECommerce_App.Controller;
 
-import com.TTN.BootCamp.ECommerce_App.DTO.AddressDTO;
-import com.TTN.BootCamp.ECommerce_App.DTO.CustomerDTO;
-import com.TTN.BootCamp.ECommerce_App.DTO.PasswordDTO;
-import com.TTN.BootCamp.ECommerce_App.DTO.SellerDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.AddressDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.CustomerDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.PasswordDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.AddressUpdateDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.CustomerUpdateDTO;
-import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.SellerUpdateDTO;
 import com.TTN.BootCamp.ECommerce_App.Entity.Address;
 import com.TTN.BootCamp.ECommerce_App.Exception.PasswordDoNotMatchException;
 import com.TTN.BootCamp.ECommerce_App.Service.CustomerService;

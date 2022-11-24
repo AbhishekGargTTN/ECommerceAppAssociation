@@ -1,7 +1,7 @@
 package com.TTN.BootCamp.ECommerce_App.Service.ServiceImpl;
 
-import com.TTN.BootCamp.ECommerce_App.DTO.CustomerDTO;
-import com.TTN.BootCamp.ECommerce_App.DTO.SellerDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.CustomerDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.SellerDTO;
 import com.TTN.BootCamp.ECommerce_App.Entity.*;
 import com.TTN.BootCamp.ECommerce_App.Exception.InActiveAccountException;
 import com.TTN.BootCamp.ECommerce_App.Exception.LinkExpiredException;
@@ -13,14 +13,23 @@ import com.TTN.BootCamp.ECommerce_App.Service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @Transactional
@@ -50,6 +59,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     BCryptPasswordEncoder passwordEncoder;
+
+    @Value("${image.file.path}")
+    private String FILE_PATH;
 //    public User createUser(UserDTO userDTO) {
 //        User user = new User();
 //        user.setFirstName(userDTO.getFirstName());
@@ -342,4 +354,36 @@ public class UserServiceImpl implements UserService {
         }
 
     }
-}
+    String filepath= "src/main/resources/images";
+    public String uploadImage( MultipartFile file, String email){
+
+        User user= userRepo.findUserByEmail(email);
+        File directory = new File(filepath);
+        if (!directory.exists()) {
+            try {
+                directory.mkdir();
+            } catch (SecurityException se) {
+                return null;
+            }
+        }
+
+        String fileName = filepath+File.separator+user.getId()+".jpg";
+//                DateUtils.getCurrentDate().getTime() + file.getOriginalFilename();
+        final String path = System.getProperty("user.dir") + File.separator + fileName;
+        System.out.println("heeelo"+path);
+        try (InputStream inputStream = file.getInputStream();
+             FileOutputStream fileOutputStream = new FileOutputStream(new File(path))) {
+            byte[] buf = new byte[1024];
+            int numRead = 0;
+            while ((numRead = inputStream.read(buf)) >= 0) {
+                fileOutputStream.write(buf, 0, numRead);
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        Map responseResult = new HashMap<>();
+        responseResult.put("ImageUrl",fileName);
+        return "Image uploaded Successfully";
+    }
+    }
+

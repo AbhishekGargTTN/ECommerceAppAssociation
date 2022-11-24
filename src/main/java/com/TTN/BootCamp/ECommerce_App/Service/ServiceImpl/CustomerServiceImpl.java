@@ -1,23 +1,18 @@
 package com.TTN.BootCamp.ECommerce_App.Service.ServiceImpl;
 
-import com.TTN.BootCamp.ECommerce_App.DTO.AddressDTO;
-import com.TTN.BootCamp.ECommerce_App.DTO.CustomerDTO;
-import com.TTN.BootCamp.ECommerce_App.DTO.SellerDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.AddressDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.CustomerDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.AddressUpdateDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.CustomerUpdateDTO;
-import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.SellerUpdateDTO;
 import com.TTN.BootCamp.ECommerce_App.Entity.Address;
 import com.TTN.BootCamp.ECommerce_App.Entity.Customer;
-import com.TTN.BootCamp.ECommerce_App.Entity.Seller;
 import com.TTN.BootCamp.ECommerce_App.Entity.User;
 import com.TTN.BootCamp.ECommerce_App.Exception.UserNotFoundException;
 import com.TTN.BootCamp.ECommerce_App.Repository.AddressRepo;
 import com.TTN.BootCamp.ECommerce_App.Repository.CustomerRepo;
-import com.TTN.BootCamp.ECommerce_App.Repository.SellerRepo;
 import com.TTN.BootCamp.ECommerce_App.Repository.UserRepo;
 import com.TTN.BootCamp.ECommerce_App.Service.CustomerService;
 import com.TTN.BootCamp.ECommerce_App.Service.MailService;
-import com.TTN.BootCamp.ECommerce_App.Service.SellerService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;

@@ -1,4 +1,4 @@
-package com.TTN.BootCamp.ECommerce_App.DTO;
+package com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO;
 
 import lombok.Getter;
 import lombok.Setter;

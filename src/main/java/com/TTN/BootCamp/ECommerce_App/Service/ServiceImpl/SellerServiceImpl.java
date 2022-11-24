@@ -1,8 +1,8 @@
 package com.TTN.BootCamp.ECommerce_App.Service.ServiceImpl;
 
-import com.TTN.BootCamp.ECommerce_App.DTO.AddressDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.AddressDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.AddressUpdateDTO;
-import com.TTN.BootCamp.ECommerce_App.DTO.SellerDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.SellerDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.SellerUpdateDTO;
 import com.TTN.BootCamp.ECommerce_App.Entity.Address;
 import com.TTN.BootCamp.ECommerce_App.Entity.Seller;

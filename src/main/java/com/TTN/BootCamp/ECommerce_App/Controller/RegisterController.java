@@ -1,7 +1,7 @@
 package com.TTN.BootCamp.ECommerce_App.Controller;
 
-import com.TTN.BootCamp.ECommerce_App.DTO.CustomerDTO;
-import com.TTN.BootCamp.ECommerce_App.DTO.SellerDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.CustomerDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.SellerDTO;
 import com.TTN.BootCamp.ECommerce_App.Repository.SecureTokenRepo;
 import com.TTN.BootCamp.ECommerce_App.Repository.UserRepo;
 import com.TTN.BootCamp.ECommerce_App.Service.MailService;

@@ -1,4 +1,4 @@
-package com.TTN.BootCamp.ECommerce_App.DTO;
+package com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;

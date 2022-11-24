@@ -1,16 +1,19 @@
 package com.TTN.BootCamp.ECommerce_App.Controller;
 
-import com.TTN.BootCamp.ECommerce_App.DTO.EmailDTO;
-import com.TTN.BootCamp.ECommerce_App.DTO.PasswordDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.EmailDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.PasswordDTO;
 import com.TTN.BootCamp.ECommerce_App.Entity.User;
 import com.TTN.BootCamp.ECommerce_App.Repository.UserRepo;
 import com.TTN.BootCamp.ECommerce_App.Service.ServiceImpl.UserServiceImpl;
+import com.sun.mail.iap.ResponseHandler;
+import org.springframework.security.core.Authentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -74,5 +77,17 @@ public class UserController {
         String response = userService.resetPassword(token, passwordDTO.getPassword(), passwordDTO.getConfirmPassword());
         logger.info("UserController: generated response-- " + response );
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/add_image")
+    public String uploadImage(Authentication authentication
+            ,@RequestParam("file") MultipartFile file) {
+        String email = authentication.getName();
+
+//        String response= userService.uploadImage(file, email);
+
+//        return ResponseHandler.generateResponse(HttpStatus.OK, true);
+
+        return userService.uploadImage(file,email);
     }
 }
