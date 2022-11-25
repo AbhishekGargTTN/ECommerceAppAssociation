@@ -7,12 +7,13 @@ import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.CustomerUpdateDTO;
 import com.TTN.BootCamp.ECommerce_App.Entity.Address;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
 public interface CustomerService {
 
-    public CustomerDTO showCustomerProfile(String email);
+    public CustomerDTO showCustomerProfile(String email) throws IOException;
 
     public String updateProfile(String email, CustomerUpdateDTO customerDTO);
 

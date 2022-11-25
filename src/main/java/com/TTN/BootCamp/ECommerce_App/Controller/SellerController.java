@@ -16,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/seller")
@@ -27,7 +28,7 @@ public class SellerController {
 
     @GetMapping(path="/profile")
     @PreAuthorize("hasAuthority('SELLER')")
-    public ResponseEntity<SellerDTO> viewProfile(Authentication authentication){
+    public ResponseEntity<SellerDTO> viewProfile(Authentication authentication) throws IOException {
 
         logger.info("SellerController: viewProfile started execution");
         SellerDTO seller = sellerService.showSellerProfile(authentication.getName());

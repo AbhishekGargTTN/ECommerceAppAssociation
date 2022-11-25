@@ -12,12 +12,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -30,11 +32,12 @@ public class CustomerController {
 
     @GetMapping(path="/profile")
     @PreAuthorize("hasAuthority('CUSTOMER')")
-    public ResponseEntity<CustomerDTO> viewProfile(Authentication authentication){
+    public ResponseEntity<CustomerDTO> viewProfile(Authentication authentication) throws IOException {
 
         logger.info("SellerController: viewProfile started execution");
         CustomerDTO customer = customerService.showCustomerProfile(authentication.getName());
         logger.info("SellerController: viewProfile ended execution ");
+
         return new ResponseEntity<>(customer, HttpStatus.OK);
     }
 

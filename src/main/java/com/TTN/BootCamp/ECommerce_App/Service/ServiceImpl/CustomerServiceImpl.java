@@ -17,11 +17,14 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StreamUtils;
 
 import java.beans.PropertyDescriptor;
+import java.io.IOException;
 import java.util.*;
 
 @Component
@@ -53,7 +56,7 @@ public class CustomerServiceImpl implements CustomerService {
         return emptyNames.toArray(new String[0]);
     }
 
-    public CustomerDTO showCustomerProfile(String email){
+    public CustomerDTO showCustomerProfile(String email) throws IOException {
 
         User user= userRepo.findUserByEmail(email);
 
@@ -76,6 +79,12 @@ public class CustomerServiceImpl implements CustomerService {
         customerDTO.setEmail(user.getEmail());
         customerDTO.setActive(user.isActive());
         customerDTO.setContact(user.getCustomer().getContact());
+
+        String path= "images/"+user.getId()+".jpg";
+        var imgFile = new ClassPathResource(path);
+        byte[] bytes = StreamUtils.copyToByteArray(imgFile.getInputStream());
+
+        customerDTO.setImage(bytes);
 
 //        AddressDTO address= new AddressDTO();
 //        address.setCity(seller.getAddress().getCity());

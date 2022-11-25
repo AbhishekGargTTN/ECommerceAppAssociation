@@ -21,4 +21,6 @@ public class CustomerDTO extends UserDTO{
 
     @Valid
     private List<AddressDTO> addresses= new ArrayList<>();
+
+    private byte[] image;
 }

@@ -25,4 +25,6 @@ public class SellerDTO extends UserDTO{
 
     @Valid
     private AddressDTO address;
+
+    private byte[] image;
 }
