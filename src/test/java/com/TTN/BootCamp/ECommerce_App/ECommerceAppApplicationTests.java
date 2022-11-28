@@ -45,13 +45,13 @@ class ECommerceAppApplicationTests {
 		user.setLastName("Garg");
 		user.setPassword("1234");
 		user.setRole(role);
-		customer.setContact(1234567890);
+		customer.setContact("1234567890");
 		customer.setUser(user);
 		List<Address> addresses= new ArrayList<>();
 		Address address1= new Address();
 		address1.setCity("Shastri Nagar");
 		address1.setState("Delhi");
-		address1.setZipCode(110052);
+		address1.setZipCode("110052");
 		address1.setAddressLine("749");
 		address1.setLabel("Home");
 		address1.setCountry("India");
@@ -61,7 +61,7 @@ class ECommerceAppApplicationTests {
 		Address address2= new Address();
 		address2.setCity("Rohini");
 		address2.setState("Delhi");
-		address2.setZipCode(110039);
+		address2.setZipCode("110039");
 		address2.setAddressLine("1234");
 		address2.setLabel("Office");
 		address2.setCountry("India");
@@ -88,13 +88,13 @@ class ECommerceAppApplicationTests {
 		user.setRole(role);
 		seller.setGst("abcgst123");
 		seller.setCompanyName("TTN");
-		seller.setCompanyContact(12345678);
+		seller.setCompanyContact("12345678");
 		seller.setUser(user);
 
 		Address address1= new Address();
 		address1.setCity("Noida");
 		address1.setState("UP");
-		address1.setZipCode(121032);
+		address1.setZipCode("121032");
 		address1.setAddressLine("7987");
 		address1.setLabel("Office");
 		address1.setCountry("India");

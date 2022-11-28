@@ -368,9 +368,9 @@ public class UserServiceImpl implements UserService {
         }
 
         String fileName = filepath+File.separator+user.getId()+".jpg";
-//                DateUtils.getCurrentDate().getTime() + file.getOriginalFilename();
+
         final String path = System.getProperty("user.dir") + File.separator + fileName;
-        System.out.println("heeelo"+path);
+
         try (InputStream inputStream = file.getInputStream();
              FileOutputStream fileOutputStream = new FileOutputStream(new File(path))) {
             byte[] buf = new byte[1024];
@@ -381,8 +381,7 @@ public class UserServiceImpl implements UserService {
         } catch (Exception e) {
             return null;
         }
-        Map responseResult = new HashMap<>();
-        responseResult.put("ImageUrl",fileName);
+
         return "Image uploaded Successfully";
     }
     }
