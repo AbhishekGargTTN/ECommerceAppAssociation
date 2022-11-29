@@ -6,5 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CategoryMetaDataFieldValuesRepo extends JpaRepository<CategoryMetaDataFieldValues, CategoryMetaDataCompositeKey> {
+public interface CategoryMetaDataFieldValuesRepo
+        extends JpaRepository<CategoryMetaDataFieldValues, CategoryMetaDataCompositeKey> {
 }

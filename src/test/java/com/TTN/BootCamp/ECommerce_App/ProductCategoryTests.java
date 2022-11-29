@@ -5,6 +5,8 @@ import com.TTN.BootCamp.ECommerce_App.Repository.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 public class ProductCategoryTests {
@@ -67,6 +69,7 @@ public class ProductCategoryTests {
         categoryMetaDataFieldRepo.save(categoryMetaDataField);
     }
 
+    @Transactional
     @Test
     public void addFieldValues(){
         CategoryMetaDataFieldValues categoryMetaDataFieldValues= new CategoryMetaDataFieldValues();
@@ -75,6 +78,10 @@ public class ProductCategoryTests {
         CategoryMetaDataField categoryMetaDataField= categoryMetaDataFieldRepo.findByName("Size");
         categoryMetaDataFieldValues.setCategoryMetaDataField(categoryMetaDataField);
         categoryMetaDataFieldValues.setValues("S,M,L,XL");
+        CategoryMetaDataCompositeKey categoryMetaDataCompositeKey = new CategoryMetaDataCompositeKey();
+        categoryMetaDataCompositeKey.setCategoryId(category.getId());
+        categoryMetaDataCompositeKey.setCategoryMetaDataFieldId(categoryMetaDataField.getId());
+        categoryMetaDataFieldValues.setCategoryMetaDataCompositeKey(categoryMetaDataCompositeKey);
         categoryMetaDataFieldValuesRepo.save(categoryMetaDataFieldValues);
     }
 }
