@@ -73,10 +73,13 @@ public class ProductCategoryTests {
     @Test
     public void addFieldValues(){
         CategoryMetaDataFieldValues categoryMetaDataFieldValues= new CategoryMetaDataFieldValues();
+
         Category category= categoryRepo.findByName("Shoes");
         categoryMetaDataFieldValues.setCategory(category);
+
         CategoryMetaDataField categoryMetaDataField= categoryMetaDataFieldRepo.findByName("Size");
         categoryMetaDataFieldValues.setCategoryMetaDataField(categoryMetaDataField);
+
         categoryMetaDataFieldValues.setValues("S,M,L,XL");
         CategoryMetaDataCompositeKey categoryMetaDataCompositeKey = new CategoryMetaDataCompositeKey();
         categoryMetaDataCompositeKey.setCategoryId(category.getId());

@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CategoryMetaDataFieldValuesRepo
         extends JpaRepository<CategoryMetaDataFieldValues, CategoryMetaDataCompositeKey> {
+
+    CategoryMetaDataFieldValues findByCategoryMetaDataCompositeKey_CategoryId(long categoryId);
 }

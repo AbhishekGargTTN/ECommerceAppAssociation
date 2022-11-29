@@ -2,38 +2,36 @@ package com.TTN.BootCamp.ECommerce_App.Entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+//@Getter
+//@Setter
+//@NoArgsConstructor
+//@AllArgsConstructor
+@Data
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class CategoryMetaDataFieldValues implements Serializable {
+public class CategoryMetaDataFieldValues  {
 
     @EmbeddedId
     private CategoryMetaDataCompositeKey categoryMetaDataCompositeKey;
 
-    @Column(name = "Name")
+    @Column(name = "Values")
     String values;
 
-    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("Category_ID")
     @JoinColumn(name = "Category_ID")
 //    @JsonBackReference
     private Category category;
 
-    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
-    @MapsId("Category_Meta_Data_Field")
-    @JoinColumn(name = "Category_Meta_Data_Field")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("Category_Meta_Data_Field_ID")
+    @JoinColumn(name = "Category_Meta_Data_Field_ID")
 //    @JsonBackReference
     private CategoryMetaDataField categoryMetaDataField;
 

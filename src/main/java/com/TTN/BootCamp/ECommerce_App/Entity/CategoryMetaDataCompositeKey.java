@@ -8,16 +8,15 @@ import javax.persistence.Entity;
 import java.io.Serializable;
 
 @Embeddable
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class CategoryMetaDataCompositeKey implements Serializable {
 
-    @Column(name = "Category_id")
-    private long categoryId;
+    @Column(name = "Category_ID")
+    private Long categoryId;
 
     @Column(name = "Category_Meta_Data_Field_ID")
-    private long categoryMetaDataFieldId;
+    private Long categoryMetaDataFieldId;
 
 }

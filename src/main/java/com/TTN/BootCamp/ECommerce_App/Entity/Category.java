@@ -1,5 +1,6 @@
 package com.TTN.BootCamp.ECommerce_App.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,10 +26,11 @@ public class Category {
     @Column(name = "Name")
     String name;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @OneToOne()
     @JoinColumn(name = "Parent_Category_ID")
     private Category parentCategory;
 
-    @OneToMany(mappedBy = "parentCategory")
+    @OneToMany(mappedBy = "parentCategory",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @JsonIgnore
     private Set<Category> subCategories = new HashSet<>();
 }
