@@ -153,7 +153,7 @@ public class CategoryServiceImpl implements CategoryService {
         for(String value: categoryMetaDataFieldValueDTO.getValues()){
             newValue.concat("," + value);
         }
-        categoryMetaDataFieldValues.setValues(newValue);
+        categoryMetaDataFieldValues.setValue(newValue);
 
         CategoryMetaDataCompositeKey categoryMetaDataCompositeKey = new CategoryMetaDataCompositeKey();
         categoryMetaDataCompositeKey.setCategoryId(category.getId());

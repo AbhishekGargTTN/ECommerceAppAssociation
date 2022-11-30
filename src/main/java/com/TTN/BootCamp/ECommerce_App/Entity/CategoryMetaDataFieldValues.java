@@ -9,19 +9,18 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-//@Getter
-//@Setter
-//@NoArgsConstructor
-//@AllArgsConstructor
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class CategoryMetaDataFieldValues  {
+public class
+CategoryMetaDataFieldValues  {
 
     @EmbeddedId
     private CategoryMetaDataCompositeKey categoryMetaDataCompositeKey;
 
-    @Column(name = "Values")
-    String values;
+    String value;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("Category_ID")
