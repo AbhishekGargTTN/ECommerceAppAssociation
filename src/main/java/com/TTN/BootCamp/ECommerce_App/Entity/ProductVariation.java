@@ -18,19 +18,19 @@ public class ProductVariation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
-    long id;
+    private Long id;
 
     @Column(name = "Quantity_Available")
-    long quantityAvailable;
+    private Long quantityAvailable;
 
     @Column(name = "Price")
-    double price;
+    private double price;
 
     @Column(name = "Primary_Image_Name")
-    String primaryImageName;
+    private String primaryImageName;
 
     @Column(name = "Is_Active")
-    boolean isActive;
+    private boolean isActive;
 
     @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "Product_ID")

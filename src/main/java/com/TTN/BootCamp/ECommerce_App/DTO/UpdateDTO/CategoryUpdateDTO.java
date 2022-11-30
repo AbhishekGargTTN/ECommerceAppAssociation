@@ -1,11 +1,9 @@
 package com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class CategoryUpdateDTO {
-
     private String name;
+    private Long id;
 }

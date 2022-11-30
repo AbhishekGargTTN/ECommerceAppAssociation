@@ -39,11 +39,11 @@ public class UserDTO {
     @Pattern(regexp = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&+=])(?=\\S+$).{8,15}",
             message = "Enter a valid password. Password must be between 8-15 characters " +
                     "and contains at least 1 lower case, 1 upper case, 1 special character and 1 number.")
-    @JsonIgnore
+//    @JsonIgnore
     private String password;
 
     @NotEmpty(message = "Confirm Password is a mandatory field.")
-    @JsonIgnore
+//    @JsonIgnore
     private String confirmPassword;
 
     private boolean isActive;

@@ -1,100 +1,156 @@
 package com.TTN.BootCamp.ECommerce_App.Controller;
 
+
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.CategoryDTO;
-import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.CategoryMetaDataFieldValueDTO;
-import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.MetaDataFieldDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.MetaFieldValueDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.MetadataDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.CategoryResponseDTO;
-import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.MetaDataFieldResponseDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.MetaFieldValueResponseDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.SellerCategoryResponseDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.CategoryUpdateDTO;
+import com.TTN.BootCamp.ECommerce_App.Entity.Category;
+import com.TTN.BootCamp.ECommerce_App.Entity.CategoryMetadataField;
 import com.TTN.BootCamp.ECommerce_App.Service.CategoryService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.naming.NameNotFoundException;
-import javax.validation.Valid;
+import javax.validation.constraints.Pattern;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Set;
 
 @RestController
-@RequestMapping("/api/category")
+@RequestMapping(path = "/api/category")
 public class CategoryController {
 
+    Logger logger = LoggerFactory.getLogger(CategoryController.class);
+
     @Autowired
-    private CategoryService categoryService;
+    MessageSource messageSource;
 
-    @PostMapping("/add_meta_data_field")
+    @Autowired
+    CategoryService categoryService;
+
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<String> addNewMetaDataField(@Valid @RequestBody MetaDataFieldDTO metaDataFieldDTO){
-
-        String responseMessage = categoryService.addMetaDataField(metaDataFieldDTO);
-        return new ResponseEntity<>(responseMessage, HttpStatus.OK);
-    }
-
-    @GetMapping("/get_all_meta_data_field")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<List<MetaDataFieldResponseDTO>> getAllMetaDataField(
-            @RequestParam(defaultValue = "0") Integer pageNo
-            ,@RequestParam(defaultValue = "10") Integer pageSize
-            ,@RequestParam(defaultValue = "id") String sortBy){
-
-        List<MetaDataFieldResponseDTO> metaDataFields =
-                categoryService.getMetaDataFields(pageNo,pageSize,sortBy);
-        return new ResponseEntity<>(metaDataFields, HttpStatus.OK);
-    }
-
     @PostMapping("/add_category")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<String> addCategory(@Valid @RequestBody CategoryDTO categoryDTO){
-
-        String responseMessage = categoryService.addCategory(categoryDTO);
-        return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+    public ResponseEntity<String> addCategory(@RequestBody CategoryDTO categoryDTO){
+        Long id = categoryService.createCategory(categoryDTO);
+//        String response = messageSource.getMessage("api.response.addedSuccess",null, Locale.ENGLISH);
+        String response= "Category Added successfully";
+        return new ResponseEntity<>(response+"Category Id: " + id,HttpStatus.CREATED);
     }
 
-    @GetMapping("/get_category")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<CategoryResponseDTO> getCategory(@RequestParam long id){
-
-        CategoryResponseDTO categoryResponseDTO =
-                categoryService.getCategory(id);
-        return new ResponseEntity<>(categoryResponseDTO, HttpStatus.OK);
+    @PostMapping("/add_meta_data_field")
+    public ResponseEntity<String> addMetadata(@RequestBody MetadataDTO metadataDTO){
+        Long id = categoryService.createMetadataField(metadataDTO);
+//        String response = messageSource.getMessage("api.response.addedSuccess",null, Locale.ENGLISH);
+        String response= "Meta data Added successfully";
+        return new ResponseEntity<>(response+"Meta Data Id: " + id,HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/get_all_meta_data_field")
+    public ResponseEntity<Page<CategoryMetadataField>> viewMetadata(
+            @RequestParam(defaultValue = "0") Integer pageNo,
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @Pattern(regexp="DESC|ASC") @RequestParam(required = false) String sortOrder){
+
+        if(sortOrder=="DESC"){
+            Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
+            Page<CategoryMetadataField> fieldList = categoryService.viewAllMetadataFields(paging);
+            return new ResponseEntity<>(fieldList,HttpStatus.OK);
+        }
+        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
+        Page<CategoryMetadataField> fieldList = categoryService.viewAllMetadataFields(paging);
+        return new ResponseEntity<>(fieldList,HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/get_all_category")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<List<CategoryResponseDTO>> getAllCategory(
-            @RequestParam(defaultValue = "0") Integer pageNo
-            ,@RequestParam(defaultValue = "10") Integer pageSize
-            ,@RequestParam(defaultValue = "id") String sortBy){
+    public ResponseEntity<List<CategoryResponseDTO>> viewAllCategory(
+            @RequestParam(defaultValue = "0") Integer pageNo,
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @Pattern(regexp="DESC|ASC") @RequestParam(required = false) String sortOrder){
 
-        List<CategoryResponseDTO> categories =
-                categoryService.getAllCategories(pageNo,pageSize,sortBy);
-        return new ResponseEntity<>(categories, HttpStatus.OK);
+        if(sortOrder=="DESC"){
+            Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
+            List<CategoryResponseDTO> fieldList = categoryService.viewAllCategories(paging);
+            return new ResponseEntity<>(fieldList,HttpStatus.OK);
+        }
+        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
+        List<CategoryResponseDTO> fieldList = categoryService.viewAllCategories(paging);
+        return new ResponseEntity<>(fieldList,HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/get_category")
+    public ResponseEntity<CategoryResponseDTO> viewCategory(@RequestParam int id){
+
+        CategoryResponseDTO category = categoryService.viewCategory(id);
+        return new ResponseEntity<>(category,HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/update_category")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<String> updateCategory(@RequestParam long id
-            ,@RequestBody CategoryUpdateDTO categoryUpdateDTO){
+    public ResponseEntity<String> updateCategory(@RequestBody CategoryUpdateDTO categoryUpdateDTO){
 
-        String responseMessage = categoryService.updateCategory(id,categoryUpdateDTO);
-        return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+        String response = categoryService.updateCategoryName(categoryUpdateDTO);
+        return new ResponseEntity<>(response,HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/add_category_meta_data_field")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<String> addCategoryMetaDataField(@Valid @RequestBody CategoryMetaDataFieldValueDTO categoryMetaDataFieldValueDTO){
+    public ResponseEntity<MetaFieldValueResponseDTO> addMetaFieldValues(@RequestBody MetaFieldValueDTO metaFieldValueDTO){
 
-        String responseMessage = categoryService.addCategoryMetaDataField(categoryMetaDataFieldValueDTO);
-        return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+        logger.info("CategoryController::addMetaFieldValues request: "+ metaFieldValueDTO.toString());
+        MetaFieldValueResponseDTO response = categoryService.addMetaValues(metaFieldValueDTO);
+        return new ResponseEntity<>(response,HttpStatus.OK);
     }
 
-    @PutMapping("/update_category_meta_data_field")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<String> updateCategoryMetaDataField(@Valid @RequestBody CategoryMetaDataFieldValueDTO categoryMetaDataFieldValueDTO){
+    @PreAuthorize("hasAuthority('ADMIN')") // CHANGE TO SELLER
+//    @PreAuthorize("hasAuthority('SELLER')")
+    @GetMapping("/seller")
+    public ResponseEntity< List<SellerCategoryResponseDTO> > viewSellerCategory(){
 
-        String responseMessage = categoryService.updateCategoryMetaDataField(categoryMetaDataFieldValueDTO);
-        return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+        List<SellerCategoryResponseDTO> responseList = categoryService.viewSellerCategory();
+        return new ResponseEntity<>(responseList,HttpStatus.OK);
     }
+
+    @PreAuthorize("hasAuthority('ADMIN')") // CHANGE TO CUSTOMER
+//    @PreAuthorize("hasAuthority('CUSTOMER')")
+    @GetMapping(value = {"/customer", "/customer/{id}"})
+    public ResponseEntity<Set<Category>> viewCustomerCategory(@PathVariable("id") Optional<Integer> optionalId){
+
+        Set<Category> responseList = categoryService.viewCustomerCategory(optionalId);
+        return new ResponseEntity<>(responseList,HttpStatus.OK);
+    }
+
+
+//    @PreAuthorize("hasAuthority('ADMIN')") // CHANGE TO CUSTOMER
+////    @PreAuthorize("hasAuthority('CUSTOMER')")
+//    @GetMapping("/filterCustomer/{id}")
+//    public ResponseEntity<Set<Category>> filteredCustomerCategory(@PathVariable("id") Integer id){
+//        Set<Category> responseList = categoryService.filterCustomerCategory(id);
+//        return new ResponseEntity<>(responseList,HttpStatus.OK);
+//    }
+
+
+
+
+
 }

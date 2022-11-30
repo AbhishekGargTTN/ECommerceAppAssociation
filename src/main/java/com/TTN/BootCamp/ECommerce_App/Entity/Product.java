@@ -18,28 +18,28 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
-    long id;
+    private Long id;
 
     @Column(name = "Name")
-    String name;
+    private String name;
 
     @Column(name = "Description")
-    String description;
+    private String description;
 
     @Column(name = "Brand")
-    String brand;
+    private String brand;
 
     @Column(name = "Is_Cancellable")
-    boolean isCancellable;
+    private boolean isCancellable;
 
     @Column(name = "Is_Returnable")
-    boolean isReturnable;
+    private boolean isReturnable;
 
     @Column(name = "Is_Active")
-    boolean isActive;
+    private boolean isActive;
 
     @Column(name = "Is_Deleted")
-    boolean isDeleted;
+    private boolean isDeleted;
 
     @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
     @JoinColumn(name = "Category_ID")

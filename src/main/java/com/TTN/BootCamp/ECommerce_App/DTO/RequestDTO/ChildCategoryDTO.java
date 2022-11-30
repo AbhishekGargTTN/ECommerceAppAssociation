@@ -1,12 +1,9 @@
 package com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO;
 
-
 import lombok.Data;
 
 @Data
-public class CategoryDTO {
-
+public class ChildCategoryDTO {
+    private Long id;
     private String name;
-
-    private Long parentId;
 }

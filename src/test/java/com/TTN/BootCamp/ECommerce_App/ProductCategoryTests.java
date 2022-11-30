@@ -5,7 +5,6 @@ import com.TTN.BootCamp.ECommerce_App.Repository.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
@@ -18,7 +17,7 @@ public class ProductCategoryTests {
     ProductRepo productRepo;
 
     @Autowired
-    CategoryMetaDataFieldRepo categoryMetaDataFieldRepo;
+    CategoryMetadataFieldRepo categoryMetadataFieldRepo;
 
 
     @Autowired
@@ -28,7 +27,7 @@ public class ProductCategoryTests {
     SellerRepo sellerRepo;
 
     @Autowired
-    CategoryMetaDataFieldValuesRepo categoryMetaDataFieldValuesRepo;
+    CategoryMetadataFieldValueRepo categoryMetadataFieldValueRepo;
 
     @Test
     public void addCategory(){
@@ -46,7 +45,7 @@ public class ProductCategoryTests {
         product.setBrand("Adidas");
         product.setDescription("Nice shoes");
         Category category=new Category();
-        category= categoryRepo.findByName("Shoes");
+//        category= categoryRepo.findByName("Shoes");
         product.setCategory(category);
         Seller seller= sellerRepo.findByUser_Id(2);
         product.setSeller(seller);
@@ -57,34 +56,34 @@ public class ProductCategoryTests {
     public void addSubCategory(){
         Category category= new Category();
         category.setName("Shoes");
-        Category parentCategory= categoryRepo.findByName("Fashion");
-        category.setParentCategory(parentCategory);
+//        Category parentCategory= categoryRepo.findByName("Fashion");
+//        category.setParentCategory(parentCategory);
         categoryRepo.save(category);
     }
 
     @Test
     public void addMetadataField(){
-        CategoryMetaDataField categoryMetaDataField= new CategoryMetaDataField();
-        categoryMetaDataField.setName("Size");
-        categoryMetaDataFieldRepo.save(categoryMetaDataField);
+//        CategoryMetaDataField categoryMetaDataField= new CategoryMetaDataField();
+//        categoryMetaDataField.setName("Size");
+//        categoryMetadataFieldRepo.save(categoryMetaDataField);
     }
 
     @Transactional
     @Test
     public void addFieldValues(){
-        CategoryMetaDataFieldValues categoryMetaDataFieldValues= new CategoryMetaDataFieldValues();
+//        CategoryMetaDataFieldValues categoryMetaDataFieldValues= new CategoryMetaDataFieldValues();
+//
+//        Category category= categoryRepo.findByName("Shoes");
+//        categoryMetaDataFieldValues.setCategory(category);
+//
+//        CategoryMetaDataField categoryMetaDataField= categoryMetadataFieldRepo.findByName("Size");
+//        categoryMetaDataFieldValues.setCategoryMetaDataField(categoryMetaDataField);
 
-        Category category= categoryRepo.findByName("Shoes");
-        categoryMetaDataFieldValues.setCategory(category);
-
-        CategoryMetaDataField categoryMetaDataField= categoryMetaDataFieldRepo.findByName("Size");
-        categoryMetaDataFieldValues.setCategoryMetaDataField(categoryMetaDataField);
-
-        categoryMetaDataFieldValues.setValues("S,M,L,XL");
-        CategoryMetaDataCompositeKey categoryMetaDataCompositeKey = new CategoryMetaDataCompositeKey();
-        categoryMetaDataCompositeKey.setCategoryId(category.getId());
-        categoryMetaDataCompositeKey.setCategoryMetaDataFieldId(categoryMetaDataField.getId());
-        categoryMetaDataFieldValues.setCategoryMetaDataCompositeKey(categoryMetaDataCompositeKey);
-        categoryMetaDataFieldValuesRepo.save(categoryMetaDataFieldValues);
-    }
-}
+//        categoryMetaDataFieldValues.setValues("S,M,L,XL");
+//        CategoryMetaDataCompositeKey categoryMetaDataCompositeKey = new CategoryMetaDataCompositeKey();
+//        categoryMetaDataCompositeKey.setCategoryId(category.getCategoryId());
+///        categoryMetaDataCompositeKey.setCategoryMetaDataFieldId(categoryMetaDataField.getId());
+//        categoryMetaDataFieldValues.setCategoryMetaDataCompositeKey(categoryMetaDataCompositeKey);
+//        categoryMetadataFieldValueRepo.save(categoryMetaDataFieldValues);
+//    }
+//}

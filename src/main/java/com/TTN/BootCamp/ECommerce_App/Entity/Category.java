@@ -1,10 +1,7 @@
 package com.TTN.BootCamp.ECommerce_App.Entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -13,24 +10,22 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class Category {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "category_gen")
+    @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "category_gen")
     @SequenceGenerator(name="category_gen", sequenceName = "category_seq", initialValue = 1, allocationSize = 1)
-    @Column(name = "ID")
-    long id;
+    private long id;
 
-    @Column(name = "Name")
-    String name;
+    private String name;
 
-    @OneToOne()
-    @JoinColumn(name = "Parent_Category_ID")
-    private Category parentCategory;
+    @OneToOne
+    @JoinColumn(name = "parent_id")
+    private Category parent;
 
-    @OneToMany(mappedBy = "parentCategory",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
-    @JsonIgnore
-    private Set<Category> subCategories = new HashSet<>();
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @JsonBackReference
+    private Set<Category> children = new HashSet<>();
+
 }

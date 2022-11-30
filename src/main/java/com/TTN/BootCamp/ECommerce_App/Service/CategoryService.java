@@ -1,32 +1,41 @@
 package com.TTN.BootCamp.ECommerce_App.Service;
 
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.CategoryDTO;
-import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.CategoryMetaDataFieldValueDTO;
-import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.MetaDataFieldDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.MetaFieldValueDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.MetadataDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.CategoryResponseDTO;
-import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.MetaDataFieldResponseDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.MetaFieldValueResponseDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.SellerCategoryResponseDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.CategoryUpdateDTO;
+import com.TTN.BootCamp.ECommerce_App.Entity.Category;
+import com.TTN.BootCamp.ECommerce_App.Entity.CategoryMetadataField;
+import com.TTN.BootCamp.ECommerce_App.Entity.CategoryMetadataFieldValue;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import javax.naming.NameNotFoundException;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 public interface CategoryService {
 
-    public String addMetaDataField(MetaDataFieldDTO metaDataFieldDTO);
+    public Long createCategory(CategoryDTO categoryDTO);
 
-    public List<MetaDataFieldResponseDTO> getMetaDataFields(Integer pageNo, Integer pageSize, String sortBy);
+    public Long createMetadataField(MetadataDTO metadataDTO);
 
-    public String addCategory(CategoryDTO categoryDTO);
+    public Page<CategoryMetadataField> viewAllMetadataFields(Pageable paging);
 
-    public CategoryResponseDTO getCategory(long id);
+    public List<CategoryResponseDTO> viewAllCategories(Pageable paging);
 
-    public List<CategoryResponseDTO> getAllCategories(Integer pageNo, Integer pageSize, String sortBy);
+    public String updateCategoryName(CategoryUpdateDTO categoryUpdateDTO);
 
-    public String updateCategory(long id, CategoryUpdateDTO categoryUpdateDTO);
+    public MetaFieldValueResponseDTO addMetaValues(MetaFieldValueDTO metaFieldValueDTO);
 
-    public String addCategoryMetaDataField(CategoryMetaDataFieldValueDTO categoryMetaDataFieldValueDTO);
+    public List<SellerCategoryResponseDTO> viewSellerCategory();
 
-    public String updateCategoryMetaDataField(CategoryMetaDataFieldValueDTO categoryMetaDataFieldValueDTO);
+    public Set<Category> viewCustomerCategory(Optional<Integer> optionalId);
+
+    public CategoryResponseDTO viewCategory(int id);
 }
