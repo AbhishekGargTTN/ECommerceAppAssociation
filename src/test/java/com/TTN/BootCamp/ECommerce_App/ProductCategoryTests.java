@@ -80,7 +80,7 @@ public class ProductCategoryTests {
         CategoryMetaDataField categoryMetaDataField= categoryMetaDataFieldRepo.findByName("Size");
         categoryMetaDataFieldValues.setCategoryMetaDataField(categoryMetaDataField);
 
-        categoryMetaDataFieldValues.setValues("S,M,L,XL");
+        categoryMetaDataFieldValues.setValue("S,M,L,XL");
         CategoryMetaDataCompositeKey categoryMetaDataCompositeKey = new CategoryMetaDataCompositeKey();
         categoryMetaDataCompositeKey.setCategoryId(category.getId());
         categoryMetaDataCompositeKey.setCategoryMetaDataFieldId(categoryMetaDataField.getId());

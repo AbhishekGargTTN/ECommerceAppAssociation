@@ -5,7 +5,9 @@ import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.CategoryMetaDataFieldValueD
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.MetaDataFieldDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.CategoryResponseDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.MetaDataFieldResponseDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.SellerCategoryResponseDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.CategoryUpdateDTO;
+import com.TTN.BootCamp.ECommerce_App.Entity.Category;
 import com.TTN.BootCamp.ECommerce_App.Service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.naming.NameNotFoundException;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/category")
@@ -96,5 +100,21 @@ public class CategoryController {
 
         String responseMessage = categoryService.updateCategoryMetaDataField(categoryMetaDataFieldValueDTO);
         return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+    }
+
+    @GetMapping("/get_all_category_seller")
+    @PreAuthorize("hasAuthority('SELLER')")
+    public ResponseEntity<List<SellerCategoryResponseDTO>> getAllCategorySeller(){
+
+        List<SellerCategoryResponseDTO> categories = categoryService.getAllSellerCategories();
+        return new ResponseEntity<>(categories, HttpStatus.OK);
+    }
+
+    @GetMapping(value = {"/get_category_customer","/get_category_customer/{id}"})
+    @PreAuthorize("hasAuthority('CUSTOMER')")
+    public ResponseEntity<Set<Category>> getCategoryCustomer(@PathVariable("id") Optional<Long> optionalId){
+
+        Set<Category> categories = categoryService.getCustomerCategories(optionalId);
+        return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 }

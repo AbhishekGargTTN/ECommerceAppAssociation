@@ -5,11 +5,15 @@ import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.CategoryMetaDataFieldValueD
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.MetaDataFieldDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.CategoryResponseDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.MetaDataFieldResponseDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.SellerCategoryResponseDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.CategoryUpdateDTO;
+import com.TTN.BootCamp.ECommerce_App.Entity.Category;
 import org.springframework.stereotype.Service;
 
 import javax.naming.NameNotFoundException;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 public interface CategoryService {
@@ -29,4 +33,8 @@ public interface CategoryService {
     public String addCategoryMetaDataField(CategoryMetaDataFieldValueDTO categoryMetaDataFieldValueDTO);
 
     public String updateCategoryMetaDataField(CategoryMetaDataFieldValueDTO categoryMetaDataFieldValueDTO);
+
+    public List<SellerCategoryResponseDTO> getAllSellerCategories();
+
+    public Set<Category> getCustomerCategories(Optional<Long> optionalId);
 }

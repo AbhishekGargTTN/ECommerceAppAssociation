@@ -5,11 +5,14 @@ import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.CategoryMetaDataFieldValueD
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.MetaDataFieldDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.CategoryResponseDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.MetaDataFieldResponseDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.MetaDataFieldValueResponseDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.SellerCategoryResponseDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.CategoryUpdateDTO;
 import com.TTN.BootCamp.ECommerce_App.Entity.Category;
 import com.TTN.BootCamp.ECommerce_App.Entity.CategoryMetaDataCompositeKey;
 import com.TTN.BootCamp.ECommerce_App.Entity.CategoryMetaDataField;
 import com.TTN.BootCamp.ECommerce_App.Entity.CategoryMetaDataFieldValues;
+import com.TTN.BootCamp.ECommerce_App.Exception.BadRequestException;
 import com.TTN.BootCamp.ECommerce_App.Repository.CategoryMetaDataFieldRepo;
 import com.TTN.BootCamp.ECommerce_App.Repository.CategoryMetaDataFieldValuesRepo;
 import com.TTN.BootCamp.ECommerce_App.Repository.CategoryRepo;
@@ -22,9 +25,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.NameNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 @Transactional
@@ -149,11 +150,11 @@ public class CategoryServiceImpl implements CategoryService {
         CategoryMetaDataField categoryMetaDataField= categoryMetaDataFieldRepo.findByFieldId(categoryMetaDataFieldValueDTO.getMetaDataFieldId());
         categoryMetaDataFieldValues.setCategoryMetaDataField(categoryMetaDataField);
 
-        String newValue = "";
-        for(String value: categoryMetaDataFieldValueDTO.getValues()){
-            newValue.concat("," + value);
-        }
-        categoryMetaDataFieldValues.setValue(newValue);
+//        String newValue = "";
+//        for(String value: categoryMetaDataFieldValueDTO.getValues()){
+//            newValue.concat("," + value);
+//        }
+        categoryMetaDataFieldValues.setValue(categoryMetaDataFieldValueDTO.getValues().toString());
 
         CategoryMetaDataCompositeKey categoryMetaDataCompositeKey = new CategoryMetaDataCompositeKey();
         categoryMetaDataCompositeKey.setCategoryId(category.getId());
@@ -177,11 +178,70 @@ public class CategoryServiceImpl implements CategoryService {
             return "Meta Data Field is not associated with the Category";
         }
         else {
-//            categoryMetaDataFieldValues.setValues(categoryMetaDataFieldValueDTO.getValues());
+            categoryMetaDataFieldValues.setValue(categoryMetaDataFieldValueDTO.getValues().toString());
             categoryMetaDataFieldValuesRepo.save(categoryMetaDataFieldValues);
-            return "Meta Data Field added to Category Successfully";
+            return "Meta Data Field Values updated Successfully";
         }
 
 
+    }
+
+    public List<SellerCategoryResponseDTO> getAllSellerCategories(){
+
+        List<Category> categoryList = categoryRepo.findAll();
+
+        List<SellerCategoryResponseDTO> resultList = new ArrayList<>();
+        // filter out leaf nodes
+        for(Category category: categoryList){
+            if(category.getSubCategories().isEmpty()){
+                // get its parental hierarchy till root node
+                // use category to fetch all metadata fields and values related
+                List<CategoryMetaDataFieldValues> metadataList =
+                        categoryMetaDataFieldValuesRepo.findByCategory(category);
+
+                // convert to appropriate responseDTO
+
+                SellerCategoryResponseDTO sellerResponse = new SellerCategoryResponseDTO();
+                sellerResponse.setId(category.getId());
+                sellerResponse.setName(category.getName());
+                sellerResponse.setParent(category.getParentCategory());
+                // convert metadata and its values to appropriate responseDTO
+                List<MetaDataFieldValueResponseDTO> metaList = new ArrayList<>();
+                for (CategoryMetaDataFieldValues metadata: metadataList){
+                    MetaDataFieldValueResponseDTO metaDataFieldValueResponseDTO = new MetaDataFieldValueResponseDTO();
+                    metaDataFieldValueResponseDTO.setId(metadata.getCategoryMetaDataField().getId());
+                    metaDataFieldValueResponseDTO.setName(metadata.getCategoryMetaDataField().getName());
+                    metaDataFieldValueResponseDTO.setValues(metadata.getValue());
+                    metaList.add(metaDataFieldValueResponseDTO);
+                }
+                sellerResponse.setMetadata(metaList);
+                resultList.add(sellerResponse);
+            }
+        }
+        return resultList;
+    }
+
+    public Set<Category> getCustomerCategories(Optional<Long> optionalId){
+        if(optionalId.isPresent()){
+            // if ID is present, fetch its immediate children
+            Category category = categoryRepo.findById(optionalId.get()).orElseThrow(() ->
+                    new BadRequestException("Invalid id"));
+//                    new BadRequestException(
+//                    messageSource.getMessage("api.error.invalidId", null, Locale.ENGLISH)));
+            Set<Category> childList = category.getSubCategories();
+            return childList;
+        }
+        else{
+            // if ID isn't provided fetch all root nodes
+            List<Category> categoryList = categoryRepo.findAll();
+            Set<Category> rootNodes = new HashSet<>();
+            // filtering rootNodes
+            for(Category category: categoryList){
+                if(category.getParentCategory()==null){
+                    rootNodes.add(category);
+                }
+            }
+            return rootNodes;
+        }
     }
 }
