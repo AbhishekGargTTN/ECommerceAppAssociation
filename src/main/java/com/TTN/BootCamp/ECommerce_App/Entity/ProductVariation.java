@@ -1,10 +1,15 @@
 package com.TTN.BootCamp.ECommerce_App.Entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
 
 import javax.persistence.*;
 
@@ -13,6 +18,10 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@TypeDefs({
+        @TypeDef(name = "json", typeClass = JsonStringType.class),
+        @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
+})
 public class ProductVariation {
 
     @Id
@@ -28,6 +37,10 @@ public class ProductVariation {
 
     @Column(name = "Primary_Image_Name")
     String primaryImageName;
+
+    @Type(type = "json")
+    @Column(columnDefinition = "json")
+    private MetaData metaData;
 
     @Column(name = "Is_Active")
     boolean isActive;

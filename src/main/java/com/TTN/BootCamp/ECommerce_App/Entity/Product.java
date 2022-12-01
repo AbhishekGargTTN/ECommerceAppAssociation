@@ -1,6 +1,7 @@
 package com.TTN.BootCamp.ECommerce_App.Entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,33 +14,34 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
-    long id;
+    private long id;
 
     @Column(name = "Name")
-    String name;
+    private String name;
 
     @Column(name = "Description")
-    String description;
+    private String description;
 
     @Column(name = "Brand")
-    String brand;
+    private String brand;
 
     @Column(name = "Is_Cancellable")
-    boolean isCancellable;
+    private boolean isCancellable;
 
     @Column(name = "Is_Returnable")
-    boolean isReturnable;
+    private boolean isReturnable;
 
     @Column(name = "Is_Active")
-    boolean isActive;
+    private boolean isActive;
 
     @Column(name = "Is_Deleted")
-    boolean isDeleted;
+    private boolean isDeleted;
 
     @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
     @JoinColumn(name = "Category_ID")
@@ -49,5 +51,5 @@ public class Product {
     @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
     @JoinColumn(name = "Seller_User_ID")
     @JsonBackReference
-    private Seller seller;
+    private User user;
 }
