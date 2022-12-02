@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -29,6 +30,7 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Component
@@ -60,21 +62,13 @@ public class UserServiceImpl implements UserService {
     @Autowired
     BCryptPasswordEncoder passwordEncoder;
 
+    @Autowired
+    MessageSource messageSource;
+
     @Value("${image.file.path}")
     private String FILE_PATH;
-//    public User createUser(UserDTO userDTO) {
-//        User user = new User();
-//        user.setFirstName(userDTO.getFirstName());
-//        user.setMiddleName(userDTO.getMiddleName());
-//        user.setLastName(userDTO.getLastName());
-//        user.setEmail(userDTO.getEmail());
-//        user.setPassword(userDTO.getPassword());
-//
-//        userRepo.save(user);
-//        return user;
-//    }
 
-    public String addCustomerDetails(CustomerDTO customerDTO, String role) {
+    public String addCustomerDetails(CustomerDTO customerDTO, String role, Locale locale) {
 
         logger.info("UserService: addCustomerDetails started execution");
 
@@ -83,13 +77,15 @@ public class UserServiceImpl implements UserService {
         if (existingUser != null) {
             logger.error("Exception occurred while persisting customer " +
                     "to the database-- Email already exist in database");
-            throw new UserAlreadyExistsException("User with the provided email already exists.");
+            throw new UserAlreadyExistsException(messageSource
+                    .getMessage("api.error.userEmailExists",null, locale));
         }
 
         else if (!(customerDTO.getPassword().equals(customerDTO.getConfirmPassword()))) {
             logger.error("Exception occurred while persisting customer " +
                     "to the database-- password and confirm password does not match");
-            throw new PasswordDoNotMatchException("Passwords do not match.");
+            throw new PasswordDoNotMatchException(messageSource
+                    .getMessage("api.error.passwordDoNotMatch",null, locale));
         } else {
 
             logger.debug("UserService: addCustomerDetails persisting customer " +
@@ -125,12 +121,13 @@ public class UserServiceImpl implements UserService {
             customerRepo.save(customer);
             userRepo.save(newUser);
 
-            mailService.sendActivationMail(newUser);
+            mailService.sendActivationMail(newUser, locale);
 
-            return "Customer Registered Successfully";
+            return messageSource
+                    .getMessage("api.response.customerRegistered",null, locale);
         }
     }
-    public String addSellerDetails(SellerDTO sellerDTO, String role){
+    public String addSellerDetails(SellerDTO sellerDTO, String role, Locale locale){
 
         logger.info("UserService: addSellerDetails started execution");
 
@@ -139,13 +136,15 @@ public class UserServiceImpl implements UserService {
         if(existingUser!=null){
             logger.error("Exception occurred while persisting seller " +
                     "to the database-- Email already exist in database");
-            throw new UserAlreadyExistsException("User with the provided email already exists.");
+            throw new UserAlreadyExistsException(messageSource
+                    .getMessage("api.error.userEmailExists",null, locale));
         }
         // checking if password and reEnterPassword match
         else if( !(sellerDTO.getPassword().equals(sellerDTO.getConfirmPassword())) ){
             logger.error("Exception occurred while persisting seller " +
                     "to the database-- password and confirm password does not match");
-            throw new PasswordDoNotMatchException("Passwords do not match");
+            throw new PasswordDoNotMatchException(messageSource
+                    .getMessage("api.error.passwordDoNotMatch",null, locale));
         }
         else {
             logger.debug("UserService: addSellerDetails persisting user details " +
@@ -168,11 +167,13 @@ public class UserServiceImpl implements UserService {
             if (existingGst != null) {
                 logger.error("Exception occurred while persisting seller " +
                         "to the database-- GST already exists in database");
-                throw new UserAlreadyExistsException("Seller with the provided GST number already exists.");
+                throw new UserAlreadyExistsException(messageSource
+                        .getMessage("api.error.userGstExists",null, locale));
             } else if (existingCompanyName != null) {
                 logger.error("Exception occurred while persisting seller " +
                         "to the database-- Company name already exists in database");
-                throw new UserAlreadyExistsException("Seller with the provided Company Name already exists.");
+                throw new UserAlreadyExistsException(messageSource
+                        .getMessage("api.error.userCompanyExists",null, locale));
             } else {
                 logger.debug("UserService: addSellerDetails persisting seller to the database");
                 Seller seller = new Seller();
@@ -197,7 +198,8 @@ public class UserServiceImpl implements UserService {
 
             }
         }
-                return "Seller Registered Successfully";
+                return messageSource
+                        .getMessage("api.response.sellerRegistered",null, locale);
 
     }
 
@@ -206,7 +208,7 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    public String activateUserAccount(String token){
+    public String activateUserAccount(String token, Locale locale){
 
         logger.info("UserService: activateUserAccount started execution");
         logger.debug("UserService: activateUserAccount activating customer account");
@@ -219,33 +221,34 @@ public class UserServiceImpl implements UserService {
             if(secureToken.getCreatedDate().isBefore(LocalDateTime.now().minusMinutes(3*60L))){
 
                 secureTokenRepo.delete(secureToken);
-                mailService.sendActivationMail(user);
+                mailService.sendActivationMail(user, locale);
                 logger.error("Exception occurred while activating " +
                         "customer account-- link expired");
-                throw new LinkExpiredException("The link you followed has expired, " +
-                        "a new activation mail has been sent to the registered email.\"");
+                throw new LinkExpiredException(messageSource
+                        .getMessage("api.error.activationLinkExpired",null, locale));
             }
             else{
 
                 user.setActive(true);
                 secureTokenRepo.delete(secureToken);
                 userRepo.save(user);
-                mailService.sendIsActivatedMail(user);
+                mailService.sendIsActivatedMail(user, locale);
 
                 logger.debug("UserService: activateUserAccount account activated");
                 logger.info("UserService: activateUserAccount ended execution");
 
-                return "Account activated.";
+                return messageSource.getMessage("api.response.userAccountActivated",null, locale);
             }
         }
         else {
             logger.error("Exception occurred while activating account-- Invalid Token");
-            throw new InvalidTokenException("Invalid token.") ;
+            throw new InvalidTokenException(
+                    messageSource.getMessage("api.error.invalidToken",null, locale)) ;
         }
     }
 
 
-    public String resendActivationMail(String email){
+    public String resendActivationMail(String email, Locale locale){
 
         logger.info("UserService: resendActivationMail started execution");
         logger.debug("UserService: resendActivationMail resending activation mail");
@@ -253,13 +256,14 @@ public class UserServiceImpl implements UserService {
         User user = userRepo.findUserByEmail(email);
         if(user==null){
             logger.error("Exception occurred while resending the mail-- Invalid email");
-            throw new BadCredentialsException("Invalid Email.");
+            throw new BadCredentialsException(
+                    messageSource.getMessage("api.error.invalidEmail",null, locale));
         } else{
 
             if(user.isActive()){
                 logger.debug("UserService: resendActivationMail account is already active");
                 logger.info("UserService: resendActivationMail ended execution");
-                return "Account is already active.";
+                return messageSource.getMessage("api.response.userAlreadyActive",null, locale);
             }
 
             else{
@@ -268,54 +272,56 @@ public class UserServiceImpl implements UserService {
 
                 if(token!=null){
                     secureTokenRepo.delete(token);
-                    mailService.sendActivationMail(user);
+                    mailService.sendActivationMail(user, locale);
                 }
 
                 else {
-                    mailService.sendActivationMail(user);
+                    mailService.sendActivationMail(user, locale);
                 }
             }
         }
         logger.debug("UserService: resendActivationMail mail sent.");
         logger.info("UserService: resendActivationMail ended execution");
-        return "Activation mail has been sent to the provided email.";
+        return messageSource.getMessage("api.response.resendActivation",null, locale);
     }
 
-    public String forgotPassword(String email){
+    public String forgotPassword(String email, Locale locale){
         logger.info("UserService: forgotPassword started execution");
 
         logger.debug("UserService: forgotPassword sending password reset mail");
         User user = userRepo.findUserByEmail(email);
         if(user==null){
             logger.error("Exception occurred while sending the mail-- Invalid email");
-            throw new BadCredentialsException("Invalid Email.");
+            throw new BadCredentialsException(
+                    messageSource.getMessage("api.error.invalidEmail",null, locale));
         } else{
-            // check if account is active
+
             if(user.isActive()){
                 SecureToken token = secureTokenRepo.findByUser(user);
-                // delete if reset password token already exists & trigger reset password mail
+
                 if(token!=null){
                     secureTokenRepo.delete(token);
-                    mailService.sendForgotPasswordMail(user);
+                    mailService.sendForgotPasswordMail(user, locale);
                 }
-                // trigger reset password mail
+
                 else {
-                    mailService.sendForgotPasswordMail(user);
+                    mailService.sendForgotPasswordMail(user, locale);
                 }
             }
-            // in case account is inactive
+
             else{
                 logger.error("Exception occurred while sending the mail-- Inactive account");
-                throw new InActiveAccountException("Account is in-active. Request cannot be processed.");
+                throw new InActiveAccountException(
+                        messageSource.getMessage("api.error.accountInactive",null, locale));
 
             }
         }
         logger.debug("UserService: forgotPassword mail sent");
         logger.info("UserService: forgotPassword ended execution");
-        return "A mail has been sent to the provided email.";
+        return messageSource.getMessage("api.response.forgotPassword",null, locale);
     }
 
-    public String resetPassword(String token, String password, String confirmPassword){
+    public String resetPassword(String token, String password, String confirmPassword, Locale locale){
 
         logger.info("UserService: resetPassword started execution");
 
@@ -324,38 +330,40 @@ public class UserServiceImpl implements UserService {
         // checks if provided token exists
         if(passwordToken!=null){
             User user = userRepo.findUserByEmail(passwordToken.getUser().getEmail());
-            // check to see whether token has expired
-            // Expires after 15 min
+
             if(passwordToken.getCreatedDate().isBefore(LocalDateTime.now().minusMinutes(15l))){
-                // delete the token
+
                 secureTokenRepo.delete(passwordToken);
                 logger.error("Exception occurred while changing the password-- Link expired");
-                throw new LinkExpiredException("Link has expired. Request cannot be processed further.") ;
+                throw new LinkExpiredException(
+                        messageSource.getMessage("api.error.linkExpired",null, locale)) ;
             }
             else{
-                // check if passwords match
+
                 if(!(password.equals(confirmPassword))){
                     logger.error("Exception occurred while changing " +
                             "the password-- password and confirm password does not match");
-                    throw new PasswordDoNotMatchException("Passwords do not match.");
+                    throw new PasswordDoNotMatchException(
+                            messageSource.getMessage("api.error.passwordDoNotMatch",null, locale));
                 }
-                // change password
+
                 user.setPassword(passwordEncoder.encode(password));
                 userRepo.save(user);
                 secureTokenRepo.delete(passwordToken);
-                mailService.sendSuccessfulChangeMail(user);
+                mailService.sendSuccessfulChangeMail(user, locale);
                 logger.info("UserService: resetPassword ended execution");
-                return "Password successfully changed.";
+                return messageSource.getMessage("api.response.passwordChanged",null, locale);
             }
         }
         else {
             logger.error("Exception occurred while changing the password-- Invalid token");
-            throw new InvalidTokenException("Invalid token. Request cannot be processed further.");
+            throw new InvalidTokenException(
+                    messageSource.getMessage("api.error.invalidToken",null, locale));
         }
 
     }
     String filepath= "src/main/resources/images";
-    public String uploadImage( MultipartFile file, String email){
+    public String uploadImage( MultipartFile file, String email, Locale locale){
 
         User user= userRepo.findUserByEmail(email);
         File directory = new File(filepath);
@@ -382,7 +390,7 @@ public class UserServiceImpl implements UserService {
             return null;
         }
 
-        return "Image uploaded Successfully";
+        return messageSource.getMessage("api.response.imageUploaded",null, locale);
     }
     }
 

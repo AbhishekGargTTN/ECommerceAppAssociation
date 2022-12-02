@@ -49,7 +49,7 @@ public class ProductCategoryTests {
         category= categoryRepo.findByName("Shoes");
         product.setCategory(category);
         Seller seller= sellerRepo.findByUser_Id(2);
-        product.setSeller(seller);
+//        product.setSeller(seller);
         productRepo.save(product);
     }
 

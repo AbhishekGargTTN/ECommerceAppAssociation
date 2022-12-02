@@ -2,25 +2,20 @@ package com.TTN.BootCamp.ECommerce_App.Service.ServiceImpl;
 
 import com.TTN.BootCamp.ECommerce_App.Config.FilterProperties;
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.ProductDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.ProductVariationDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.ProductResponseDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.ProductUpdateDTO;
-import com.TTN.BootCamp.ECommerce_App.Entity.Category;
-import com.TTN.BootCamp.ECommerce_App.Entity.Product;
-import com.TTN.BootCamp.ECommerce_App.Entity.User;
+import com.TTN.BootCamp.ECommerce_App.Entity.*;
 import com.TTN.BootCamp.ECommerce_App.Exception.BadRequestException;
-import com.TTN.BootCamp.ECommerce_App.Repository.CategoryRepo;
-import com.TTN.BootCamp.ECommerce_App.Repository.ProductRepo;
-import com.TTN.BootCamp.ECommerce_App.Repository.SellerRepo;
-import com.TTN.BootCamp.ECommerce_App.Repository.UserRepo;
+import com.TTN.BootCamp.ECommerce_App.Exception.ResourceNotFoundException;
+import com.TTN.BootCamp.ECommerce_App.Repository.*;
 import com.TTN.BootCamp.ECommerce_App.Service.ProductService;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.beans.PropertyDescriptor;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,7 +35,13 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     UserRepo userRepo;
 
-    public String addProduct(ProductDTO productDTO, String email) {
+    @Autowired
+    CategoryMetaDataFieldValuesRepo categoryMetaDataFieldValuesRepo;
+
+    @Autowired
+    MessageSource messageSource;
+
+    public String addProduct(ProductDTO productDTO, String email, Locale locale) {
 
         User user= userRepo.findUserByEmail(email);
         Product product=new Product();
@@ -53,21 +54,23 @@ public class ProductServiceImpl implements ProductService {
         Set<Category> subCategories= category.getSubCategories();
 
         if(category==null){
-            throw new BadRequestException("Category does not exist");
+            throw new ResourceNotFoundException(messageSource
+                    .getMessage("api.error.resourceNotFound",null, locale));
         }
         else if(!subCategories.isEmpty()){
-            throw new BadRequestException("This is not a leaf category" +
-                    ", product can be added only to leaf category");
+            throw new BadRequestException(messageSource
+                    .getMessage("api.error.notLeafCategory",null, locale));
         }
         else {
             product.setCategory(category);
             product.setUser(user);
             productRepo.save(product);
-            return "Product added Successfully";
+            return messageSource
+                    .getMessage("api.response.addedSuccess",null, locale);
         }
     }
 
-    public ProductResponseDTO viewProduct(long id, String email){
+    public ProductResponseDTO viewProduct(long id, String email, Locale locale){
         Optional<Product> product= productRepo.findById(id);
         User user= userRepo.findUserByEmail(email);
         if(product.get().getUser().getId()==user.getId()) {
@@ -84,12 +87,14 @@ public class ProductServiceImpl implements ProductService {
                 productResponseDTO.setCategory(product.get().getCategory());
                 return productResponseDTO;
             }
-            throw new BadRequestException("Product not found");
+            throw new ResourceNotFoundException(messageSource
+                    .getMessage("api.error.resourceNotFound",null, locale));
         }
-        throw new BadRequestException("You are not Authorized to view the products of other sellers");
+        throw new BadRequestException(messageSource
+                .getMessage("api.error.notAuthorized",null, locale));
     }
 
-    public List<ProductResponseDTO> viewAllProduct(String email){
+    public List<ProductResponseDTO> viewAllProduct(String email, Locale locale){
 
         User user= userRepo.findUserByEmail(email);
         List<Product> products= productRepo.findByUser(user);
@@ -113,10 +118,11 @@ public class ProductServiceImpl implements ProductService {
         }
         return productResponseDTOList;
         }
-        throw new BadRequestException("You are not Authorized to view the products of other sellers");
+        throw new ResourceNotFoundException(messageSource
+                .getMessage("api.error.resourceNotFound",null, locale));
     }
 
-    public String deleteProduct(long id,String email){
+    public String deleteProduct(long id,String email, Locale locale){
 
         Optional<Product> product= productRepo.findById(id);
         User user= userRepo.findUserByEmail(email);
@@ -124,14 +130,17 @@ public class ProductServiceImpl implements ProductService {
 
             if (product.isPresent()) {
                 productRepo.delete(product.get());
-                return "Product Deleted Successfully";
+                return messageSource
+                        .getMessage("api.response.deletedSuccess",null, locale);
             }
-            throw new BadRequestException("Product not found");
+            throw new ResourceNotFoundException(messageSource
+                    .getMessage("api.error.resourceNotFound",null, locale));
         }
-        throw new BadRequestException("You are not Authorized to delete the products of other sellers");
+        throw new BadRequestException(messageSource
+                .getMessage("api.error.notAuthorized",null, locale));
     }
 
-    public String  updateProduct(long id, String email, ProductUpdateDTO productUpdateDTO){
+    public String  updateProduct(long id, String email, ProductUpdateDTO productUpdateDTO, Locale locale){
         Product product= productRepo.findByProductId(id);
         User user= userRepo.findUserByEmail(email);
         if(product.getUser().getId()==user.getId()) {
@@ -139,12 +148,55 @@ public class ProductServiceImpl implements ProductService {
             if (product!=null) {
                 BeanUtils.copyProperties(productUpdateDTO, product, FilterProperties.getNullPropertyNames(productUpdateDTO));
                 productRepo.save(product);
-                return "Product updated Successfully";
+                return messageSource
+                        .getMessage("api.response.updateSuccess",null, locale);
             }
-            throw new BadRequestException("Product not found");
+            throw new ResourceNotFoundException(messageSource
+                    .getMessage("api.error.resourceNotFound",null, locale));
         }
-        throw new BadRequestException("You are not Authorized to modify the products of other sellers");
+        throw new BadRequestException(messageSource
+                .getMessage("api.error.notAuthorized",null, locale));
     }
 
+//    public String addVariation(ProductVariationDTO productVariationDTO){
+//        // validate ProductId
+//        Optional<Product> product = productRepo.findById(productVariationDTO.getProductId());
+//        if(product.isEmpty()){
+//            throw new BadRequestException(messageSource.getMessage("api.error.invalidId",null,Locale.ENGLISH));
+//        }
+//        // check product status
+//        if (product.get().isActive() || product.get().isDeleted()){
+//            throw new BadRequestException(messageSource.getMessage("api.error.productInactiveDeleted",null,Locale.ENGLISH));
+//        }
+//
+//        Category associatedCategory = product.get().getCategory();
+//
+//        // check if provided field and their values
+//        // are among the existing metaField-values defined for the category
+//
+//        Map<String,String> requestMetadata = (Map<String, String>) productVariationDTO.getMetaData();
+//        List<String> requestKeySet = requestMetadata.keySet().stream().collect(Collectors.toList());
+//
+//
+//        List<CategoryMetaDataFieldValues> associatedMetadata = categoryMetaDataFieldValuesRepo.findByCategory(associatedCategory);
+//        List<String> associatedKeySet = new ArrayList<>();
+//
+//        for(CategoryMetaDataFieldValues metadataFieldValue : associatedMetadata){
+//            CategoryMetaDataField field = metadataFieldValue.getCategoryMetaDataField();
+//            String fieldName = field.getName();
+//            associatedKeySet.add(fieldName);
+//        }
+//
+//        // check if metadataField are associated with the category
+//        if(!associatedKeySet.contains(requestKeySet)){
+//            requestKeySet.removeAll(associatedKeySet);
+//            String errorResponse = messageSource.getMessage("api.error.fieldNotAssociated",null,Locale.ENGLISH);
+//            errorResponse.replace("[[fields]]",requestKeySet.toString());
+//            throw new BadRequestException(errorResponse);
+//        }
+//
+//        // check if metadataValues are associated for given category, metadataField
+//
+//    }
 
 }

@@ -1,5 +1,6 @@
 package com.TTN.BootCamp.ECommerce_App.Service.ServiceImpl;
 
+import com.TTN.BootCamp.ECommerce_App.Config.FilterProperties;
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.AddressDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.CustomerDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.AddressUpdateDTO;
@@ -7,6 +8,7 @@ import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.CustomerUpdateDTO;
 import com.TTN.BootCamp.ECommerce_App.Entity.Address;
 import com.TTN.BootCamp.ECommerce_App.Entity.Customer;
 import com.TTN.BootCamp.ECommerce_App.Entity.User;
+import com.TTN.BootCamp.ECommerce_App.Exception.ResourceNotFoundException;
 import com.TTN.BootCamp.ECommerce_App.Exception.UserNotFoundException;
 import com.TTN.BootCamp.ECommerce_App.Repository.AddressRepo;
 import com.TTN.BootCamp.ECommerce_App.Repository.CustomerRepo;
@@ -17,6 +19,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -44,32 +47,22 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Autowired
     BCryptPasswordEncoder passwordEncoder;
-    public static String[] getNullPropertyNames (Object source) {
-        final BeanWrapper src = new BeanWrapperImpl(source);
-        PropertyDescriptor[] pds = src.getPropertyDescriptors();
 
-        Set<String> emptyNames = new HashSet<>();
-        for(PropertyDescriptor pd : pds) {
-            Object srcValue = src.getPropertyValue(pd.getName());
-            if (srcValue == null) emptyNames.add(pd.getName());
-        }
-        return emptyNames.toArray(new String[0]);
-    }
+    @Autowired
+    MessageSource messageSource;
 
-    public CustomerDTO showCustomerProfile(String email) throws IOException {
+    public CustomerDTO showCustomerProfile(String email, Locale locale) throws IOException {
 
         User user= userRepo.findUserByEmail(email);
 
         if(user == null) {
-            throw new UserNotFoundException("User not found"
-//                    messageSource.getMessage("api.error.userNotFound",null,Locale.ENGLISH)
-            );
+            throw new UserNotFoundException(
+                    messageSource.getMessage("api.error.userNotFound",null,locale));
         }
         Customer customer = user.getCustomer();
         if(customer == null){
-            throw new UserNotFoundException("User not found"
-//                    messageSource.getMessage("api.error.userNotFound",null,Locale.ENGLISH)
-            );
+            throw new UserNotFoundException(
+                    messageSource.getMessage("api.error.userNotFound",null,locale));
         }
         CustomerDTO customerDTO  = new CustomerDTO();
 
@@ -86,102 +79,71 @@ public class CustomerServiceImpl implements CustomerService {
 
         customerDTO.setImage(bytes);
 
-//        AddressDTO address= new AddressDTO();
-//        address.setCity(seller.getAddress().getCity());
-//        address.setState(seller.getAddress().getState());
-//        address.setCountry(seller.getAddress().getCountry());
-//        address.setAddressLine(seller.getAddress().getAddressLine());
-//        address.setZipCode(seller.getAddress().getZipCode());
-//        address.setLabel(seller.getAddress().getLabel());
-//        customerDTO.setAddress(address);
-
         return customerDTO;
     }
 
-    public String updateProfile(String email, CustomerUpdateDTO customerDTO){
+    public String updateProfile(String email, CustomerUpdateDTO customerDTO, Locale locale){
         User user = userRepo.findUserByEmail(email);
         Customer customer = user.getCustomer();
 
-        // partial updates
-        BeanUtils.copyProperties(customerDTO, user, getNullPropertyNames(customerDTO));
-        BeanUtils.copyProperties(customerDTO, customer, getNullPropertyNames(customerDTO));
-        // saving updates
+        BeanUtils.copyProperties(customerDTO, user, FilterProperties.getNullPropertyNames(customerDTO));
+        BeanUtils.copyProperties(customerDTO, customer, FilterProperties.getNullPropertyNames(customerDTO));
+
         userRepo.save(user);
         customerRepo.save(customer);
-        return "User profile updated successfully";
+        return messageSource.getMessage("api.response.updateSuccess",null, locale);
     }
 
-    public String updatePassword(String email, String password){
+    public String updatePassword(String email, String password, Locale locale){
         User user = userRepo.findUserByEmail(email);
         user.setPassword(passwordEncoder.encode(password));
         userRepo.save(user);
-        mailService.sendSuccessfulChangeMail(user);
-        return "Password updated successfully";
+        mailService.sendSuccessfulChangeMail(user, locale);
+        return messageSource.getMessage("api.response.updateSuccess",null, locale);
     }
 
 
-    public String updateAddress(String email, AddressUpdateDTO addressDTO, long id) {
+    public String updateAddress(String email, AddressUpdateDTO addressDTO, long id, Locale locale) {
         User user= userRepo.findUserByEmail(email);
         List<Address> addresses = user.getCustomer().getAddresses();
-        Address address= addressRepo.findByAddress_Id(id);
-//                addressRepo.findById(addressId).orElseThrow(
-//                () ->  new ResourceNotFoundException(
-//                        messageSource.getMessage("api.error.addressNotFound",null,Locale.ENGLISH)
-//                )
-//        );
+        Address address= addressRepo.findById(id).orElseThrow(
+                () ->  new ResourceNotFoundException(
+                        messageSource.getMessage("api.error.addressNotFound",null,locale)));
 
         if(addresses.contains(address)) {
-            BeanUtils.copyProperties(addressDTO, address, getNullPropertyNames(addressDTO));
+            BeanUtils.copyProperties(addressDTO, address, FilterProperties.getNullPropertyNames(addressDTO));
             addressRepo.save(address);
-//        return messageSource.getMessage("api.response.addressChanged",null,Locale.ENGLISH);
+        return messageSource.getMessage("api.response.updateSuccess",null,locale);
 
-            return "Address updated Successfully";
         }
         else {
-            return "Address not found";
+            throw new ResourceNotFoundException(
+                    messageSource.getMessage("api.error.addressNotFound",null,locale));
         }
     }
 
-    public List<Address> showCustomerAddresses(String email){
+    public List<Address> showCustomerAddresses(String email, Locale locale){
 
         User user= userRepo.findUserByEmail(email);
 
         if(user == null) {
-            throw new UserNotFoundException("User not found"
-//                    messageSource.getMessage("api.error.userNotFound",null,Locale.ENGLISH)
-            );
+            throw new UserNotFoundException(
+                    messageSource.getMessage("api.error.userNotFound",null,locale));
         }
         Customer customer = user.getCustomer();
         if(customer == null){
-            throw new UserNotFoundException("User not found"
-//                    messageSource.getMessage("api.error.userNotFound",null,Locale.ENGLISH)
-            );
+            throw new UserNotFoundException(
+                    messageSource.getMessage("api.error.userNotFound",null,locale));
         }
 
         List<Address> addresses= customer.getAddresses();
-        System.out.println(addresses);
-
-//        AddressDTO address= new AddressDTO();
-//        address.setCity(seller.getAddress().getCity());
-//        address.setState(seller.getAddress().getState());
-//        address.setCountry(seller.getAddress().getCountry());
-//        address.setAddressLine(seller.getAddress().getAddressLine());
-//        address.setZipCode(seller.getAddress().getZipCode());
-//        address.setLabel(seller.getAddress().getLabel());
-//        customerDTO.setAddress(address);
 
         return addresses;
     }
 
-    public String addAddress(String email, AddressDTO addressDTO) {
+    public String addAddress(String email, AddressDTO addressDTO, Locale locale) {
         User user= userRepo.findUserByEmail(email);
         Customer customer= user.getCustomer();
-//        Address address = user.getSeller().getAddress();
-//                addressRepo.findById(addressId).orElseThrow(
-//                () ->  new ResourceNotFoundException(
-//                        messageSource.getMessage("api.error.addressNotFound",null,Locale.ENGLISH)
-//                )
-//        );
 
         Address address = new Address();
         address.setCity(addressDTO.getCity());
@@ -192,31 +154,26 @@ public class CustomerServiceImpl implements CustomerService {
         address.setLabel(addressDTO.getLabel());
         address.setCustomer(customer);
 
-//        BeanUtils.copyProperties(addressDTO, address, getNullPropertyNames(addressDTO));
         addressRepo.save(address);
-//        return messageSource.getMessage("api.response.addressChanged",null,Locale.ENGLISH);
 
-        return "Address updated Successfully";
+        return messageSource.getMessage("api.response.updateSuccess",null,locale);
     }
 
-    public String deleteAddress(String email, long id) {
+    public String deleteAddress(String email, long id, Locale locale) {
         User user= userRepo.findUserByEmail(email);
         List<Address> addresses = user.getCustomer().getAddresses();
-        Address address= addressRepo.findByAddress_Id(id);
-//                addressRepo.findById(addressId).orElseThrow(
-//                () ->  new ResourceNotFoundException(
-//                        messageSource.getMessage("api.error.addressNotFound",null,Locale.ENGLISH)
-//                )
-//        );
+        Address address= addressRepo.findById(id).orElseThrow(
+                () ->  new ResourceNotFoundException(
+                        messageSource.getMessage("api.error.addressNotFound",null,locale)
+                )
+        );
 
         if(addresses.contains(address)) {
             addressRepo.delete(address);
-//        return messageSource.getMessage("api.response.addressChanged",null,Locale.ENGLISH);
-
-            return "Address Deleted Successfully";
+        return messageSource.getMessage("api.response.addressDelete",null,locale);
         }
         else {
-            return "Address not found";
+            return messageSource.getMessage("api.error.addressNotFound",null,locale);
         }
     }
 }

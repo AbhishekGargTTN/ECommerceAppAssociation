@@ -10,13 +10,18 @@ import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.CategoryUpdateDTO;
 import com.TTN.BootCamp.ECommerce_App.Entity.Category;
 import com.TTN.BootCamp.ECommerce_App.Service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
@@ -31,7 +36,8 @@ public class CategoryController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<String> addNewMetaDataField(@Valid @RequestBody MetaDataFieldDTO metaDataFieldDTO){
 
-        String responseMessage = categoryService.addMetaDataField(metaDataFieldDTO);
+        Locale locale = LocaleContextHolder.getLocale();
+        String responseMessage = categoryService.addMetaDataField(metaDataFieldDTO, locale);
         return new ResponseEntity<>(responseMessage, HttpStatus.OK);
     }
 
@@ -51,13 +57,14 @@ public class CategoryController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<String> addCategory(@Valid @RequestBody CategoryDTO categoryDTO){
 
-        String responseMessage = categoryService.addCategory(categoryDTO);
+        Locale locale = LocaleContextHolder.getLocale();
+        String responseMessage = categoryService.addCategory(categoryDTO, locale);
         return new ResponseEntity<>(responseMessage, HttpStatus.OK);
     }
 
     @GetMapping("/get_category")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<CategoryResponseDTO> getCategory(@RequestParam long id){
+    public ResponseEntity<CategoryResponseDTO> getCategory(@NonNull @RequestParam long id){
 
         CategoryResponseDTO categoryResponseDTO =
                 categoryService.getCategory(id);
@@ -81,7 +88,8 @@ public class CategoryController {
     public ResponseEntity<String> updateCategory(@RequestParam long id
             ,@RequestBody CategoryUpdateDTO categoryUpdateDTO){
 
-        String responseMessage = categoryService.updateCategory(id,categoryUpdateDTO);
+        Locale locale = LocaleContextHolder.getLocale();
+        String responseMessage = categoryService.updateCategory(id,categoryUpdateDTO, locale);
         return new ResponseEntity<>(responseMessage, HttpStatus.OK);
     }
 
@@ -89,7 +97,8 @@ public class CategoryController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<String> addCategoryMetaDataField(@Valid @RequestBody CategoryMetaDataFieldValueDTO categoryMetaDataFieldValueDTO){
 
-        String responseMessage = categoryService.addCategoryMetaDataField(categoryMetaDataFieldValueDTO);
+        Locale locale = LocaleContextHolder.getLocale();
+        String responseMessage = categoryService.addCategoryMetaDataField(categoryMetaDataFieldValueDTO, locale);
         return new ResponseEntity<>(responseMessage, HttpStatus.OK);
     }
 
@@ -97,7 +106,8 @@ public class CategoryController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<String> updateCategoryMetaDataField(@Valid @RequestBody CategoryMetaDataFieldValueDTO categoryMetaDataFieldValueDTO){
 
-        String responseMessage = categoryService.updateCategoryMetaDataField(categoryMetaDataFieldValueDTO);
+        Locale locale = LocaleContextHolder.getLocale();
+        String responseMessage = categoryService.updateCategoryMetaDataField(categoryMetaDataFieldValueDTO, locale);
         return new ResponseEntity<>(responseMessage, HttpStatus.OK);
     }
 

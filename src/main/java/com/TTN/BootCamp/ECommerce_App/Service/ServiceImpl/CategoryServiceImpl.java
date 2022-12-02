@@ -18,6 +18,7 @@ import com.TTN.BootCamp.ECommerce_App.Repository.CategoryMetaDataFieldValuesRepo
 import com.TTN.BootCamp.ECommerce_App.Repository.CategoryRepo;
 import com.TTN.BootCamp.ECommerce_App.Service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -40,17 +41,21 @@ public class CategoryServiceImpl implements CategoryService {
     @Autowired
     private CategoryMetaDataFieldValuesRepo categoryMetaDataFieldValuesRepo;
 
-    public String addMetaDataField(MetaDataFieldDTO metaDataFieldDTO){
+    @Autowired
+    MessageSource messageSource;
+
+    public String addMetaDataField(MetaDataFieldDTO metaDataFieldDTO, Locale locale){
        CategoryMetaDataField existingCategoryMetaDataField=
                categoryMetaDataFieldRepo.findByName(metaDataFieldDTO.getName());
         if(existingCategoryMetaDataField!=null) {
-            return "Field Already exists";
+            throw new BadRequestException(messageSource
+                    .getMessage("api.error.fieldExists",null, locale));
         }
         else {
             CategoryMetaDataField categoryMetaDataField = new CategoryMetaDataField();
             categoryMetaDataField.setName(metaDataFieldDTO.getName());
             categoryMetaDataFieldRepo.save(categoryMetaDataField);
-            return "Meta Data Field Added Successfully";
+            return messageSource.getMessage("api.response.addedSuccess",null, locale);
         }
     }
 
@@ -75,10 +80,11 @@ public class CategoryServiceImpl implements CategoryService {
         return metaDataFields;
     }
 
-    public String addCategory(CategoryDTO categoryDTO){
+    public String addCategory(CategoryDTO categoryDTO, Locale locale){
         Category existingCategory= categoryRepo.findByName(categoryDTO.getName());
         if(existingCategory!= null){
-            return "Category already exists";
+            throw new BadRequestException(messageSource
+                    .getMessage("api.error.fieldExists",null, locale));
         }
         else{
             Category category = new Category();
@@ -88,7 +94,7 @@ public class CategoryServiceImpl implements CategoryService {
                 category.setParentCategory(parentCategory);
             }
             categoryRepo.save(category);
-            return "Category Added Successfully";
+            return messageSource.getMessage("api.response.addedSuccess",null, locale);
         }
     }
 
@@ -127,20 +133,22 @@ public class CategoryServiceImpl implements CategoryService {
         return categories;
     }
 
-    public String updateCategory(long id, CategoryUpdateDTO categoryUpdateDTO){
+    public String updateCategory(long id, CategoryUpdateDTO categoryUpdateDTO, Locale locale){
         Category existingCategory= categoryRepo.findByName(categoryUpdateDTO.getName());
         if(existingCategory!= null){
-            return "Category already exists";
+            throw new BadRequestException(messageSource
+                    .getMessage("api.error.fieldExists",null, locale));
         }
         else{
             Category category = categoryRepo.findByCategoryId(id);
             category.setName(categoryUpdateDTO.getName());
             categoryRepo.save(category);
-            return "Category Updated Successfully";
+            return messageSource.getMessage("api.response.updateSuccess",null, locale);
         }
     }
 
-    public String addCategoryMetaDataField(CategoryMetaDataFieldValueDTO categoryMetaDataFieldValueDTO){
+    public String addCategoryMetaDataField
+            (CategoryMetaDataFieldValueDTO categoryMetaDataFieldValueDTO, Locale locale){
 
         CategoryMetaDataFieldValues categoryMetaDataFieldValues= new CategoryMetaDataFieldValues();
 
@@ -150,10 +158,6 @@ public class CategoryServiceImpl implements CategoryService {
         CategoryMetaDataField categoryMetaDataField= categoryMetaDataFieldRepo.findByFieldId(categoryMetaDataFieldValueDTO.getMetaDataFieldId());
         categoryMetaDataFieldValues.setCategoryMetaDataField(categoryMetaDataField);
 
-//        String newValue = "";
-//        for(String value: categoryMetaDataFieldValueDTO.getValues()){
-//            newValue.concat("," + value);
-//        }
         categoryMetaDataFieldValues.setValue(categoryMetaDataFieldValueDTO.getValues().toString());
 
         CategoryMetaDataCompositeKey categoryMetaDataCompositeKey = new CategoryMetaDataCompositeKey();
@@ -163,10 +167,11 @@ public class CategoryServiceImpl implements CategoryService {
 
         categoryMetaDataFieldValuesRepo.save(categoryMetaDataFieldValues);
 
-        return "Meta Data Field added to Category Successfully";
+        return messageSource.getMessage("api.response.metadataCategoryAdded",null, locale);
     }
 
-    public String updateCategoryMetaDataField(CategoryMetaDataFieldValueDTO categoryMetaDataFieldValueDTO){
+    public String updateCategoryMetaDataField
+            (CategoryMetaDataFieldValueDTO categoryMetaDataFieldValueDTO, Locale locale){
         CategoryMetaDataFieldValues categoryMetaDataFieldValues= new CategoryMetaDataFieldValues();
 
         categoryMetaDataFieldValues= categoryMetaDataFieldValuesRepo
@@ -175,12 +180,13 @@ public class CategoryServiceImpl implements CategoryService {
 
         if(categoryMetaDataFieldValues.getCategoryMetaDataCompositeKey()
                 .getCategoryMetaDataFieldId()!= categoryMetaDataFieldValueDTO.getMetaDataFieldId()){
-            return "Meta Data Field is not associated with the Category";
+            throw new BadRequestException(messageSource
+                    .getMessage("api.error.metadataCategoryNotAssociated",null, locale));
         }
         else {
             categoryMetaDataFieldValues.setValue(categoryMetaDataFieldValueDTO.getValues().toString());
             categoryMetaDataFieldValuesRepo.save(categoryMetaDataFieldValues);
-            return "Meta Data Field Values updated Successfully";
+            return messageSource.getMessage("api.response.updateSuccess",null, locale);
         }
 
 
@@ -191,15 +197,12 @@ public class CategoryServiceImpl implements CategoryService {
         List<Category> categoryList = categoryRepo.findAll();
 
         List<SellerCategoryResponseDTO> resultList = new ArrayList<>();
-        // filter out leaf nodes
+
         for(Category category: categoryList){
             if(category.getSubCategories().isEmpty()){
-                // get its parental hierarchy till root node
-                // use category to fetch all metadata fields and values related
+
                 List<CategoryMetaDataFieldValues> metadataList =
                         categoryMetaDataFieldValuesRepo.findByCategory(category);
-
-                // convert to appropriate responseDTO
 
                 SellerCategoryResponseDTO sellerResponse = new SellerCategoryResponseDTO();
                 sellerResponse.setId(category.getId());
@@ -232,10 +235,9 @@ public class CategoryServiceImpl implements CategoryService {
             return childList;
         }
         else{
-            // if ID isn't provided fetch all root nodes
             List<Category> categoryList = categoryRepo.findAll();
             Set<Category> rootNodes = new HashSet<>();
-            // filtering rootNodes
+
             for(Category category: categoryList){
                 if(category.getParentCategory()==null){
                     rootNodes.add(category);

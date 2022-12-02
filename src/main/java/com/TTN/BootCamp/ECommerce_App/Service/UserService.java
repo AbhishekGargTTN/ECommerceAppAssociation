@@ -10,28 +10,28 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public interface UserService {
 
 //    public User createUser(UserDTO userDTO);
 
-    public String addCustomerDetails(CustomerDTO customerDTO, String role);
+    public String addCustomerDetails(CustomerDTO customerDTO, String role, Locale locale);
 
-    public String addSellerDetails(SellerDTO sellerDTO, String role);
+    public String addSellerDetails(SellerDTO sellerDTO, String role, Locale locale);
 
     @Transactional
     public List<User> getAllUsers();
 
-    public String resetPassword(String token, String password, String confirmPassword);
+    public String resetPassword(String token, String password, String confirmPassword, Locale locale);
 
-    public String forgotPassword(String email);
+    public String forgotPassword(String email, Locale locale);
 
-    public String resendActivationMail(String email);
+    public String resendActivationMail(String email, Locale locale);
 
-    public String activateUserAccount(String token);
+    public String activateUserAccount(String token, Locale locale);
 
-    public String uploadImage(@RequestParam("file") MultipartFile file, String email);
+    public String uploadImage(@RequestParam("file") MultipartFile file, String email, Locale locale);
 
-//    public Optional<User> activateRegistration(String key);
 }

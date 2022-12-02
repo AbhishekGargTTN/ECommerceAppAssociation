@@ -6,6 +6,8 @@ import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.SellerDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.SellerUpdateDTO;
 import com.TTN.BootCamp.ECommerce_App.Exception.PasswordDoNotMatchException;
 import com.TTN.BootCamp.ECommerce_App.Service.SellerService;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.Authentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.Locale;
 
 @RestController
 @RequestMapping("/api/seller")
@@ -26,12 +29,16 @@ public class SellerController {
     @Autowired
     SellerService sellerService;
 
+    @Autowired
+    MessageSource messageSource;
+
     @GetMapping(path="/profile")
     @PreAuthorize("hasAuthority('SELLER')")
     public ResponseEntity<SellerDTO> viewProfile(Authentication authentication) throws IOException {
 
         logger.info("SellerController: viewProfile started execution");
-        SellerDTO seller = sellerService.showSellerProfile(authentication.getName());
+        Locale locale = LocaleContextHolder.getLocale();
+        SellerDTO seller = sellerService.showSellerProfile(authentication.getName(), locale);
         logger.info("SellerController: viewProfile ended execution ");
         return new ResponseEntity<>(seller, HttpStatus.OK);
     }
@@ -41,7 +48,8 @@ public class SellerController {
     public ResponseEntity<String> updateProfile(Authentication authentication
             ,@RequestBody @Valid SellerUpdateDTO sellerDTO){
         logger.info("SellerController: updateProfile started execution");
-        String response = sellerService.updateProfile(authentication.getName(), sellerDTO);
+        Locale locale = LocaleContextHolder.getLocale();
+        String response = sellerService.updateProfile(authentication.getName(), sellerDTO, locale);
         logger.info("SellerController: updateProfile ended execution ");
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
@@ -50,10 +58,13 @@ public class SellerController {
     @PreAuthorize("hasAuthority('SELLER')")
     public ResponseEntity<String> changePassword(Authentication authentication
             ,@Valid @RequestBody PasswordDTO passwordDTO){
+        Locale locale = LocaleContextHolder.getLocale();
         if(!passwordDTO.getPassword().equals(passwordDTO.getConfirmPassword())) {
-            throw new PasswordDoNotMatchException("Password do not match.");
+            throw new PasswordDoNotMatchException(
+                    messageSource.getMessage("api.error.passwordDoNotMatch",null,locale));
         }
-            String response = sellerService.updatePassword(authentication.getName(), passwordDTO.getPassword());
+            String response = sellerService
+                    .updatePassword(authentication.getName(), passwordDTO.getPassword(), locale);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
 
@@ -61,7 +72,8 @@ public class SellerController {
     @PreAuthorize("hasAuthority('SELLER')")
     public ResponseEntity<String> updateAddress(Authentication authentication,@Valid @RequestBody AddressUpdateDTO addressDTO){
         String email = authentication.getName();
-        String responseMessage = sellerService.updateAddress(email,addressDTO);
+        Locale locale = LocaleContextHolder.getLocale();
+        String responseMessage = sellerService.updateAddress(email, addressDTO, locale);
         return new ResponseEntity<>(responseMessage,HttpStatus.OK);
     }
 }

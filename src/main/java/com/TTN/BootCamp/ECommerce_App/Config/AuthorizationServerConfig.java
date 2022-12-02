@@ -28,14 +28,6 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Autowired
     private CustomUserDetailsServiceImpl userDetailsService;
 
-//    @Autowired
-//    public AuthorizationServerConfig(BCryptPasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, TokenStore tokenStore, CustomUserDetailsServiceImpl userDetailsService) {
-//        this.passwordEncoder = passwordEncoder;
-//        this.authenticationManager = authenticationManager;
-//        this.tokenStore = tokenStore;
-//        this.userDetailsService = userDetailsService;
-//    }
-
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
         endpoints

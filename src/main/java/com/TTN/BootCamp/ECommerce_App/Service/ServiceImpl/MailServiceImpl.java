@@ -1,6 +1,5 @@
 package com.TTN.BootCamp.ECommerce_App.Service.ServiceImpl;
 
-import com.TTN.BootCamp.ECommerce_App.Controller.AuthenticationController;
 import com.TTN.BootCamp.ECommerce_App.Entity.SecureToken;
 import com.TTN.BootCamp.ECommerce_App.Entity.User;
 import com.TTN.BootCamp.ECommerce_App.Repository.SecureTokenRepo;
@@ -9,11 +8,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Locale;
 
 @Component
 @Transactional
@@ -26,12 +28,15 @@ public class MailServiceImpl implements MailService {
     @Autowired
     SecureTokenRepo secureTokenRepo;
 
+    @Autowired
+    MessageSource messageSource;
+
     @Value("${spring.mail.username}")
     private String sender;
 
-    private static final String ACTIVATION_SUBJECT = "Account Activation | Dummy Ecommerce Application";
-    private static final String RESET_SUBJECT = "Password Reset Request | Dummy Ecommerce Application";
-    private static final String DEACTIVATION_SUBJECT = "Account Deactivation | Dummy Ecommerce Application";
+//    public MailServiceImpl(String sender) {
+//        this.sender = sender;
+//    }
 
     @Async
     public void sendEmail(String toEmail, String body, String subject) {
@@ -39,7 +44,7 @@ public class MailServiceImpl implements MailService {
         logger.debug("MailService: configuring email details");
 
         SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setFrom("abhishekgarg919@gmail.com");
+        mailMessage.setFrom(sender);
         mailMessage.setTo(toEmail);
         mailMessage.setSubject(subject);
         mailMessage.setText(body);
@@ -50,83 +55,92 @@ public class MailServiceImpl implements MailService {
     }
 
 
-    public void sendActivationMail(User user){
+    public void sendActivationMail(User user, Locale locale){
         logger.info("MailService: sendActivationMail started execution");
         logger.debug("MailService: sendActivationMail generating token and composing activation mail");
 
         SecureToken secureToken = new SecureToken(user);
         secureTokenRepo.save(secureToken);
 
-        String emailBody = "Hello " + user.getFirstName() +", " + "\n\n" +
-                "We're excited to have you get started. First, you need to activate your account " +
-                "Just go to the link mentioned below to activate your account. The link is valid for 3 hours." +
-                "\n\n"+"http://localhost:8080/api/activate_account?token="+ secureToken.getSecureToken() + "\n\n" +
-                "- Team 'Dummy Ecommerce Application' ";
+        String emailSubject= messageSource
+                .getMessage("api.email.activationMailBody",null, locale);
 
-        sendEmail(user.getEmail(), emailBody, ACTIVATION_SUBJECT);
+        String emailBody = messageSource
+                .getMessage("api.email.activationSubject",null, locale);
+
+        String link = messageSource.getMessage("api.email.siteUrl",null, locale);
+
+        emailBody = emailBody.replace("[[name]]", user.getFirstName());
+        emailBody = emailBody.replace("[[URL]]",link +"/activate_account?token="+ secureToken.getSecureToken());
+
+        sendEmail(user.getEmail(), emailBody, emailSubject);
         logger.info("MailService: sendActivationMail ended execution");
 
     }
 
-    public void sendIsActivatedMail(User user){
+    public void sendIsActivatedMail(User user, Locale locale){
         logger.info("MailService: sendIsActivatedMail started execution");
         logger.debug("MailService: sendIsActivatedMail composing activation confirmation mail");
 
-        String emailBody = "Hi " + user.getFirstName() +", " + "\n" +
-                "Welcome to 'Dummy Ecommerce Application', your account has been activated. " +
-                "\n" +
-                "- Team 'Dummy Ecommerce Application' ";
+        String emailSubject= messageSource
+                .getMessage("api.email.activationSubject",null, locale);
 
-        sendEmail(user.getEmail(), emailBody, ACTIVATION_SUBJECT);
+        String emailBody = messageSource.getMessage("api.email.isActivatedMailBody",null, locale);
+        emailBody = emailBody.replace("[[name]]", user.getFirstName());
+
+        sendEmail(user.getEmail(), emailBody, emailSubject);
         logger.info("MailService: sendIsActivatedMail ended execution");
     }
 
-
-    // method to trigger a mail to reset the password
-    public void sendForgotPasswordMail(User user){
+    public void sendForgotPasswordMail(User user, Locale locale){
         logger.info("MailService: sendForgotPasswordMail started execution");
         logger.debug("MailService: sendForgotPasswordMail generating token and composing password reset mail");
 
         SecureToken secureToken = new SecureToken(user);
         secureTokenRepo.save(secureToken);
 
-        String emailBody = "Hi " + user.getFirstName() +", " + "\n" +
-                "A request has been received to change the password for your account. " +
-                "Please go the link mentioned below to change your password. The link will expire in 15min." +
-                "\n" + "http://localhost:8080/api/reset_password?token="+ secureToken.getSecureToken() + "\n\n" +
-                "- Team 'Dummy Ecommerce Application' ";
+        String emailSubject= messageSource
+                .getMessage("api.email.resetSubject",null, locale);
 
-        sendEmail(user.getEmail(), emailBody, RESET_SUBJECT);
+        String emailBody = messageSource
+                .getMessage("api.email.forgotPasswordMailBody",null, locale);
+
+        String link = messageSource.getMessage("api.email.siteUrl",null, Locale.ENGLISH);
+
+        emailBody = emailSubject.replace("[[name]]", user.getFirstName());
+        emailBody = emailSubject.replace("[[URL]]",link +"/reset_password?token="+ secureToken.getSecureToken());
+
+        sendEmail(user.getEmail(), emailBody, emailSubject);
         logger.info("MailService: sendForgotPasswordMail ended execution");
     }
 
-    public void sendSuccessfulChangeMail(User user) {
+    public void sendSuccessfulChangeMail(User user, Locale locale) {
         logger.info("MailService: sendSuccessfulChangeMail started execution");
         logger.debug("MailService: sendSuccessfulChangeMail composing password reset confirmation mail");
 
-        String emailBody = "Hi " + user.getFirstName() +", " + "\n" +
-                "Your password has been changed successfully. " +
-                "Please use your new password to access your account." +
-                "\n" +
-                "- Team 'Dummy Ecommerce Application' ";
+        String emailSubject= messageSource
+                .getMessage("api.email.resetSubject",null, locale);
 
-        sendEmail(user.getEmail(), emailBody, RESET_SUBJECT);
+        String emailBody = messageSource.getMessage("api.email.successfulChangeMailBody",null, locale);
+        emailBody = emailBody.replace("[[name]]", user.getFirstName());
+
+        sendEmail(user.getEmail(), emailBody, emailSubject);
         logger.info("MailService: sendSuccessfulChangeMail ended execution");
     }
 
-    public void sendDeActivatedMail(User user) {
+    public void sendDeActivatedMail(User user, Locale locale) {
         logger.info("MailService: sendDeActivatedMail started execution");
 
         logger.debug("MailService: sendDeActivatedMail composing user " +
                 "account deactivation confirmation mail");
 
-        String emailBody = "Hi " + user.getFirstName() +", " + "\n\n" +
-                "Your account has been temporarily deactivated. " +
-                "Please contact technical support team if you think was a mistake." +
-                "\n\n" +
-                "- Team 'Dummy Ecommerce Application' ";
+        String emailSubject= messageSource
+                .getMessage("api.email.deactivationSubject",null, locale);
 
-        sendEmail(user.getEmail(), emailBody, DEACTIVATION_SUBJECT);
+        String emailBody = messageSource.getMessage("api.email.accountDeactivatedMailBody",null, locale);
+        emailBody = emailBody.replace("[[name]]", user.getFirstName());
+
+        sendEmail(user.getEmail(), emailBody, emailSubject);
         logger.info("MailService: sendDeActivatedMail ended execution");
     }
 }

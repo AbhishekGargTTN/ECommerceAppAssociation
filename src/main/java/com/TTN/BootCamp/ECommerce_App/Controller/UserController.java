@@ -5,7 +5,9 @@ import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.PasswordDTO;
 import com.TTN.BootCamp.ECommerce_App.Entity.User;
 import com.TTN.BootCamp.ECommerce_App.Repository.UserRepo;
 import com.TTN.BootCamp.ECommerce_App.Service.ServiceImpl.UserServiceImpl;
+import com.TTN.BootCamp.ECommerce_App.Service.UserService;
 import com.sun.mail.iap.ResponseHandler;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -21,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 @RestController
 @RequestMapping("/api")
@@ -30,31 +33,19 @@ public class UserController {
     @Autowired
     private  UserRepo userRepo;
     @Autowired
-    private UserServiceImpl userService;
+    private UserService userService;
 
-
-//    @PostMapping("/users")
-////    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-//    public ResponseEntity<User> createUser(@Valid @RequestBody UserDTO userDTO) throws URISyntaxException {
-//
-//            User newUser = userService.createUser(userDTO);
-//            return ResponseEntity.created(new URI("/api/users/" + newUser.getEmail()))
-////                    .headers(HeaderUtil.createAlert(applicationName,  "A user is created with identifier " + newUser.getEmail(), newUser.getEmail()))
-//                    .body(newUser);
-////        }
-//    }
 
     @GetMapping("/users")
     public List<User> getAllUsers() {
         return userService.getAllUsers();
     }
 
-
-
     @PutMapping(path = "/activate_account")
     public ResponseEntity<String> activateAccount(@RequestParam("token") String token){
         logger.info("UserController: activating Customer");
-        String response = userService.activateUserAccount(token);
+        Locale locale = LocaleContextHolder.getLocale();
+        String response = userService.activateUserAccount(token, locale);
         logger.info("UserController: generated response-- " + response );
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -62,7 +53,8 @@ public class UserController {
     @PostMapping(path="/resend_activation")
     public ResponseEntity<String> resendActivation(@Valid @RequestBody EmailDTO emailDTO){
         logger.info("UserController: resending activation mail");
-        String response = userService.resendActivationMail(emailDTO.getEmail());
+        Locale locale = LocaleContextHolder.getLocale();
+        String response = userService.resendActivationMail(emailDTO.getEmail(), locale);
         logger.info("UserController: generated response-- " + response );
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -70,7 +62,8 @@ public class UserController {
     @PostMapping(path="/forgot_password")
     public ResponseEntity<String> forgotPassword(@Valid @RequestBody EmailDTO emailDTO){
         logger.info("UserController: triggered forgot password");
-        String response = userService.forgotPassword(emailDTO.getEmail());
+        Locale locale = LocaleContextHolder.getLocale();
+        String response = userService.forgotPassword(emailDTO.getEmail(), locale);
         logger.info("UserController: generated response-- " + response );
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -78,21 +71,20 @@ public class UserController {
     @PatchMapping(path="/reset_password")
     public ResponseEntity<String> resetPassword(@RequestParam("token") String token, @Valid @RequestBody PasswordDTO passwordDTO){
         logger.info("UserController: resetting user Password");
-        String response = userService.resetPassword(token, passwordDTO.getPassword(), passwordDTO.getConfirmPassword());
+        Locale locale = LocaleContextHolder.getLocale();
+        String response = userService
+                .resetPassword(token, passwordDTO.getPassword(), passwordDTO.getConfirmPassword(), locale);
         logger.info("UserController: generated response-- " + response );
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/add_image")
-    public String uploadImage(Authentication authentication
+    public ResponseEntity<String> uploadImage(Authentication authentication
             ,@RequestParam("file") MultipartFile file) {
         String email = authentication.getName();
 
-//        String response= userService.uploadImage(file, email);
-
-//        return ResponseHandler.generateResponse(HttpStatus.OK, true);
-
-        return userService.uploadImage(file,email);
+        Locale locale = LocaleContextHolder.getLocale();
+        return new ResponseEntity<>(userService.uploadImage(file, email, locale),HttpStatus.ACCEPTED);
     }
 
     @GetMapping(value = "/get_image",produces = MediaType.IMAGE_JPEG_VALUE)

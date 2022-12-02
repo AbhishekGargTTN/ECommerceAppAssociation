@@ -14,6 +14,7 @@ import com.TTN.BootCamp.ECommerce_App.Service.MailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Component
@@ -41,6 +43,9 @@ public class AdminServiceImpl implements AdminService {
 
     @Autowired
     MailService mailService;
+
+    @Autowired
+    MessageSource messageSource;
 
 
     public List<CustomerResponseDTO> listAllCustomers(Integer pageNo, Integer pageSize, String sortBy){
@@ -115,32 +120,33 @@ public class AdminServiceImpl implements AdminService {
     }
 
 
-    public String activateUser(Long userId){
+    public String activateUser(Long userId, Locale locale){
         logger.info("AdminService: activateUser started execution");
         Optional<User> user = userRepo.findById(userId);
         if(user.isPresent()){
             if(user.get().isActive()){
                 logger.debug("AdminService: activateUser user account is already active");
                 logger.info("AdminService: activateUser ended execution");
-                return "User is already active.";
+                return messageSource.getMessage("api.response.userAlreadyActive",null, locale);
             }
             else {
                 logger.debug("AdminService: activateUser setting account account status as active");
                 user.get().setActive(true);
                 userRepo.save(user.get());
-                mailService.sendIsActivatedMail(user.get());
+                mailService.sendIsActivatedMail(user.get(), locale);
                 logger.info("AdminService: activateUser ended execution");
-                return "User Account activated Successfully";
+                return messageSource.getMessage("api.response.userAccountActivated",null, locale);
             }
         }
         else{
             logger.error("AdminService: activateUser exception occurred while execution-- User not found");
-            throw new UserNotFoundException("User not found.");
+            throw new UserNotFoundException(messageSource
+                    .getMessage("api.error.userNotFound",null, locale));
         }
 
     }
 
-    public String deactivateUser(Long userId){
+    public String deactivateUser(Long userId, Locale locale){
         logger.info("AdminService: deactivateUser started execution");
         Optional<User> user = userRepo.findById(userId);
         if(user.isPresent()){
@@ -148,19 +154,20 @@ public class AdminServiceImpl implements AdminService {
                 logger.debug("AdminService: deactivateUser setting account status as inactive");
                 user.get().setActive(false);
                 userRepo.save(user.get());
-                mailService.sendDeActivatedMail(user.get());
+                mailService.sendDeActivatedMail(user.get(), locale);
                 logger.info("AdminService::deactivateUser ended execution");
-                return "User Account deactivated Successfully";
+                return messageSource.getMessage("api.response.userAccountDeactivated",null, locale);
             }
             else {
                 logger.debug("AdminService: deactivateUser user account is already inactive");
                 logger.info("AdminService: deactivateUser ended execution");
-                return "Account is already de-activated.";
+                return messageSource.getMessage("api.response.userAlreadyDeactivated",null, locale);
             }
         }
         else{
             logger.error("AdminService: deactivateUser exception occurred while execution-- User not found");
-            throw new UserNotFoundException("User not found.");
+            throw new UserNotFoundException(messageSource
+                    .getMessage("api.error.userNotFound",null, locale));
         }
 
     }

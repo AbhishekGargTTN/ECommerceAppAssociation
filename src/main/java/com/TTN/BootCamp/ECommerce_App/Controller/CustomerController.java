@@ -11,6 +11,7 @@ import com.TTN.BootCamp.ECommerce_App.Service.CustomerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 @RestController
 @RequestMapping("/api/customer")
@@ -35,7 +37,8 @@ public class CustomerController {
     public ResponseEntity<CustomerDTO> viewProfile(Authentication authentication) throws IOException {
 
         logger.info("SellerController: viewProfile started execution");
-        CustomerDTO customer = customerService.showCustomerProfile(authentication.getName());
+        Locale locale = LocaleContextHolder.getLocale();
+        CustomerDTO customer = customerService.showCustomerProfile(authentication.getName(), locale);
         logger.info("SellerController: viewProfile ended execution ");
 
         return new ResponseEntity<>(customer, HttpStatus.OK);
@@ -46,7 +49,8 @@ public class CustomerController {
     public ResponseEntity<String> updateProfile(Authentication authentication
             ,@RequestBody @Valid CustomerUpdateDTO customerDTO){
         logger.info("SellerController: updateProfile started execution");
-        String response = customerService.updateProfile(authentication.getName(), customerDTO);
+        Locale locale = LocaleContextHolder.getLocale();
+        String response = customerService.updateProfile(authentication.getName(), customerDTO, locale);
         logger.info("SellerController: updateProfile ended execution ");
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
@@ -55,10 +59,12 @@ public class CustomerController {
     @PreAuthorize("hasAuthority('CUSTOMER')")
     public ResponseEntity<String> changePassword(Authentication authentication
             ,@Valid @RequestBody PasswordDTO passwordDTO){
+        Locale locale = LocaleContextHolder.getLocale();
         if(!passwordDTO.getPassword().equals(passwordDTO.getConfirmPassword())) {
             throw new PasswordDoNotMatchException("Password do not match.");
         }
-            String response = customerService.updatePassword(authentication.getName(), passwordDTO.getPassword());
+            String response = customerService
+                    .updatePassword(authentication.getName(), passwordDTO.getPassword(), locale);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
 
@@ -67,8 +73,9 @@ public class CustomerController {
     public ResponseEntity<String> updateAddress(Authentication authentication
             ,@Valid @RequestBody AddressUpdateDTO addressDTO
             ,@RequestParam long id){
+        Locale locale = LocaleContextHolder.getLocale();
         String email = authentication.getName();
-        String responseMessage = customerService.updateAddress(email,addressDTO,id);
+        String responseMessage = customerService.updateAddress(email, addressDTO, id, locale);
         return new ResponseEntity<>(responseMessage,HttpStatus.OK);
     }
 
@@ -77,7 +84,8 @@ public class CustomerController {
     public ResponseEntity<List<Address>> viewAddresses(Authentication authentication){
 
         logger.info("SellerController: viewProfile started execution");
-        List<Address> addresses = customerService.showCustomerAddresses(authentication.getName());
+        Locale locale = LocaleContextHolder.getLocale();
+        List<Address> addresses = customerService.showCustomerAddresses(authentication.getName(), locale);
         logger.info("SellerController: viewProfile ended execution ");
         return new ResponseEntity<>(addresses, HttpStatus.OK);
     }
@@ -86,8 +94,9 @@ public class CustomerController {
     @PreAuthorize("hasAuthority('CUSTOMER')")
     public ResponseEntity<String> addNewAddress(Authentication authentication
             ,@Valid @RequestBody AddressDTO addressDTO){
+        Locale locale = LocaleContextHolder.getLocale();
         String email = authentication.getName();
-        String responseMessage = customerService.addAddress(email,addressDTO);
+        String responseMessage = customerService.addAddress(email, addressDTO, locale);
         return new ResponseEntity<>(responseMessage,HttpStatus.OK);
     }
 
@@ -95,8 +104,9 @@ public class CustomerController {
     @PreAuthorize("hasAuthority('CUSTOMER')")
     public ResponseEntity<String> deleteAddress(Authentication authentication
             ,@RequestParam long id){
+        Locale locale = LocaleContextHolder.getLocale();
         String email = authentication.getName();
-        String responseMessage = customerService.deleteAddress(email,id);
+        String responseMessage = customerService.deleteAddress(email, id, locale);
         return new ResponseEntity<>(responseMessage,HttpStatus.OK);
     }
 }

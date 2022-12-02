@@ -6,6 +6,8 @@ import com.TTN.BootCamp.ECommerce_App.Repository.UserRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Locale;
 
 @RestController
 @RequestMapping("/api")
@@ -42,34 +45,8 @@ public class AuthenticationController {
     @Autowired
     TokenStore tokenStore;
 
-//    @GetMapping("/")
-//    public String index(){
-//        return "Products";
-//    }
-//
-//    @GetMapping("/admin/home")
-//    @PreAuthorize("hasAuthority('ADMIN')")
-//    public String adminHome(){
-//        return "Admin home";
-//    }
-//
-//    @GetMapping("/user/home")
-//    @PreAuthorize("hasAuthority('USER')")
-//    public String userHome(){
-//        return "User home";
-//    }
-//
-//    @GetMapping("/customer/home")
-//    @PreAuthorize("hasAuthority('CUSTOMER')")
-//    public String customerHome(){
-//        return "Customer home";
-//    }
-//
-//    @GetMapping("/seller/home")
-//    @PreAuthorize("hasAuthority('SELLER')")
-//    public String sellerHome(){
-//        return "Seller home";
-//    }
+    @Autowired
+    MessageSource messageSource;
 
     @PostMapping("/login")
     public ResponseEntity<String> authenticateUser(@RequestBody LoginDTO loginDto){
@@ -78,16 +55,19 @@ public class AuthenticationController {
                 .authenticate(new UsernamePasswordAuthenticationToken(
                 loginDto.getEmail(), loginDto.getPassword()));
 
+        Locale locale = LocaleContextHolder.getLocale();
         SecurityContextHolder.getContext().setAuthentication(authentication);
         logger.info("AuthenticationController: ended execution");
-        return new ResponseEntity<>("User signed-in successfully!.", HttpStatus.OK);
+        return new ResponseEntity<>(messageSource
+                .getMessage("api.response.userSignedIn",null, locale)
+                , HttpStatus.OK);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request,HttpServletResponse response){
         logger.info("AuthenticationController: started execution");
         removeSecurityContext(request,response);
-
+        Locale locale = LocaleContextHolder.getLocale();
         try {
             String authHeader = request.getHeader("Authorization");
             if (authHeader != null) {
@@ -101,10 +81,12 @@ public class AuthenticationController {
         }
         catch (Exception e){
             logger.error("An exception occurred while execution");
-            return ResponseEntity.badRequest().body("Invalid access token");
+            return ResponseEntity.badRequest().body(messageSource
+                    .getMessage("api.error.invalidAccessToken",null, locale));
         }
         logger.info("AuthenticationController: ended execution");
-        return ResponseEntity.ok().body("User logged out successfully");
+        return ResponseEntity.ok().body(messageSource
+                .getMessage("api.response.userSignedOut",null, locale));
     }
 
     private void removeSecurityContext(HttpServletRequest request, HttpServletResponse response) {

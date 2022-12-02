@@ -9,21 +9,22 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public interface CustomerService {
 
-    public CustomerDTO showCustomerProfile(String email) throws IOException;
+    public CustomerDTO showCustomerProfile(String email, Locale locale) throws IOException;
 
-    public String updateProfile(String email, CustomerUpdateDTO customerDTO);
+    public String updateProfile(String email, CustomerUpdateDTO customerDTO, Locale locale);
 
-    public String updatePassword(String email, String password);
+    public String updatePassword(String email, String password, Locale locale);
 
-    public String updateAddress(String email, AddressUpdateDTO addressDTO, long id);
+    public String updateAddress(String email, AddressUpdateDTO addressDTO, long id, Locale locale);
 
-    public List<Address> showCustomerAddresses(String email);
+    public List<Address> showCustomerAddresses(String email, Locale locale);
 
-    public String addAddress(String email, AddressDTO addressDTO);
+    public String addAddress(String email, AddressDTO addressDTO, Locale locale);
 
-    public String deleteAddress(String email, long id);
+    public String deleteAddress(String email, long id, Locale locale);
 }

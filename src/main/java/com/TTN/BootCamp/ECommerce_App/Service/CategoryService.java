@@ -12,27 +12,30 @@ import org.springframework.stereotype.Service;
 
 import javax.naming.NameNotFoundException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
 @Service
 public interface CategoryService {
 
-    public String addMetaDataField(MetaDataFieldDTO metaDataFieldDTO);
+    public String addMetaDataField(MetaDataFieldDTO metaDataFieldDTO, Locale locale);
 
     public List<MetaDataFieldResponseDTO> getMetaDataFields(Integer pageNo, Integer pageSize, String sortBy);
 
-    public String addCategory(CategoryDTO categoryDTO);
+    public String addCategory(CategoryDTO categoryDTO, Locale locale);
 
     public CategoryResponseDTO getCategory(long id);
 
     public List<CategoryResponseDTO> getAllCategories(Integer pageNo, Integer pageSize, String sortBy);
 
-    public String updateCategory(long id, CategoryUpdateDTO categoryUpdateDTO);
+    public String updateCategory(long id, CategoryUpdateDTO categoryUpdateDTO, Locale locale);
 
-    public String addCategoryMetaDataField(CategoryMetaDataFieldValueDTO categoryMetaDataFieldValueDTO);
+    public String addCategoryMetaDataField
+            (CategoryMetaDataFieldValueDTO categoryMetaDataFieldValueDTO, Locale locale);
 
-    public String updateCategoryMetaDataField(CategoryMetaDataFieldValueDTO categoryMetaDataFieldValueDTO);
+    public String updateCategoryMetaDataField
+            (CategoryMetaDataFieldValueDTO categoryMetaDataFieldValueDTO, Locale locale);
 
     public List<SellerCategoryResponseDTO> getAllSellerCategories();
 
