@@ -2,11 +2,13 @@ package com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.validation.constraints.*;
 
 @Getter
 @Setter
+@ToString
 public class AddressDTO {
 
     @NotEmpty(message = "This is a mandatory field.")

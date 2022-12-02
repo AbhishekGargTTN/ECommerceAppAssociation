@@ -32,21 +32,26 @@ public class AdminServiceImpl implements AdminService {
 
     Logger logger = LoggerFactory.getLogger(AdminServiceImpl.class);
 
-    @Autowired
     UserRepo userRepo;
 
-    @Autowired
     SellerRepo sellerRepo;
 
-    @Autowired
+
     CustomerRepo customerRepo;
 
-    @Autowired
+
     MailService mailService;
 
-    @Autowired
+
     MessageSource messageSource;
 
+    public AdminServiceImpl(UserRepo userRepo, SellerRepo sellerRepo, CustomerRepo customerRepo, MailService mailService, MessageSource messageSource) {
+        this.userRepo = userRepo;
+        this.sellerRepo = sellerRepo;
+        this.customerRepo = customerRepo;
+        this.mailService = mailService;
+        this.messageSource = messageSource;
+    }
 
     public List<CustomerResponseDTO> listAllCustomers(Integer pageNo, Integer pageSize, String sortBy){
         logger.info("AdminService: listAllCustomers started execution");
@@ -112,10 +117,7 @@ public class AdminServiceImpl implements AdminService {
             sellerResponseDTO.setAddress(seller.getAddress());
             sellers.add(sellerResponseDTO);
         }
-
-        logger.debug("AdminService: listAllSellers returning list of SellerResponseDTO");
-
-        logger.info("AdminService: listAllSellers ended execution");
+        logger.info("AdminService: listAllSellers flow executed successfully {}",sellers);
         return sellers;
     }
 

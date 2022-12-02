@@ -2,15 +2,16 @@ package com.TTN.BootCamp.ECommerce_App.Entity;
 
 import com.TTN.BootCamp.ECommerce_App.DTO.Auditing.Auditable;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 
 @Entity
 @Getter
 @Setter
+@ToString
 public class Address extends Auditable<String> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,18 +46,4 @@ public class Address extends Auditable<String> {
     @JsonBackReference
     private Seller seller;
 
-    @Override
-    public String toString() {
-        return "Address{" +
-                "id=" + id +
-                ", city='" + city + '\'' +
-                ", state='" + state + '\'' +
-                ", country='" + country + '\'' +
-                ", addressLine='" + addressLine + '\'' +
-                ", zipCode=" + zipCode +
-                ", label='" + label + '\'' +
-                ", customer=" + customer +
-                ", seller=" + seller +
-                '}';
-    }
 }

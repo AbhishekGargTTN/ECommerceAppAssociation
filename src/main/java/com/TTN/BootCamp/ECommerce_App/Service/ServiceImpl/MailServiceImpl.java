@@ -34,10 +34,6 @@ public class MailServiceImpl implements MailService {
     @Value("${spring.mail.username}")
     private String sender;
 
-//    public MailServiceImpl(String sender) {
-//        this.sender = sender;
-//    }
-
     @Async
     public void sendEmail(String toEmail, String body, String subject) {
         logger.info("MailService: started execution");
@@ -63,15 +59,15 @@ public class MailServiceImpl implements MailService {
         secureTokenRepo.save(secureToken);
 
         String emailSubject= messageSource
-                .getMessage("api.email.activationMailBody",null, locale);
+                .getMessage("api.email.activationSubject",null, locale);
 
         String emailBody = messageSource
-                .getMessage("api.email.activationSubject",null, locale);
+                .getMessage("api.email.activationMailBody",new String[]{user.getFirstName()}, locale);
 
         String link = messageSource.getMessage("api.email.siteUrl",null, locale);
 
-        emailBody = emailBody.replace("[[name]]", user.getFirstName());
-        emailBody = emailBody.replace("[[URL]]",link +"/activate_account?token="+ secureToken.getSecureToken());
+//        emailBody = emailBody.replace("[[name]]", user.getFirstName());
+//        emailBody = emailBody.replace("[[URL]]",link +"/activate_account?token="+ secureToken.getSecureToken());
 
         sendEmail(user.getEmail(), emailBody, emailSubject);
         logger.info("MailService: sendActivationMail ended execution");

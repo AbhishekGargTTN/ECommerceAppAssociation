@@ -18,7 +18,7 @@ public class BootstrapFile implements CommandLineRunner {
     private RoleRepo roleRepo;
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args){
 
         if(roleRepo.count()<1){
 

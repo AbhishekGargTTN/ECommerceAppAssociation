@@ -2,9 +2,12 @@ package com.TTN.BootCamp.ECommerce_App.Controller;
 
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.MetaDataFieldDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.ProductDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.ProductVariationDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.CategoryResponseDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.ProductResponseDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.ProductVariationResponseDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.ProductUpdateDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.ProductVariationUpdateDTO;
 import com.TTN.BootCamp.ECommerce_App.Service.ProductService;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.Authentication;
@@ -77,6 +80,49 @@ public class ProductController {
         Locale locale = LocaleContextHolder.getLocale();
         String  response =
                 productService.updateProduct(id, email, productUpdateDTO, locale);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping(path ="/variation")
+    @PreAuthorize("hasAuthority('SELLER')")
+    public ResponseEntity<String> addProductVariation( @RequestBody ProductVariationDTO productVariationDTO){
+        Locale locale = LocaleContextHolder.getLocale();
+        String response = productService.addProductVariation(productVariationDTO, locale);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/view_product_variation")
+    @PreAuthorize("hasAuthority('SELLER')")
+    public ResponseEntity<ProductVariationResponseDTO> viewProductVariation(@RequestParam long id, Authentication authentication){
+
+        String email= authentication.getName();
+        Locale locale = LocaleContextHolder.getLocale();
+        ProductVariationResponseDTO productVariationResponseDTO =
+                productService.viewProductVariation(id, email, locale);
+        return new ResponseEntity<>(productVariationResponseDTO, HttpStatus.OK);
+    }
+
+    @GetMapping("/view_all_product_variation")
+    @PreAuthorize("hasAuthority('SELLER')")
+    public ResponseEntity<List<ProductVariationResponseDTO>>
+    viewAllProductVariation(@RequestParam long id, Authentication authentication){
+
+        String email= authentication.getName();
+        Locale locale = LocaleContextHolder.getLocale();
+        List<ProductVariationResponseDTO> productResponseDTO =
+                productService.viewAllProductVariation(id, email, locale);
+        return new ResponseEntity<>(productResponseDTO, HttpStatus.OK);
+    }
+
+    @PutMapping("/update_product_variation")
+    @PreAuthorize("hasAuthority('SELLER')")
+    public ResponseEntity<String> updateProductVariation(@RequestParam long id, Authentication authentication
+            , @Valid @RequestBody ProductVariationUpdateDTO productVariationUpdateDTO){
+
+        String email= authentication.getName();
+        Locale locale = LocaleContextHolder.getLocale();
+        String  response =
+                productService.updateProductVariation(id, email, productVariationUpdateDTO, locale);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

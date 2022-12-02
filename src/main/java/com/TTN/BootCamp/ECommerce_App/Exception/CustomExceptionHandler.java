@@ -19,7 +19,7 @@ import java.util.Map;
 public class CustomExceptionHandler {
 
     @ExceptionHandler(Exception.class)
-    public final ResponseEntity<ErrorFormat> handleAllException(Exception ex, WebRequest request) throws Exception{
+    public final ResponseEntity<ErrorFormat> handleAllException(Exception ex, WebRequest request){
         ErrorFormat errorFormat = new ErrorFormat(LocalDateTime.now(), ex.getMessage(), request.getDescription(false), HttpStatus.INTERNAL_SERVER_ERROR);
         return new ResponseEntity<>(errorFormat, HttpStatus.INTERNAL_SERVER_ERROR);
     }

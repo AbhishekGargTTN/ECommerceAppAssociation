@@ -2,11 +2,8 @@ package com.TTN.BootCamp.ECommerce_App.Controller;
 
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.EmailDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.PasswordDTO;
-import com.TTN.BootCamp.ECommerce_App.Entity.User;
 import com.TTN.BootCamp.ECommerce_App.Repository.UserRepo;
-import com.TTN.BootCamp.ECommerce_App.Service.ServiceImpl.UserServiceImpl;
 import com.TTN.BootCamp.ECommerce_App.Service.UserService;
-import com.sun.mail.iap.ResponseHandler;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
@@ -22,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.util.List;
 import java.util.Locale;
 
 @RestController
@@ -35,11 +31,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-
-    @GetMapping("/users")
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
-    }
 
     @PutMapping(path = "/activate_account")
     public ResponseEntity<String> activateAccount(@RequestParam("token") String token){

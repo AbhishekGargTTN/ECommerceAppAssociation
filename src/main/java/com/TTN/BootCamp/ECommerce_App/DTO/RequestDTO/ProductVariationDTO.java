@@ -1,23 +1,23 @@
 package com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO;
 
-import com.TTN.BootCamp.ECommerce_App.Entity.MetaData;
-import com.TTN.BootCamp.ECommerce_App.Entity.Product;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
+import lombok.ToString;
 
-import javax.persistence.*;
+import java.util.Map;
+import java.util.Set;
 
 @Getter
 @Setter
+@ToString
 public class ProductVariationDTO {
 
+    private long productId;
+
+    private Map<String, Set<String>> metadata;
+
+    //    private MultipartFile image;
     private long quantityAvailable;
 
     private double price;
-
-    private MetaData metaData;
-
-    private Long productId;
 }

@@ -10,8 +10,6 @@ import java.util.Set;
 
 public class FilterProperties {
 
-    // method that creates a list of property names to ignore if they are null in source object;
-    // and that uses this list to pass as parameter in BeanUtils.copyProperties
     public static String[] getNullPropertyNames (Object source) {
         final BeanWrapper src = new BeanWrapperImpl(source);
         PropertyDescriptor[] pds = src.getPropertyDescriptors();

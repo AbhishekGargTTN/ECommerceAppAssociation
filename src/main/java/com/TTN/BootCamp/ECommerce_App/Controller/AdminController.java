@@ -31,11 +31,8 @@ public class AdminController {
     getAllCustomers(@RequestParam(defaultValue = "0") Integer pageNo
             ,@RequestParam(defaultValue = "10") Integer pageSize
             ,@RequestParam(defaultValue = "id") String sortBy){
-
         logger.info("AdminController: getAllCustomers started execution");
-        List<CustomerResponseDTO> customers = adminService.listAllCustomers(pageNo, pageSize, sortBy);
-        logger.info("AdminController: getAllCustomers ended execution ");
-        return new ResponseEntity<>(customers, HttpStatus.OK);
+        return new ResponseEntity<>(adminService.listAllCustomers(pageNo, pageSize, sortBy), HttpStatus.OK);
     }
 
 
