@@ -1,5 +1,6 @@
 package com.TTN.BootCamp.ECommerce_App.Service.ServiceImpl;
 
+import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.ProductResponseDTO;
 import com.TTN.BootCamp.ECommerce_App.Entity.SecureToken;
 import com.TTN.BootCamp.ECommerce_App.Entity.User;
 import com.TTN.BootCamp.ECommerce_App.Repository.SecureTokenRepo;
@@ -138,5 +139,29 @@ public class MailServiceImpl implements MailService {
 
         sendEmail(user.getEmail(), emailBody, emailSubject);
         logger.info("MailService: sendDeActivatedMail ended execution");
+    }
+
+    public void sendProductActivationMail(ProductResponseDTO productResponseDTO, User productOwner){
+        logger.info("EmailService::sendProductActivationMail execution started.");
+
+        String subject = messageSource.getMessage("api.email.productSubject",null,Locale.ENGLISH);
+        String body = messageSource.getMessage("api.email.productActivationMail",null, Locale.ENGLISH);
+        body = body.replace("[[name]]", productOwner.getFirstName());
+        body = body.replace("[[details]]", productResponseDTO.toString());
+
+        sendEmail(productOwner.getEmail(), body, subject);
+        logger.info("EmailService::sendProductActivationMail execution ended.");
+    }
+
+    public void sendProductDeactivationMail(ProductResponseDTO productResponseDTO,User productOwner){
+        logger.info("EmailService::sendProductActivationMail execution started.");
+
+        String subject = messageSource.getMessage("api.email.productSubject",null,Locale.ENGLISH);
+        String body = messageSource.getMessage("api.email.productActivationMail",null, Locale.ENGLISH);
+        body = body.replace("[[name]]", productOwner.getFirstName());
+        body = body.replace("[[details]]", productResponseDTO.toString());
+
+        sendEmail(productOwner.getEmail(), body, subject);
+        logger.info("EmailService::sendProductActivationMail execution ended.");
     }
 }

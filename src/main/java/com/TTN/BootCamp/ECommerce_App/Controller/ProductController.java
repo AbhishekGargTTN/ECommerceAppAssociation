@@ -1,20 +1,19 @@
 package com.TTN.BootCamp.ECommerce_App.Controller;
 
-import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.MetaDataFieldDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.ProductDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.ProductVariationDTO;
-import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.CategoryResponseDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.ProductResponseDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.ProductVariationResponseDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.ProductUpdateDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.ProductVariationUpdateDTO;
+import com.TTN.BootCamp.ECommerce_App.Entity.Product;
 import com.TTN.BootCamp.ECommerce_App.Service.ProductService;
-import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -123,6 +122,62 @@ public class ProductController {
         Locale locale = LocaleContextHolder.getLocale();
         String  response =
                 productService.updateProductVariation(id, email, productVariationUpdateDTO, locale);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/admin_view_product")
+    public ResponseEntity<ProductResponseDTO> viewAdminProduct(@RequestParam Long id){
+        Locale locale = LocaleContextHolder.getLocale();
+        ProductResponseDTO response = productService.adminViewProduct(id, locale);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/admin_view_all_product")
+    public ResponseEntity<List<ProductResponseDTO>> viewAdminProducts(){
+        Locale locale = LocaleContextHolder.getLocale();
+        List<ProductResponseDTO> response = productService.adminViewAllProducts(locale);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/activate_product")
+    public ResponseEntity<String> activateProduct(@RequestParam Long id){
+        Locale locale = LocaleContextHolder.getLocale();
+        String response = productService.activateProduct(id, locale);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/deactivate_product")
+    public ResponseEntity<String> deactivateProduct(@RequestParam Long id){
+        Locale locale = LocaleContextHolder.getLocale();
+        String response = productService.deactivateProduct(id, locale);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAuthority('CUSTOMER')")
+    @GetMapping("/customer_view_product")
+    public ResponseEntity<ProductResponseDTO> viewCustomerProduct(@RequestParam Long id){
+        Locale locale = LocaleContextHolder.getLocale();
+        ProductResponseDTO response = productService.customerViewProduct(id, locale);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAuthority('CUSTOMER')")
+    @GetMapping("/customer_view_all_product")
+    public ResponseEntity<List<ProductResponseDTO>> viewAllCustomerProducts(@RequestParam Long id){
+        Locale locale = LocaleContextHolder.getLocale();
+        List<ProductResponseDTO> response = productService.customerViewAllProducts(id, locale);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAuthority('CUSTOMER')")
+    @GetMapping("/customer_view_similar_product")
+    public ResponseEntity<List<Product>> viewSimilarProducts(@RequestParam Long id){
+        Locale locale = LocaleContextHolder.getLocale();
+        List<Product> response = productService.viewSimilarProducts(id, locale);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

@@ -1,5 +1,6 @@
 package com.TTN.BootCamp.ECommerce_App.Repository;
 
+import com.TTN.BootCamp.ECommerce_App.Entity.Category;
 import com.TTN.BootCamp.ECommerce_App.Entity.Product;
 import com.TTN.BootCamp.ECommerce_App.Entity.Seller;
 import com.TTN.BootCamp.ECommerce_App.Entity.User;
@@ -16,4 +17,10 @@ public interface ProductRepo extends JpaRepository<Product, Long> {
 
     @Query("select p from Product p where p.id = ?1")
     Product findByProductId(Long aLong);
+
+    List<Product> findByCategory(Category category);
+
+
+
+
 }

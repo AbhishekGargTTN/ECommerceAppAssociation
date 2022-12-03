@@ -7,6 +7,7 @@ import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.ProductResponseDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.ProductVariationResponseDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.ProductUpdateDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.ProductVariationUpdateDTO;
+import com.TTN.BootCamp.ECommerce_App.Entity.Product;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,4 +33,18 @@ public interface ProductService {
     public List<ProductVariationResponseDTO> viewAllProductVariation(long id, String email, Locale locale);
 
     public String  updateProductVariation(long id, String email, ProductVariationUpdateDTO productVariationUpdateDTO, Locale locale);
+
+    public  ProductResponseDTO adminViewProduct(long id,Locale locale);
+
+    public List<ProductResponseDTO> adminViewAllProducts(Locale locale);
+
+    public String activateProduct(long id,Locale locale);
+
+    public String deactivateProduct(long id,Locale locale);
+
+    public ProductResponseDTO customerViewProduct(long id,Locale locale);
+
+    public List<ProductResponseDTO> customerViewAllProducts(long id,Locale locale);
+
+    public List<Product> viewSimilarProducts(long id, Locale locale);
 }

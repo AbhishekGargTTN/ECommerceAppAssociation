@@ -34,10 +34,6 @@ CategoryMetaDataFieldValues  {
 //    @JsonBackReference
     private CategoryMetaDataField categoryMetaDataField;
 
-//    public CategoryMetaDataFieldValues(CategoryMetaDataCompositeKey categoryMetaDataCompositeKey, Category category, CategoryMetaDataField categoryMetaDataField) {
-//        this.categoryMetaDataCompositeKey = categoryMetaDataCompositeKey;
-//        this.category = category;
-//        this.categoryMetaDataField = categoryMetaDataField;
-//    }
+
 
 }

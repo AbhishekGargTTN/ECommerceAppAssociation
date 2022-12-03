@@ -11,6 +11,7 @@ import com.TTN.BootCamp.ECommerce_App.Entity.*;
 import com.TTN.BootCamp.ECommerce_App.Exception.BadRequestException;
 import com.TTN.BootCamp.ECommerce_App.Exception.ResourceNotFoundException;
 import com.TTN.BootCamp.ECommerce_App.Repository.*;
+import com.TTN.BootCamp.ECommerce_App.Service.MailService;
 import com.TTN.BootCamp.ECommerce_App.Service.ProductService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +49,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     ProductVariationRepo productVariationRepo;
+
+    @Autowired
+    MailService mailService;
 
     public String addProduct(ProductDTO productDTO, String email, Locale locale) {
 
@@ -137,6 +141,7 @@ public class ProductServiceImpl implements ProductService {
         if(product.get().getUser().getId()==user.getId()) {
 
             if (product.isPresent()) {
+                productVariationRepo.deleteAllInBatch(productVariationRepo.findByProduct(product.get()));
                 productRepo.delete(product.get());
                 return messageSource
                         .getMessage("api.response.deletedSuccess",null, locale);
@@ -168,15 +173,14 @@ public class ProductServiceImpl implements ProductService {
 
     public String addProductVariation(ProductVariationDTO productVariationDTO,Locale locale){
 
-        System.out.println(productVariationDTO.toString());
         Optional<Product> product = productRepo.findById(productVariationDTO.getProductId());
         if(product.isEmpty()){
-            throw new BadRequestException(messageSource.getMessage("api.error.invalidId",null,locale));
+            throw new BadRequestException(messageSource.getMessage("api.error.invalidId",null,Locale.ENGLISH));
         }
 
         // check product status
         if (product.get().isActive() || product.get().isDeleted()){
-            throw new BadRequestException(messageSource.getMessage("api.error.productInactiveDeleted",null,locale));
+            throw new BadRequestException(messageSource.getMessage("api.error.productInactiveDeleted",null,Locale.ENGLISH));
         }
 
         Category associatedCategory = product.get().getCategory();
@@ -185,9 +189,7 @@ public class ProductServiceImpl implements ProductService {
         // are among the existing metaField-values defined for the category
 
         Map<String, Set<String>> requestMetadata = productVariationDTO.getMetadata();
-        System.out.println(requestMetadata);
         List<String> requestKeySet = requestMetadata.keySet().stream().collect(Collectors.toList());
-        System.out.println(requestKeySet);
 
         List<CategoryMetaDataFieldValues> associatedMetadata = categoryMetaDataFieldValuesRepo.findByCategory(associatedCategory);
         List<String> associatedKeySet = new ArrayList<>();
@@ -201,7 +203,7 @@ public class ProductServiceImpl implements ProductService {
         // check if metadataField are associated with the category
         if(Collections.indexOfSubList(associatedKeySet,requestKeySet)==-1){
             requestKeySet.removeAll(associatedKeySet);
-            String errorResponse = messageSource.getMessage("api.error.fieldNotAssociated",null,locale);
+            String errorResponse = messageSource.getMessage("api.error.fieldNotAssociated",null,Locale.ENGLISH);
             errorResponse=errorResponse.replace("[[fields]]", requestKeySet.toString());
             throw new BadRequestException(errorResponse);
         }
@@ -211,24 +213,26 @@ public class ProductServiceImpl implements ProductService {
             CategoryMetaDataField categoryMetadataField = categoryMetaDataFieldRepo.findByName(key);
             CategoryMetaDataFieldValues categoryMetadataFieldValue = categoryMetaDataFieldValuesRepo.findByCategoryAndCategoryMetaDataField(associatedCategory,categoryMetadataField);
             String associatedStringValues = categoryMetadataFieldValue.getValue();
+
             String associatedField = categoryMetadataFieldValue.getCategoryMetaDataField().getName();
             Set<String> associatedValues =Set.of(associatedStringValues.split(","));
             Set<String> requestValues = requestMetadata.get(key);
 
-
             if(!associatedValues.containsAll(requestValues)){
                 requestValues.removeAll(associatedValues);
-                String errorResponse = messageSource.getMessage("api.error.valueNotAssociated",null,locale);
+                String errorResponse = messageSource.getMessage("api.error.valueNotAssociated",null,Locale.ENGLISH);
                 errorResponse=errorResponse.replace("[[value]]",associatedField+"-"+requestValues);
                 throw new BadRequestException(errorResponse);
             }
         }
         ProductVariation productVariation = new ProductVariation();
-        BeanUtils.copyProperties(productVariationDTO,productVariation);
+        productVariation.setPrice(productVariationDTO.getPrice());
+        productVariation.setMetaData(productVariationDTO.getMetadata());
+        productVariation.setQuantityAvailable(productVariationDTO.getQuantityAvailable());
         productVariation.setProduct(product.get());
         productVariationRepo.save(productVariation);
 
-        return messageSource.getMessage("api.response.addedSuccess",null,locale);
+        return messageSource.getMessage("api.response.addedSuccess",null,Locale.ENGLISH);
     }
 
     public ProductVariationResponseDTO viewProductVariation(long id, String email, Locale locale){
@@ -282,12 +286,26 @@ public class ProductServiceImpl implements ProductService {
             ,ProductVariationUpdateDTO productVariationUpdateDTO, Locale locale){
 
         Optional<ProductVariation> productVariation= productVariationRepo.findById(id);
+
+        System.out.println(productVariationUpdateDTO.toString());
+
         Product product= productRepo.findByProductId(productVariation.get().getProduct().getId());
         User user= userRepo.findUserByEmail(email);
         if(product.getUser().getId()==user.getId()) {
 
             if (product!=null&&productVariation.isPresent()) {
-                BeanUtils.copyProperties(productVariationUpdateDTO, productVariation, FilterProperties.getNullPropertyNames(productVariationUpdateDTO));
+//                BeanUtils.copyProperties(productVariationUpdateDTO, productVariation, FilterProperties.getNullPropertyNames(productVariationUpdateDTO));
+
+                if(productVariationUpdateDTO.getMetadata()!= null){
+                    productVariation.get().setMetaData(productVariationUpdateDTO.getMetadata());
+                }
+                if(productVariationUpdateDTO.getPrice()!= null){
+                    productVariation.get().setPrice(productVariationUpdateDTO.getPrice());
+                }
+                if(productVariationUpdateDTO.getQuantityAvailable()!= null){
+                    productVariation.get().setQuantityAvailable(productVariationUpdateDTO.getQuantityAvailable());
+                }
+
                 productVariationRepo.save(productVariation.get());
                 return messageSource
                         .getMessage("api.response.updateSuccess",null, locale);
@@ -297,5 +315,173 @@ public class ProductServiceImpl implements ProductService {
         }
         throw new BadRequestException(messageSource
                 .getMessage("api.error.notAuthorized",null, locale));
+    }
+
+    public  ProductResponseDTO adminViewProduct(long id,Locale locale){
+        Optional<Product> product = productRepo.findById(id);
+        if (product == null || product.isEmpty()) {
+            throw new BadRequestException(messageSource.getMessage("api.error.invalidProductId",null,locale));
+        }
+
+        ProductResponseDTO productResponseDTO = new ProductResponseDTO();
+        productResponseDTO.setId(product.get().getId());
+        productResponseDTO.setName(product.get().getName());
+        productResponseDTO.setBrand(product.get().getBrand());
+        productResponseDTO.setDescription(product.get().getDescription());
+        productResponseDTO.setActive(product.get().isActive());
+        productResponseDTO.setReturnable(product.get().isReturnable());
+        productResponseDTO.setCancellable(product.get().isCancellable());
+        productResponseDTO.setCategory(product.get().getCategory());
+
+        return productResponseDTO;
+    }
+
+    public List<ProductResponseDTO> adminViewAllProducts(Locale locale){
+        List<Product> products = productRepo.findAll();
+
+        if(products.isEmpty()){
+            throw new BadRequestException(messageSource.getMessage("api.error.productNotFound",null,locale));
+        }
+
+        List<ProductResponseDTO> productResponseDTOList= new ArrayList<>();
+        for(Product product: products){
+            ProductResponseDTO productResponseDTO = new ProductResponseDTO();
+            productResponseDTO.setId(product.getId());
+            productResponseDTO.setName(product.getName());
+            productResponseDTO.setBrand(product.getBrand());
+            productResponseDTO.setDescription(product.getDescription());
+            productResponseDTO.setActive(product.isActive());
+            productResponseDTO.setCancellable(product.isCancellable());
+            productResponseDTO.setReturnable(product.isReturnable());
+            productResponseDTO.setCategory(product.getCategory());
+            productResponseDTOList.add(productResponseDTO);
+        }
+        return productResponseDTOList;
+    }
+
+    public String activateProduct(long id,Locale locale){
+        Optional<Product> product = productRepo.findById(id);
+        if (product == null || product.isEmpty()) {
+            throw new BadRequestException(messageSource.getMessage("api.error.invalidProductId",null,locale));
+        }
+        if (product.get().isActive()){
+            throw new BadRequestException(messageSource.getMessage("api.error.productAlreadyActive",null,locale));
+
+        }else{
+            // update status & save
+            product.get().setActive(true);
+            productRepo.save(product.get());
+
+            // trigger mail
+            ProductResponseDTO productResponseDTO = new ProductResponseDTO();
+            BeanUtils.copyProperties(product.get(),productResponseDTO);
+            User productOwner = product.get().getUser();
+            mailService.sendProductActivationMail(productResponseDTO,productOwner);
+
+            return messageSource.getMessage("api.response.activationSuccess",null,locale);
+        }
+    }
+
+    public String deactivateProduct(long id,Locale locale){
+        Optional<Product> product = productRepo.findById(id);
+        if (product == null || product.isEmpty()) {
+            throw new BadRequestException(messageSource.getMessage("api.error.invalidProductId",null,locale));
+        }
+        if (product.get().isActive()==false){
+            throw new BadRequestException(messageSource.getMessage("api.error.productAlreadyInactive",null,locale));
+
+        } else{
+            product.get().setActive(false);
+            productRepo.save(product.get());
+
+            ProductResponseDTO productResponseDTO = new ProductResponseDTO();
+            BeanUtils.copyProperties(product.get(), productResponseDTO);
+            User productOwner = product.get().getUser();
+            mailService.sendProductDeactivationMail(productResponseDTO,productOwner);
+
+            return messageSource.getMessage("api.response.deactivationSuccess",null,Locale.ENGLISH);
+        }
+    }
+
+    public ProductResponseDTO customerViewProduct(long id,Locale locale){
+        Optional<Product> product = productRepo.findById(id);
+        if (product == null || product.isEmpty()) {
+            throw new BadRequestException(messageSource.getMessage("api.error.invalidProductId",null,locale));
+        }
+        // check product status
+        if (product.get().isDeleted() || product.get().isActive() == false ){
+            throw new BadRequestException(messageSource.getMessage("api.error.productInactiveDeleted",null,locale));
+        }
+
+        // convert to appropriate DTO
+        ProductResponseDTO productResponseDTO = new ProductResponseDTO();
+        productResponseDTO.setId(product.get().getId());
+        productResponseDTO.setName(product.get().getName());
+        productResponseDTO.setBrand(product.get().getBrand());
+        productResponseDTO.setDescription(product.get().getDescription());
+        productResponseDTO.setActive(product.get().isActive());
+        productResponseDTO.setReturnable(product.get().isReturnable());
+        productResponseDTO.setCancellable(product.get().isCancellable());
+        productResponseDTO.setCategory(product.get().getCategory());
+
+        return productResponseDTO;
+    }
+
+    public List<ProductResponseDTO> customerViewAllProducts(long id,Locale locale){
+        Category category = categoryRepo.findById(id).orElseThrow(() -> new BadRequestException(
+                messageSource.getMessage("api.error.invalidId", null, locale)
+        ));
+
+        // check if category is a leaf node
+        if (category.getSubCategories()!=null){
+            throw new BadRequestException(messageSource.getMessage("api.error.notLeafNode",null,locale));
+        }
+
+        List<Product> products = productRepo.findByCategory(category);
+
+        if(products.isEmpty()){
+            throw new BadRequestException(messageSource.getMessage("api.error.productNotFound",null,locale));
+        }
+
+        List<ProductResponseDTO> productResponseDTOList= new ArrayList<>();
+        for(Product product: products){
+            ProductResponseDTO productResponseDTO = new ProductResponseDTO();
+            productResponseDTO.setId(product.getId());
+            productResponseDTO.setName(product.getName());
+            productResponseDTO.setBrand(product.getBrand());
+            productResponseDTO.setDescription(product.getDescription());
+            productResponseDTO.setActive(product.isActive());
+            productResponseDTO.setCancellable(product.isCancellable());
+            productResponseDTO.setReturnable(product.isReturnable());
+            productResponseDTO.setCategory(product.getCategory());
+            productResponseDTOList.add(productResponseDTO);
+        }
+        return productResponseDTOList;
+    }
+
+    public List<Product> viewSimilarProducts(long id,Locale locale){
+        Optional<Product> product = productRepo.findById(id);
+        if (product == null || product.isEmpty()) {
+            throw new BadRequestException(messageSource.getMessage("api.error.invalidProductId",null,locale));
+        }
+
+        if (product.get().isDeleted() || product.get().isActive() == false ){
+            throw new BadRequestException(messageSource.getMessage("api.error.productInactiveDeleted",null,locale));
+        }
+
+        Category associatedCategory = product.get().getCategory();
+        List<Product> similarProducts = new ArrayList<>();
+
+        List<Product> siblingProducts = productRepo.findByCategory(associatedCategory);
+
+        for(Product individualProduct: siblingProducts){
+            similarProducts.add(individualProduct);
+        }
+
+        if(similarProducts.size()==1){
+            throw new BadRequestException(messageSource.getMessage("api.error.similarProducts",null,locale));
+        }
+
+        return similarProducts;
     }
 }

@@ -12,12 +12,12 @@ import java.util.Set;
 @ToString
 public class ProductVariationDTO {
 
-    private long productId;
+    private Long productId;
 
     private Map<String, Set<String>> metadata;
 
     //    private MultipartFile image;
-    private long quantityAvailable;
+    private Long quantityAvailable;
 
-    private double price;
+    private Double price;
 }

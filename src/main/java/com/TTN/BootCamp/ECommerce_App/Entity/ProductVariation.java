@@ -1,27 +1,21 @@
 package com.TTN.BootCamp.ECommerce_App.Entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
 
 import javax.persistence.*;
 
 @Entity
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@TypeDefs({
-        @TypeDef(name = "json", typeClass = JsonStringType.class),
-        @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
-})
+@TypeDef(name = "json", typeClass = JsonStringType.class)
 public class ProductVariation {
 
     @Id
@@ -30,23 +24,23 @@ public class ProductVariation {
     private long id;
 
     @Column(name = "Quantity_Available")
-    private long quantityAvailable;
+    private Long quantityAvailable;
 
     @Column(name = "Price")
-    private double price;
+    private Double price;
 
-    @Column(name = "Primary_Image_Name")
-    String primaryImageName;
+//    @Column(name = "Primary_Image_Name")
+//    String primaryImageName;
 
     @Type(type = "json")
     @Column(columnDefinition = "json")
-    private MetaData metaData;
+    private Object metaData;
 
     @Column(name = "Is_Active")
     private boolean isActive;
 
-    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "Product_ID")
-    @JsonBackReference
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Product product;
 }

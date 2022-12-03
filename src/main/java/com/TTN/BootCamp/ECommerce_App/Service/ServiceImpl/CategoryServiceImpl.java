@@ -150,24 +150,84 @@ public class CategoryServiceImpl implements CategoryService {
     public String addCategoryMetaDataField
             (CategoryMetaDataFieldValueDTO categoryMetaDataFieldValueDTO, Locale locale){
 
-        CategoryMetaDataFieldValues categoryMetaDataFieldValues= new CategoryMetaDataFieldValues();
+//        CategoryMetaDataFieldValues categoryMetaDataFieldValues= new CategoryMetaDataFieldValues();
+//
+//        Category category= categoryRepo.findByCategoryId(categoryMetaDataFieldValueDTO.getCategoryId());
+//        categoryMetaDataFieldValues.setCategory(category);
+//
+//        CategoryMetaDataField categoryMetaDataField= categoryMetaDataFieldRepo.findByFieldId(categoryMetaDataFieldValueDTO.getMetaDataFieldId());
+//        categoryMetaDataFieldValues.setCategoryMetaDataField(categoryMetaDataField);
+//
+//        categoryMetaDataFieldValues.setValue(categoryMetaDataFieldValueDTO.getValues().toString());
+//
+//        CategoryMetaDataCompositeKey categoryMetaDataCompositeKey = new CategoryMetaDataCompositeKey();
+//        categoryMetaDataCompositeKey.setCategoryId(category.getId());
+//        categoryMetaDataCompositeKey.setCategoryMetaDataFieldId(categoryMetaDataField.getId());
+//        categoryMetaDataFieldValues.setCategoryMetaDataCompositeKey(categoryMetaDataCompositeKey);
+//
+//        categoryMetaDataFieldValuesRepo.save(categoryMetaDataFieldValues);
+//
+//        return messageSource.getMessage("api.response.metadataCategoryAdded",null, locale);
 
-        Category category= categoryRepo.findByCategoryId(categoryMetaDataFieldValueDTO.getCategoryId());
-        categoryMetaDataFieldValues.setCategory(category);
+//        logger.info("CategoryService::addMetaValues execution started");
 
-        CategoryMetaDataField categoryMetaDataField= categoryMetaDataFieldRepo.findByFieldId(categoryMetaDataFieldValueDTO.getMetaDataFieldId());
-        categoryMetaDataFieldValues.setCategoryMetaDataField(categoryMetaDataField);
+        Long categoryId = categoryMetaDataFieldValueDTO.getCategoryId();
+        Long metadataId = categoryMetaDataFieldValueDTO.getMetaDataFieldId();
 
-        categoryMetaDataFieldValues.setValue(categoryMetaDataFieldValueDTO.getValues().toString());
+        // check to see if provided ids are valid
+        Category category = categoryRepo.findById(categoryId).orElseThrow(() -> new BadRequestException(
+                messageSource.getMessage("api.error.invalidId", null, Locale.ENGLISH)
+        ));
+        CategoryMetaDataField metaField = categoryMetaDataFieldRepo.findById(metadataId).orElseThrow(() -> new BadRequestException(
+                messageSource.getMessage("api.error.invalidId", null, Locale.ENGLISH)
+        ));
 
-        CategoryMetaDataCompositeKey categoryMetaDataCompositeKey = new CategoryMetaDataCompositeKey();
-        categoryMetaDataCompositeKey.setCategoryId(category.getId());
-        categoryMetaDataCompositeKey.setCategoryMetaDataFieldId(categoryMetaDataField.getId());
-        categoryMetaDataFieldValues.setCategoryMetaDataCompositeKey(categoryMetaDataCompositeKey);
 
-        categoryMetaDataFieldValuesRepo.save(categoryMetaDataFieldValues);
+        // convert requestDTO to entity obj
+        CategoryMetaDataFieldValues fieldValue = new CategoryMetaDataFieldValues();
+        fieldValue.setCategoryMetaDataCompositeKey(new CategoryMetaDataCompositeKey(category.getId(), metaField.getId()));
+        fieldValue.setCategory(category);
+        fieldValue.setCategoryMetaDataField(metaField);
 
-        return messageSource.getMessage("api.response.metadataCategoryAdded",null, locale);
+        String newValues = "";
+
+        // check to see if values are unique for category, metadataField combo
+        CategoryMetaDataCompositeKey key = new CategoryMetaDataCompositeKey(categoryId,metadataId);
+
+        Optional<CategoryMetaDataFieldValues> object = categoryMetaDataFieldValuesRepo.findById(key);
+        String originalValues="";
+        if(object.isPresent()){
+            originalValues = object.get().getValue();
+        }
+
+        if(originalValues!=null){
+            newValues = originalValues;
+        }
+
+        Optional<List<String>> check = Optional.of(List.of(originalValues.split(",")));
+
+        for (String value : categoryMetaDataFieldValueDTO.getValues()){
+
+            if(check.isPresent() && check.get().contains(value)){
+                throw new BadRequestException(messageSource.getMessage("api.error.invalidFieldValue",null,Locale.ENGLISH));
+            }
+            // convert list of String values in request
+            // to a comma separated String to be stored in database
+            newValues = newValues.concat(value + ",");
+        }
+        fieldValue.setValue(newValues);
+
+        // save field values to repo
+        categoryMetaDataFieldValuesRepo.save(fieldValue);
+
+        // create appropriate responseDTO
+//        MetaDataFieldValueResponseDTO metaFieldValueResponseDTO = new MetaDataFieldValueResponseDTO();
+//        metaFieldValueResponseDTO.set(category.getId());
+//        metaFieldValueResponseDTO.setMetaFieldId(metaField.getId());
+//        metaFieldValueResponseDTO.setValues(fieldValue.getValue());
+
+
+         return messageSource.getMessage("api.response.metadataCategoryAdded",null, locale);
     }
 
     public String updateCategoryMetaDataField
