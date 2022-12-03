@@ -1,5 +1,6 @@
 package com.TTN.BootCamp.ECommerce_App.Entity;
 
+import com.TTN.BootCamp.ECommerce_App.DTO.Auditing.Auditable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +16,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Category {
+public class Category extends Auditable<String> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "category_gen")

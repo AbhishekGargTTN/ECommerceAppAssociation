@@ -14,7 +14,8 @@ import javax.persistence.*;
 @ToString
 public class Address extends Auditable<String> {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "address_gen")
+    @SequenceGenerator(name="address_gen", sequenceName = "address_seq", initialValue = 1, allocationSize = 1)
     @Column(name = "ID")
     private long id;
 

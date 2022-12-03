@@ -174,7 +174,6 @@ public class CategoryServiceImpl implements CategoryService {
         Long categoryId = categoryMetaDataFieldValueDTO.getCategoryId();
         Long metadataId = categoryMetaDataFieldValueDTO.getMetaDataFieldId();
 
-        // check to see if provided ids are valid
         Category category = categoryRepo.findById(categoryId).orElseThrow(() -> new BadRequestException(
                 messageSource.getMessage("api.error.invalidId", null, Locale.ENGLISH)
         ));
@@ -182,8 +181,6 @@ public class CategoryServiceImpl implements CategoryService {
                 messageSource.getMessage("api.error.invalidId", null, Locale.ENGLISH)
         ));
 
-
-        // convert requestDTO to entity obj
         CategoryMetaDataFieldValues fieldValue = new CategoryMetaDataFieldValues();
         fieldValue.setCategoryMetaDataCompositeKey(new CategoryMetaDataCompositeKey(category.getId(), metaField.getId()));
         fieldValue.setCategory(category);
@@ -191,7 +188,6 @@ public class CategoryServiceImpl implements CategoryService {
 
         String newValues = "";
 
-        // check to see if values are unique for category, metadataField combo
         CategoryMetaDataCompositeKey key = new CategoryMetaDataCompositeKey(categoryId,metadataId);
 
         Optional<CategoryMetaDataFieldValues> object = categoryMetaDataFieldValuesRepo.findById(key);
@@ -211,13 +207,12 @@ public class CategoryServiceImpl implements CategoryService {
             if(check.isPresent() && check.get().contains(value)){
                 throw new BadRequestException(messageSource.getMessage("api.error.invalidFieldValue",null,Locale.ENGLISH));
             }
-            // convert list of String values in request
-            // to a comma separated String to be stored in database
+
             newValues = newValues.concat(value + ",");
         }
         fieldValue.setValue(newValues);
 
-        // save field values to repo
+
         categoryMetaDataFieldValuesRepo.save(fieldValue);
 
         // create appropriate responseDTO
@@ -306,4 +301,6 @@ public class CategoryServiceImpl implements CategoryService {
             return rootNodes;
         }
     }
+
+
 }

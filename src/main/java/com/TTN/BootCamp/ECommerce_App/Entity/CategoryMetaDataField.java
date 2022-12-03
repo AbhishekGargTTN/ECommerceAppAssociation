@@ -1,16 +1,17 @@
 package com.TTN.BootCamp.ECommerce_App.Entity;
 
+import com.TTN.BootCamp.ECommerce_App.DTO.Auditing.Auditable;
 import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
-//@Getter
-//@Setter
-//@NoArgsConstructor
-//@AllArgsConstructor
-@Data
-public class CategoryMetaDataField {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+public class CategoryMetaDataField extends Auditable<String> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "metadata_gen")

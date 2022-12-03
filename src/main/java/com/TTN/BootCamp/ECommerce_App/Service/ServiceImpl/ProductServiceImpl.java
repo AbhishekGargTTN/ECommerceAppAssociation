@@ -77,6 +77,7 @@ public class ProductServiceImpl implements ProductService {
             product.setCategory(category);
             product.setUser(user);
             productRepo.save(product);
+            mailService.sendNewProductMail(product);
             return messageSource
                     .getMessage("api.response.addedSuccess",null, locale);
         }

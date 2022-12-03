@@ -1,6 +1,7 @@
 package com.TTN.BootCamp.ECommerce_App.Service.ServiceImpl;
 
 import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.ProductResponseDTO;
+import com.TTN.BootCamp.ECommerce_App.Entity.Product;
 import com.TTN.BootCamp.ECommerce_App.Entity.SecureToken;
 import com.TTN.BootCamp.ECommerce_App.Entity.User;
 import com.TTN.BootCamp.ECommerce_App.Repository.SecureTokenRepo;
@@ -21,54 +22,45 @@ import java.util.Locale;
 @Component
 @Transactional
 public class MailServiceImpl implements MailService {
-
     Logger logger = LoggerFactory.getLogger(MailServiceImpl.class);
-    @Autowired
     private JavaMailSender javaMailSender;
-
-    @Autowired
-    SecureTokenRepo secureTokenRepo;
-
-    @Autowired
-    MessageSource messageSource;
-
+    private SecureTokenRepo secureTokenRepo;
+    private MessageSource messageSource;
+    public MailServiceImpl(JavaMailSender javaMailSender, SecureTokenRepo secureTokenRepo, MessageSource messageSource) {
+        this.javaMailSender = javaMailSender;
+        this.secureTokenRepo = secureTokenRepo;
+        this.messageSource = messageSource;
+    }
     @Value("${spring.mail.username}")
     private String sender;
 
     @Async
     public void sendEmail(String toEmail, String body, String subject) {
         logger.info("MailService: started execution");
-        logger.debug("MailService: configuring email details");
-
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setFrom(sender);
         mailMessage.setTo(toEmail);
         mailMessage.setSubject(subject);
         mailMessage.setText(body);
-
         javaMailSender.send(mailMessage);
         logger.info("MailService: ended execution");
-
     }
 
 
     public void sendActivationMail(User user, Locale locale){
         logger.info("MailService: sendActivationMail started execution");
-        logger.debug("MailService: sendActivationMail generating token and composing activation mail");
-
         SecureToken secureToken = new SecureToken(user);
         secureTokenRepo.save(secureToken);
 
         String emailSubject= messageSource
                 .getMessage("api.email.activationSubject",null, locale);
+        String link = messageSource
+                .getMessage("api.email.siteUrlActivate"
+                        ,new String[]{secureToken.getSecureToken()}, locale);
 
         String emailBody = messageSource
-                .getMessage("api.email.activationMailBody",new String[]{user.getFirstName()}, locale);
-
-        String link = messageSource.getMessage("api.email.siteUrl",null, locale);
-
-//        emailBody = emailBody.replace("[[name]]", user.getFirstName());
-//        emailBody = emailBody.replace("[[URL]]",link +"/activate_account?token="+ secureToken.getSecureToken());
+                .getMessage("api.email.activationMailBody"
+                        ,new String[]{user.getFirstName(),link}, locale);
 
         sendEmail(user.getEmail(), emailBody, emailSubject);
         logger.info("MailService: sendActivationMail ended execution");
@@ -77,13 +69,12 @@ public class MailServiceImpl implements MailService {
 
     public void sendIsActivatedMail(User user, Locale locale){
         logger.info("MailService: sendIsActivatedMail started execution");
-        logger.debug("MailService: sendIsActivatedMail composing activation confirmation mail");
-
         String emailSubject= messageSource
                 .getMessage("api.email.activationSubject",null, locale);
 
-        String emailBody = messageSource.getMessage("api.email.isActivatedMailBody",null, locale);
-        emailBody = emailBody.replace("[[name]]", user.getFirstName());
+        String emailBody = messageSource
+                .getMessage("api.email.isActivatedMailBody"
+                        ,new String[]{user.getFirstName()}, locale);
 
         sendEmail(user.getEmail(), emailBody, emailSubject);
         logger.info("MailService: sendIsActivatedMail ended execution");
@@ -91,7 +82,6 @@ public class MailServiceImpl implements MailService {
 
     public void sendForgotPasswordMail(User user, Locale locale){
         logger.info("MailService: sendForgotPasswordMail started execution");
-        logger.debug("MailService: sendForgotPasswordMail generating token and composing password reset mail");
 
         SecureToken secureToken = new SecureToken(user);
         secureTokenRepo.save(secureToken);
@@ -99,13 +89,11 @@ public class MailServiceImpl implements MailService {
         String emailSubject= messageSource
                 .getMessage("api.email.resetSubject",null, locale);
 
+        String link = messageSource.getMessage("api.email.siteUrlForgot"
+                ,new String[]{secureToken.getSecureToken()}, locale);
         String emailBody = messageSource
-                .getMessage("api.email.forgotPasswordMailBody",null, locale);
-
-        String link = messageSource.getMessage("api.email.siteUrl",null, Locale.ENGLISH);
-
-        emailBody = emailSubject.replace("[[name]]", user.getFirstName());
-        emailBody = emailSubject.replace("[[URL]]",link +"/reset_password?token="+ secureToken.getSecureToken());
+                .getMessage("api.email.forgotPasswordMailBody"
+                        ,new String[]{user.getFirstName(),link}, locale);
 
         sendEmail(user.getEmail(), emailBody, emailSubject);
         logger.info("MailService: sendForgotPasswordMail ended execution");
@@ -113,13 +101,13 @@ public class MailServiceImpl implements MailService {
 
     public void sendSuccessfulChangeMail(User user, Locale locale) {
         logger.info("MailService: sendSuccessfulChangeMail started execution");
-        logger.debug("MailService: sendSuccessfulChangeMail composing password reset confirmation mail");
 
         String emailSubject= messageSource
                 .getMessage("api.email.resetSubject",null, locale);
 
-        String emailBody = messageSource.getMessage("api.email.successfulChangeMailBody",null, locale);
-        emailBody = emailBody.replace("[[name]]", user.getFirstName());
+        String emailBody = messageSource
+                .getMessage("api.email.successfulChangeMailBody"
+                        ,new String[]{user.getFirstName()}, locale);
 
         sendEmail(user.getEmail(), emailBody, emailSubject);
         logger.info("MailService: sendSuccessfulChangeMail ended execution");
@@ -128,14 +116,12 @@ public class MailServiceImpl implements MailService {
     public void sendDeActivatedMail(User user, Locale locale) {
         logger.info("MailService: sendDeActivatedMail started execution");
 
-        logger.debug("MailService: sendDeActivatedMail composing user " +
-                "account deactivation confirmation mail");
-
         String emailSubject= messageSource
                 .getMessage("api.email.deactivationSubject",null, locale);
 
-        String emailBody = messageSource.getMessage("api.email.accountDeactivatedMailBody",null, locale);
-        emailBody = emailBody.replace("[[name]]", user.getFirstName());
+        String emailBody = messageSource
+                .getMessage("api.email.accountDeactivatedMailBody"
+                        ,new String[]{user.getFirstName()}, locale);
 
         sendEmail(user.getEmail(), emailBody, emailSubject);
         logger.info("MailService: sendDeActivatedMail ended execution");
@@ -144,10 +130,12 @@ public class MailServiceImpl implements MailService {
     public void sendProductActivationMail(ProductResponseDTO productResponseDTO, User productOwner){
         logger.info("EmailService::sendProductActivationMail execution started.");
 
-        String subject = messageSource.getMessage("api.email.productSubject",null,Locale.ENGLISH);
-        String body = messageSource.getMessage("api.email.productActivationMail",null, Locale.ENGLISH);
-        body = body.replace("[[name]]", productOwner.getFirstName());
-        body = body.replace("[[details]]", productResponseDTO.toString());
+        String subject = messageSource
+                .getMessage("api.email.productSubject",null,Locale.ENGLISH);
+
+        String body = messageSource
+                .getMessage("api.email.productActivationMail"
+                        ,new String[]{productOwner.getFirstName(),productResponseDTO.toString()}, Locale.ENGLISH);
 
         sendEmail(productOwner.getEmail(), body, subject);
         logger.info("EmailService::sendProductActivationMail execution ended.");
@@ -157,11 +145,52 @@ public class MailServiceImpl implements MailService {
         logger.info("EmailService::sendProductActivationMail execution started.");
 
         String subject = messageSource.getMessage("api.email.productSubject",null,Locale.ENGLISH);
-        String body = messageSource.getMessage("api.email.productActivationMail",null, Locale.ENGLISH);
-        body = body.replace("[[name]]", productOwner.getFirstName());
-        body = body.replace("[[details]]", productResponseDTO.toString());
+
+        String body = messageSource
+                .getMessage("api.email.productDeactivationMail"
+                        ,new String[]{productOwner.getFirstName(),productResponseDTO.toString()}, Locale.ENGLISH);
 
         sendEmail(productOwner.getEmail(), body, subject);
         logger.info("EmailService::sendProductActivationMail execution ended.");
+    }
+
+    public void sendAccountLockedMail(User user){
+        logger.info("EmailService::sendAccountLockedMail execution started.");
+
+        logger.debug("EmailService::sendAccountLockedMail composing email to send");
+
+        String subject = messageSource.getMessage("api.email.accountLockedSubject",null,Locale.ENGLISH);
+        String body = messageSource
+                .getMessage("api.email.accountLockedMailBody"
+                        ,new String[]{user.getFirstName()}, Locale.ENGLISH);
+
+        sendEmail(user.getEmail(), body, subject);
+        logger.info("EmailService::sendAccountLockedMail execution ended.");
+
+    }
+
+    public void sendNewProductMail(Product product) {
+        logger.info("EmailService::sendNewProductMail execution started.");
+
+        String subject = messageSource.getMessage("api.email.productSubject",null,Locale.ENGLISH);
+        String body = messageSource
+                .getMessage("api.email.newProductAddedMailBody"
+                        ,new String[]{"Admin", product.toString()}, Locale.ENGLISH);
+
+        sendEmail("garga5492216@gmail.com", body, subject);
+        logger.info("EmailService::sendSuccessfulChangeMail execution ended.");
+    }
+
+    public void sendAwaitingApprovalMail(User user){
+        logger.info("EmailService::sendAwaitingApprovalMail execution started.");
+
+        String subject = messageSource.getMessage("api.email.activationSubject",null,Locale.ENGLISH);
+        String body = messageSource
+                .getMessage("api.email.awaitingApprovalMailBody"
+                        ,new String[]{user.getFirstName()}, Locale.ENGLISH);
+
+        sendEmail(user.getEmail(), body, subject);
+        logger.info("EmailService::sendAwaitingApprovalMail execution ended.");
+
     }
 }

@@ -24,17 +24,19 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     @Autowired
     private UserDetailsService customUserDetailsService;
 
-//    @Autowired
-//    public ResourceServerConfig(AuthenticationManager authenticationManager, UserDetailsService customUserDetailsService) {
-//        this.authenticationManager = authenticationManager;
-//        this.customUserDetailsService = customUserDetailsService;
-//    }
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
                 .antMatchers("/api/register").permitAll()
+                .antMatchers("/api/login").permitAll()
+                .antMatchers("/api/activate_account").permitAll()
+                .antMatchers("/api/resend_activation").permitAll()
+                .antMatchers("/api/forgot_password").permitAll()
+                .antMatchers("/api/reset_password").permitAll()
+                .antMatchers("/api/registration").permitAll()
+                .antMatchers("/api/logout").authenticated()
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement()

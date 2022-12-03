@@ -3,6 +3,7 @@ package com.TTN.BootCamp.ECommerce_App.Entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -13,10 +14,12 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 public class SecureToken {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "secureToken_gen")
+    @SequenceGenerator(name="secureToken_gen", sequenceName = "secureToken_seq", initialValue = 1, allocationSize = 1)
     @Column(name = "ID")
     private long id;
 

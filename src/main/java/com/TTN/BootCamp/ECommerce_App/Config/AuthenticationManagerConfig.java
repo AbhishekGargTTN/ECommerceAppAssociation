@@ -2,6 +2,7 @@ package com.TTN.BootCamp.ECommerce_App.Config;
 
 import com.TTN.BootCamp.ECommerce_App.Entity.User;
 import com.TTN.BootCamp.ECommerce_App.Repository.UserRepo;
+import com.TTN.BootCamp.ECommerce_App.Service.MailService;
 import com.TTN.BootCamp.ECommerce_App.Service.ServiceImpl.CustomUserDetailsServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,9 @@ public class AuthenticationManagerConfig implements AuthenticationManager {
     @Autowired
     BCryptPasswordEncoder passwordEncoder;
 
+    @Autowired
+    MailService mailService;
+
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
@@ -48,7 +52,7 @@ public class AuthenticationManagerConfig implements AuthenticationManager {
         }
         if(user.isLocked()){
             logger.error("Exception occurred while authenticating");
-            throw new BadCredentialsException("Account is locked"); // change the exception
+            throw new BadCredentialsException("Account is locked");
         }
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
@@ -60,6 +64,7 @@ public class AuthenticationManagerConfig implements AuthenticationManager {
             } else{
                 user.setLocked(true);
                 user.setInvalidAttemptCount(0);
+                mailService.sendAccountLockedMail(user);
                 userRepo.save(user);
                 logger.debug("AuthenticationManagerConfig: user account "+
                         "locked for crossing invalid attempt limit");
@@ -71,9 +76,9 @@ public class AuthenticationManagerConfig implements AuthenticationManager {
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(user.getRole().getRole()));
 
-        user.setInvalidAttemptCount(0); // reset counter on successful login
+        user.setInvalidAttemptCount(0);
         userRepo.save(user);
-        logger.debug("AuthenticationManagerConfig: user credentials authenticated");
+
         logger.info("AuthenticationManagerConfig: ended execution");
         return new UsernamePasswordAuthenticationToken(username, password,authorities);
     }

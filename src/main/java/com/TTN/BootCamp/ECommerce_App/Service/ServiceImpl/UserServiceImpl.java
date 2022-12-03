@@ -191,7 +191,7 @@ public class UserServiceImpl implements UserService {
                 addressRepo.save(address);
                 sellerRepo.save(seller);
                 userRepo.save(newUser);
-
+                mailService.sendAwaitingApprovalMail(newUser);
             }
         }
                 return messageSource

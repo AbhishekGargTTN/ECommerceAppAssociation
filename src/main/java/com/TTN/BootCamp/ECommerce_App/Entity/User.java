@@ -4,6 +4,7 @@ import com.TTN.BootCamp.ECommerce_App.DTO.Auditing.Auditable;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -13,10 +14,12 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
+@ToString
 public class User extends Auditable<String> {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_gen")
+    @SequenceGenerator(name="user_gen", sequenceName = "user_seq", initialValue = 1, allocationSize = 1)
     @Column(name = "ID")
     private long id;
 
@@ -53,43 +56,11 @@ public class User extends Auditable<String> {
     @Column(name = "Password_Update_Date")
     private Date passwordUpdateDate;
 
-//    public boolean isDeleted() {
-//        return isDeleted;
-//    }
-//
-//    public void setDeleted(boolean deleted) {
-//        isDeleted = deleted;
-//    }
-//
-//    public boolean isActive() {
-//        return isActive;
-//    }
-//
-//    public void setActive(boolean active) {
-//        isActive = active;
-//    }
-//
-//    public boolean isExpired() {
-//        return isExpired;
-//    }
-//
-//    public void setExpired(boolean expired) {
-//        isExpired = expired;
-//    }
-//
-//    public boolean isLocked() {
-//        return isLocked;
-//    }
-//
-//    public void setLocked(boolean locked) {
-//        isLocked = locked;
-//    }
-
-    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
     @JsonManagedReference
     private Customer customer;
 
-    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
     @JsonManagedReference
     private Seller seller;
 

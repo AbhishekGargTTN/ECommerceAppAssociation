@@ -22,12 +22,6 @@ public class RegisterController {
 
     Logger logger = LoggerFactory.getLogger(RegisterController.class);
 
-//    private static class AccountResourceException extends RuntimeException {
-//        private AccountResourceException(String message) {
-//            super(message);
-//        }
-//    }
-
     @Autowired
     private UserRepo userRepo;
 

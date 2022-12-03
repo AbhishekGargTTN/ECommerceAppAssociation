@@ -1,6 +1,7 @@
 package com.TTN.BootCamp.ECommerce_App.Service;
 
 import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.ProductResponseDTO;
+import com.TTN.BootCamp.ECommerce_App.Entity.Product;
 import com.TTN.BootCamp.ECommerce_App.Entity.User;
 import org.springframework.stereotype.Service;
 
@@ -24,4 +25,10 @@ public interface MailService {
     public void sendProductActivationMail(ProductResponseDTO productResponseDTO,User productOwner);
 
     public void sendProductDeactivationMail(ProductResponseDTO productResponseDTO,User productOwner);
+
+    public void sendAccountLockedMail(User user);
+
+    public void sendNewProductMail(Product product);
+
+    public void sendAwaitingApprovalMail(User user);
 }

@@ -51,7 +51,7 @@ public class CustomUserDetailsServiceImpl implements UserDetailsService {
                 true,
                 true,
                 true,
-                getAuthorities(user.getRole()) // passing the role
+                getAuthorities(user.getRole())
         );
     }
 

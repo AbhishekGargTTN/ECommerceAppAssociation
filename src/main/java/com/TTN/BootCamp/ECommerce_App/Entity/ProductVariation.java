@@ -1,5 +1,6 @@
 package com.TTN.BootCamp.ECommerce_App.Entity;
 
+import com.TTN.BootCamp.ECommerce_App.DTO.Auditing.Auditable;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
@@ -16,10 +17,11 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @TypeDef(name = "json", typeClass = JsonStringType.class)
-public class ProductVariation {
+public class ProductVariation extends Auditable<String> {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "productVariation_gen")
+    @SequenceGenerator(name="productVariation_gen", sequenceName = "productVariation_seq", initialValue = 1, allocationSize = 1)
     @Column(name = "ID")
     private long id;
 
@@ -28,9 +30,6 @@ public class ProductVariation {
 
     @Column(name = "Price")
     private Double price;
-
-//    @Column(name = "Primary_Image_Name")
-//    String primaryImageName;
 
     @Type(type = "json")
     @Column(columnDefinition = "json")
@@ -41,6 +40,5 @@ public class ProductVariation {
 
     @ManyToOne
     @JoinColumn(name = "Product_ID")
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private Product product;
 }
