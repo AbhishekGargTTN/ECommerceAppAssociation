@@ -22,15 +22,15 @@ public interface MailService {
 
     public void sendDeActivatedMail(User user, Locale locale);
 
-    public void sendProductActivationMail(ProductResponseDTO productResponseDTO,User productOwner);
+    public void sendProductActivationMail(ProductResponseDTO productResponseDTO,User productOwner, Locale locale);
 
-    public void sendProductDeactivationMail(ProductResponseDTO productResponseDTO,User productOwner);
+    public void sendProductDeactivationMail(ProductResponseDTO productResponseDTO,User productOwner, Locale locale);
 
     public void sendAccountLockedMail(User user);
 
-    public void sendNewProductMail(Product product);
+    public void sendNewProductMail(Product product, Locale locale);
 
-    public void sendAwaitingApprovalMail(User user);
+    public void sendAwaitingApprovalMail(User user, Locale locale);
 
     public void sendUnlockedMail(User user, Locale locale);
 }

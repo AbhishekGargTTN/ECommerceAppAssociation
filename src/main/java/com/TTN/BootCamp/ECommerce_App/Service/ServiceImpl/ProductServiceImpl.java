@@ -77,7 +77,7 @@ public class ProductServiceImpl implements ProductService {
             product.setCategory(category);
             product.setUser(user);
             productRepo.save(product);
-//            mailService.sendNewProductMail(product);
+            mailService.sendNewProductMail(product,locale);
             return messageSource
                     .getMessage("api.response.addedSuccess",null, locale);
         }
@@ -160,7 +160,8 @@ public class ProductServiceImpl implements ProductService {
         if(product.getUser().getId()==user.getId()) {
 
             if (product!=null) {
-                BeanUtils.copyProperties(productUpdateDTO, product, FilterProperties.getNullPropertyNames(productUpdateDTO));
+                BeanUtils.copyProperties(productUpdateDTO
+                        , product, FilterProperties.getNullPropertyNames(productUpdateDTO));
                 productRepo.save(product);
                 return messageSource
                         .getMessage("api.response.updateSuccess",null, locale);
@@ -176,12 +177,12 @@ public class ProductServiceImpl implements ProductService {
 
         Optional<Product> product = productRepo.findById(productVariationDTO.getProductId());
         if(product.isEmpty()){
-            throw new BadRequestException(messageSource.getMessage("api.error.invalidId",null,Locale.ENGLISH));
+            throw new BadRequestException(messageSource
+                    .getMessage("api.error.invalidId",null,locale));
         }
-
-        // check product status
         if (product.get().isActive() || product.get().isDeleted()){
-            throw new BadRequestException(messageSource.getMessage("api.error.productInactiveDeleted",null,Locale.ENGLISH));
+            throw new BadRequestException(messageSource
+                    .getMessage("api.error.productInactiveDeleted",null,locale));
         }
 
         Category associatedCategory = product.get().getCategory();
@@ -189,7 +190,8 @@ public class ProductServiceImpl implements ProductService {
         Map<String, Set<String>> requestMetadata = productVariationDTO.getMetadata();
         List<String> requestKeySet = requestMetadata.keySet().stream().collect(Collectors.toList());
 
-        List<CategoryMetaDataFieldValues> associatedMetadata = categoryMetaDataFieldValuesRepo.findByCategory(associatedCategory);
+        List<CategoryMetaDataFieldValues> associatedMetadata =
+                categoryMetaDataFieldValuesRepo.findByCategory(associatedCategory);
         List<String> associatedKeySet = new ArrayList<>();
 
         for(CategoryMetaDataFieldValues metadataFieldValue : associatedMetadata){
@@ -197,16 +199,13 @@ public class ProductServiceImpl implements ProductService {
             String fieldName = field.getName();
             associatedKeySet.add(fieldName);
         }
-
-        // check if metadataField are associated with the category
         if(Collections.indexOfSubList(associatedKeySet,requestKeySet)==-1){
             requestKeySet.removeAll(associatedKeySet);
-            String errorResponse = messageSource.getMessage("api.error.fieldNotAssociated",null,Locale.ENGLISH);
-            errorResponse=errorResponse.replace("[[fields]]", requestKeySet.toString());
-            throw new BadRequestException(errorResponse);
+            throw new BadRequestException(messageSource
+                    .getMessage("api.error.fieldNotAssociated"
+                            ,new String[] {requestKeySet.toString()},locale));
         }
 
-        // check if metadataValues are associated for given category, metadataField
         for(String key: requestKeySet){
             CategoryMetaDataField categoryMetadataField = categoryMetaDataFieldRepo.findByName(key);
             CategoryMetaDataFieldValues categoryMetadataFieldValue = categoryMetaDataFieldValuesRepo.findByCategoryAndCategoryMetaDataField(associatedCategory,categoryMetadataField);
@@ -218,9 +217,9 @@ public class ProductServiceImpl implements ProductService {
 
             if(!associatedValues.containsAll(requestValues)){
                 requestValues.removeAll(associatedValues);
-                String errorResponse = messageSource.getMessage("api.error.valueNotAssociated",null,Locale.ENGLISH);
-                errorResponse=errorResponse.replace("[[value]]",associatedField+"-"+requestValues);
-                throw new BadRequestException(errorResponse);
+                throw new BadRequestException(messageSource
+                        .getMessage("api.error.valueNotAssociated"
+                                ,new String[] {associatedField+"-"+requestValues},locale));
             }
         }
         ProductVariation productVariation = new ProductVariation();
@@ -230,7 +229,7 @@ public class ProductServiceImpl implements ProductService {
         productVariation.setProduct(product.get());
         productVariationRepo.save(productVariation);
 
-        return messageSource.getMessage("api.response.addedSuccess",null,Locale.ENGLISH);
+        return messageSource.getMessage("api.response.addedSuccess",null,locale);
     }
 
     public ProductVariationResponseDTO viewProductVariation(long id, String email, Locale locale){
@@ -292,8 +291,6 @@ public class ProductServiceImpl implements ProductService {
         if(product.getUser().getId()==user.getId()) {
 
             if (product!=null&&productVariation.isPresent()) {
-//                BeanUtils.copyProperties(productVariationUpdateDTO, productVariation, FilterProperties.getNullPropertyNames(productVariationUpdateDTO));
-
                 if(productVariationUpdateDTO.getMetadata()!= null){
                     productVariation.get().setMetaData(productVariationUpdateDTO.getMetadata());
                 }
@@ -372,7 +369,7 @@ public class ProductServiceImpl implements ProductService {
             ProductResponseDTO productResponseDTO = new ProductResponseDTO();
             BeanUtils.copyProperties(product.get(),productResponseDTO);
             User productOwner = product.get().getUser();
-            mailService.sendProductActivationMail(productResponseDTO,productOwner);
+            mailService.sendProductActivationMail(productResponseDTO,productOwner, locale);
 
             return messageSource.getMessage("api.response.activationSuccess",null,locale);
         }
@@ -381,10 +378,12 @@ public class ProductServiceImpl implements ProductService {
     public String deactivateProduct(long id,Locale locale){
         Optional<Product> product = productRepo.findById(id);
         if (product == null || product.isEmpty()) {
-            throw new BadRequestException(messageSource.getMessage("api.error.invalidProductId",null,locale));
+            throw new BadRequestException(messageSource
+                    .getMessage("api.error.invalidProductId",null,locale));
         }
         if (product.get().isActive()==false){
-            throw new BadRequestException(messageSource.getMessage("api.error.productAlreadyInactive",null,locale));
+            throw new BadRequestException(messageSource
+                    .getMessage("api.error.productAlreadyInactive",null,locale));
 
         } else{
             product.get().setActive(false);
@@ -393,23 +392,24 @@ public class ProductServiceImpl implements ProductService {
             ProductResponseDTO productResponseDTO = new ProductResponseDTO();
             BeanUtils.copyProperties(product.get(), productResponseDTO);
             User productOwner = product.get().getUser();
-            mailService.sendProductDeactivationMail(productResponseDTO,productOwner);
+            mailService.sendProductDeactivationMail(productResponseDTO,productOwner, locale);
 
-            return messageSource.getMessage("api.response.deactivationSuccess",null,Locale.ENGLISH);
+            return messageSource.getMessage("api.response.deactivationSuccess",null,locale);
         }
     }
 
     public ProductResponseDTO customerViewProduct(long id,Locale locale){
         Optional<Product> product = productRepo.findById(id);
         if (product == null || product.isEmpty()) {
-            throw new BadRequestException(messageSource.getMessage("api.error.invalidProductId",null,locale));
+            throw new BadRequestException(messageSource
+                    .getMessage("api.error.invalidProductId",null,locale));
         }
         // check product status
         if (product.get().isDeleted() || product.get().isActive() == false ){
-            throw new BadRequestException(messageSource.getMessage("api.error.productInactiveDeleted",null,locale));
+            throw new BadRequestException(messageSource
+                    .getMessage("api.error.productInactiveDeleted",null,locale));
         }
 
-        // convert to appropriate DTO
         ProductResponseDTO productResponseDTO = new ProductResponseDTO();
         productResponseDTO.setId(product.get().getId());
         productResponseDTO.setName(product.get().getName());
@@ -428,15 +428,16 @@ public class ProductServiceImpl implements ProductService {
                 messageSource.getMessage("api.error.invalidId", null, locale)
         ));
         if (!category.getSubCategories().isEmpty()){
-            throw new BadRequestException(messageSource.getMessage("api.error.notLeafNode",null,locale));
+            throw new BadRequestException(messageSource
+                    .getMessage("api.error.notLeafNode",null,locale));
         }
 
         List<Product> products = productRepo.findByCategory(category);
 
         if(products.isEmpty()){
-            throw new BadRequestException(messageSource.getMessage("api.error.productNotFound",null,locale));
+            throw new BadRequestException(messageSource
+                    .getMessage("api.error.productNotFound",null,locale));
         }
-
         List<ProductResponseDTO> productResponseDTOList= new ArrayList<>();
         for(Product product: products){
             ProductResponseDTO productResponseDTO = new ProductResponseDTO();
@@ -456,11 +457,13 @@ public class ProductServiceImpl implements ProductService {
     public List<Product> viewSimilarProducts(long id,Locale locale){
         Optional<Product> product = productRepo.findById(id);
         if (product == null || product.isEmpty()) {
-            throw new BadRequestException(messageSource.getMessage("api.error.invalidProductId",null,locale));
+            throw new BadRequestException(messageSource
+                    .getMessage("api.error.invalidProductId",null,locale));
         }
 
         if (product.get().isDeleted() || product.get().isActive() == false ){
-            throw new BadRequestException(messageSource.getMessage("api.error.productInactiveDeleted",null,locale));
+            throw new BadRequestException(messageSource
+                    .getMessage("api.error.productInactiveDeleted",null,locale));
         }
 
         Category associatedCategory = product.get().getCategory();
@@ -473,7 +476,8 @@ public class ProductServiceImpl implements ProductService {
         }
 
         if(similarProducts.size()==1){
-            throw new BadRequestException(messageSource.getMessage("api.error.similarProducts",null,locale));
+            throw new BadRequestException(messageSource
+                    .getMessage("api.error.similarProducts",null,locale));
         }
 
         return similarProducts;

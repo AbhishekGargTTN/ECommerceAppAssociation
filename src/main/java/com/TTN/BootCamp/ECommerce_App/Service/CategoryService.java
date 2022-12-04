@@ -39,5 +39,5 @@ public interface CategoryService {
 
     public List<SellerCategoryResponseDTO> getAllSellerCategories();
 
-    public Set<Category> getCustomerCategories(Optional<Long> optionalId);
+    public Set<Category> getCustomerCategories(Optional<Long> optionalId, Locale locale);
 }

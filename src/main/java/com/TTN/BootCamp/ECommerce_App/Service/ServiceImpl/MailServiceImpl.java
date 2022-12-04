@@ -127,28 +127,30 @@ public class MailServiceImpl implements MailService {
         logger.info("MailService: sendDeActivatedMail ended execution");
     }
 
-    public void sendProductActivationMail(ProductResponseDTO productResponseDTO, User productOwner){
+    public void sendProductActivationMail
+            (ProductResponseDTO productResponseDTO, User productOwner, Locale locale){
         logger.info("EmailService::sendProductActivationMail execution started.");
 
         String subject = messageSource
-                .getMessage("api.email.productSubject",null,Locale.ENGLISH);
+                .getMessage("api.email.productSubject",null,locale);
 
         String body = messageSource
-                .getMessage("api.email.productActivationMail"
-                        ,new String[]{productOwner.getFirstName(),productResponseDTO.toString()}, Locale.ENGLISH);
+                .getMessage("api.email.productActivationMailBody"
+                        ,new String[]{productOwner.getFirstName(),productResponseDTO.toString()}, locale);
 
         sendEmail(productOwner.getEmail(), body, subject);
         logger.info("EmailService::sendProductActivationMail execution ended.");
     }
 
-    public void sendProductDeactivationMail(ProductResponseDTO productResponseDTO,User productOwner){
+    public void sendProductDeactivationMail
+            (ProductResponseDTO productResponseDTO,User productOwner,Locale locale){
         logger.info("EmailService::sendProductActivationMail execution started.");
 
-        String subject = messageSource.getMessage("api.email.productSubject",null,Locale.ENGLISH);
+        String subject = messageSource.getMessage("api.email.productSubject",null,locale);
 
         String body = messageSource
-                .getMessage("api.email.productDeactivationMail"
-                        ,new String[]{productOwner.getFirstName(),productResponseDTO.toString()}, Locale.ENGLISH);
+                .getMessage("api.email.productDeactivationMailBody"
+                        ,new String[]{productOwner.getFirstName(),productResponseDTO.toString()}, locale);
 
         sendEmail(productOwner.getEmail(), body, subject);
         logger.info("EmailService::sendProductActivationMail execution ended.");
@@ -156,8 +158,6 @@ public class MailServiceImpl implements MailService {
 
     public void sendAccountLockedMail(User user){
         logger.info("EmailService::sendAccountLockedMail execution started.");
-
-        logger.debug("EmailService::sendAccountLockedMail composing email to send");
 
         String subject = messageSource.getMessage("api.email.accountLockedSubject",null,Locale.ENGLISH);
         String body = messageSource
@@ -169,25 +169,25 @@ public class MailServiceImpl implements MailService {
 
     }
 
-    public void sendNewProductMail(Product product) {
+    public void sendNewProductMail(Product product, Locale locale) {
         logger.info("EmailService::sendNewProductMail execution started.");
 
-        String subject = messageSource.getMessage("api.email.productSubject",null,Locale.ENGLISH);
+        String subject = messageSource.getMessage("api.email.productSubject",null,locale);
         String body = messageSource
                 .getMessage("api.email.newProductAddedMailBody"
-                        ,new String[]{"Admin", product.toString()}, Locale.ENGLISH);
+                        ,new String[]{"Admin", product.toString()}, locale);
 
         sendEmail("garga5492216@gmail.com", body, subject);
         logger.info("EmailService::sendSuccessfulChangeMail execution ended.");
     }
 
-    public void sendAwaitingApprovalMail(User user){
+    public void sendAwaitingApprovalMail(User user, Locale locale){
         logger.info("EmailService::sendAwaitingApprovalMail execution started.");
 
-        String subject = messageSource.getMessage("api.email.activationSubject",null,Locale.ENGLISH);
+        String subject = messageSource.getMessage("api.email.activationSubject",null,locale);
         String body = messageSource
                 .getMessage("api.email.awaitingApprovalMailBody"
-                        ,new String[]{user.getFirstName()}, Locale.ENGLISH);
+                        ,new String[]{user.getFirstName()}, locale);
 
         sendEmail(user.getEmail(), body, subject);
         logger.info("EmailService::sendAwaitingApprovalMail execution ended.");

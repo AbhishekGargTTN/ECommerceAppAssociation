@@ -12,6 +12,7 @@ import com.TTN.BootCamp.ECommerce_App.Service.CustomerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,16 +33,15 @@ public class CustomerController {
     @Autowired
     CustomerService customerService;
 
+    @Autowired
+    MessageSource messageSource;
+
     @GetMapping(path="/profile")
     @PreAuthorize("hasAuthority('CUSTOMER')")
     public ResponseEntity<CustomerResponseDTO> viewProfile(Authentication authentication) throws IOException {
-
         logger.info("SellerController: viewProfile started execution");
         Locale locale = LocaleContextHolder.getLocale();
-        CustomerResponseDTO customer = customerService.showCustomerProfile(authentication.getName(), locale);
-        logger.info("SellerController: viewProfile ended execution ");
-
-        return new ResponseEntity<>(customer, HttpStatus.OK);
+        return new ResponseEntity<>(customerService.showCustomerProfile(authentication.getName(), locale), HttpStatus.OK);
     }
 
     @PatchMapping(path = "/update_profile")
@@ -50,9 +50,7 @@ public class CustomerController {
             ,@RequestBody @Valid CustomerUpdateDTO customerDTO){
         logger.info("SellerController: updateProfile started execution");
         Locale locale = LocaleContextHolder.getLocale();
-        String response = customerService.updateProfile(authentication.getName(), customerDTO, locale);
-        logger.info("SellerController: updateProfile ended execution ");
-        return new ResponseEntity<>(response,HttpStatus.OK);
+        return new ResponseEntity<>(customerService.updateProfile(authentication.getName(), customerDTO, locale),HttpStatus.OK);
     }
 
     @PatchMapping(path="/change_password")
@@ -61,11 +59,11 @@ public class CustomerController {
             ,@Valid @RequestBody PasswordDTO passwordDTO){
         Locale locale = LocaleContextHolder.getLocale();
         if(!passwordDTO.getPassword().equals(passwordDTO.getConfirmPassword())) {
-            throw new PasswordDoNotMatchException("Password do not match.");
+            throw new PasswordDoNotMatchException(messageSource
+                    .getMessage("api.error.passwordDoNotMatch",null, locale));
         }
-        String response = customerService
-                .updatePassword(authentication.getName(), passwordDTO.getPassword(), locale);
-        return new ResponseEntity<>(response,HttpStatus.OK);
+        return new ResponseEntity<>(customerService
+                .updatePassword(authentication.getName(), passwordDTO.getPassword(), locale),HttpStatus.OK);
     }
 
     @PatchMapping("/update_address")
@@ -75,8 +73,7 @@ public class CustomerController {
             ,@RequestParam long id){
         Locale locale = LocaleContextHolder.getLocale();
         String email = authentication.getName();
-        String responseMessage = customerService.updateAddress(email, addressDTO, id, locale);
-        return new ResponseEntity<>(responseMessage,HttpStatus.OK);
+        return new ResponseEntity<>(customerService.updateAddress(email, addressDTO, id, locale),HttpStatus.OK);
     }
 
     @GetMapping(path="/list_address")

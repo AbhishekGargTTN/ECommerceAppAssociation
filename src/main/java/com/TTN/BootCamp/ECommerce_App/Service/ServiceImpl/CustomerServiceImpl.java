@@ -1,6 +1,7 @@
 package com.TTN.BootCamp.ECommerce_App.Service.ServiceImpl;
 
 import com.TTN.BootCamp.ECommerce_App.Config.FilterProperties;
+import com.TTN.BootCamp.ECommerce_App.Controller.CustomerController;
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.AddressDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.CustomerDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.CustomerResponseDTO;
@@ -16,6 +17,8 @@ import com.TTN.BootCamp.ECommerce_App.Repository.CustomerRepo;
 import com.TTN.BootCamp.ECommerce_App.Repository.UserRepo;
 import com.TTN.BootCamp.ECommerce_App.Service.CustomerService;
 import com.TTN.BootCamp.ECommerce_App.Service.MailService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
@@ -34,6 +37,7 @@ import java.util.*;
 @Component
 @Transactional
 public class CustomerServiceImpl implements CustomerService {
+    Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class);
     @Autowired
     UserRepo userRepo;
 
@@ -141,9 +145,7 @@ public class CustomerServiceImpl implements CustomerService {
                     messageSource.getMessage("api.error.userNotFound", null, locale));
         }
 
-        List<Address> addresses = customer.getAddresses();
-
-        return addresses;
+        return customer.getAddresses();
     }
 
     public String addAddress(String email, AddressDTO addressDTO, Locale locale) {
@@ -172,16 +174,16 @@ public class CustomerServiceImpl implements CustomerService {
 
         if (address.isPresent()) {
             if (reqdAddress.getCustomer() == loggedCustomer) {
-//                logger.debug("CustomerService::deleteAddress deleting the address");
+                logger.debug("CustomerService::deleteAddress deleting the address");
                 addressRepo.delete(reqdAddress);
-//                logger.info("CustomerService::deleteAddress execution ended.");
+                logger.info("CustomerService::deleteAddress execution ended.");
                 return messageSource.getMessage("api.response.addressDelete", null, locale);
             }
-//            logger.error("CustomerService::deleteAddress exception occurred while deleting");
+            logger.error("CustomerService::deleteAddress exception occurred while deleting");
             throw new ResourceNotFoundException(messageSource.getMessage("api.error.addressNotFound", null, locale));
 
         }
-//        logger.error("CustomerService::deleteAddress exception occurred while deleting");
+        logger.error("CustomerService::deleteAddress exception occurred while deleting");
         throw new ResourceNotFoundException(messageSource.getMessage("api.error.addressNotFound", null, locale));
     }
 }

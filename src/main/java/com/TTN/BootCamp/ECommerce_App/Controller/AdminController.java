@@ -42,11 +42,8 @@ public class AdminController {
     getAllSellers(@RequestParam(defaultValue = "0") Integer pageNo
             ,@RequestParam(defaultValue = "10") Integer pageSize
             ,@RequestParam(defaultValue = "id") String sortBy){
-
         logger.info("AdminController: getAllSellers started execution");
-        List<SellerResponseDTO> sellers = adminService.listAllSellers(pageNo, pageSize, sortBy);
-        logger.info("AdminController: getAllCustomers ended execution");
-        return new ResponseEntity<>(sellers,HttpStatus.OK);
+        return new ResponseEntity<>(adminService.listAllSellers(pageNo, pageSize, sortBy),HttpStatus.OK);
     }
 
 
@@ -56,9 +53,7 @@ public class AdminController {
         logger.info("AdminController: activateUser started execution");
         logger.info("AdminController: activateUser trying to activate user: "+ id);
         Locale locale = LocaleContextHolder.getLocale();
-        String response = adminService.activateUser(id,locale);
-        logger.info("AdminController: activateUser ended execution with response : "+ response);
-        return new ResponseEntity<String>(response,HttpStatus.OK);
+        return new ResponseEntity<String>(adminService.activateUser(id,locale),HttpStatus.OK);
     }
 
     @PatchMapping(path="/deactivate")
@@ -67,9 +62,7 @@ public class AdminController {
         logger.info("AdminController: deactivateUser started execution");
         logger.info("AdminController: deactivateUser trying to deactivate user: "+ id);
         Locale locale = LocaleContextHolder.getLocale();
-        String response = adminService.deactivateUser(id, locale);
-        logger.info("AdminController: deactivateUser ended execution with response : "+ response);
-        return new ResponseEntity<String>(response,HttpStatus.OK);
+        return new ResponseEntity<String>(adminService.deactivateUser(id, locale),HttpStatus.OK);
     }
 
     @PatchMapping(path="/unlock_user")
@@ -77,8 +70,6 @@ public class AdminController {
     public ResponseEntity<String>  unlockUser(@RequestParam("id") Long id){
         logger.info("AdminController: deactivateUser started execution");
         Locale locale = LocaleContextHolder.getLocale();
-        String response = adminService.unlockUser(id, locale);
-        logger.info("AdminController: deactivateUser ended execution with response : "+ response);
-        return new ResponseEntity<String>(response,HttpStatus.OK);
+        return new ResponseEntity<String>(adminService.unlockUser(id, locale),HttpStatus.OK);
     }
 }

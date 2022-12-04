@@ -33,10 +33,8 @@ public class CategoryController {
     @PostMapping("/add_meta_data_field")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<String> addNewMetaDataField(@Valid @RequestBody MetaDataFieldDTO metaDataFieldDTO){
-
         Locale locale = LocaleContextHolder.getLocale();
-        String responseMessage = categoryService.addMetaDataField(metaDataFieldDTO, locale);
-        return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+        return new ResponseEntity<>(categoryService.addMetaDataField(metaDataFieldDTO, locale), HttpStatus.OK);
     }
 
     @GetMapping("/get_all_meta_data_field")
@@ -45,28 +43,20 @@ public class CategoryController {
             @RequestParam(defaultValue = "0") Integer pageNo
             ,@RequestParam(defaultValue = "10") Integer pageSize
             ,@RequestParam(defaultValue = "id") String sortBy){
-
-        List<MetaDataFieldResponseDTO> metaDataFields =
-                categoryService.getMetaDataFields(pageNo,pageSize,sortBy);
-        return new ResponseEntity<>(metaDataFields, HttpStatus.OK);
+        return new ResponseEntity<>(categoryService.getMetaDataFields(pageNo,pageSize,sortBy), HttpStatus.OK);
     }
 
     @PostMapping("/add_category")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<String> addCategory(@Valid @RequestBody CategoryDTO categoryDTO){
-
         Locale locale = LocaleContextHolder.getLocale();
-        String responseMessage = categoryService.addCategory(categoryDTO, locale);
-        return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+        return new ResponseEntity<>(categoryService.addCategory(categoryDTO, locale), HttpStatus.OK);
     }
 
     @GetMapping("/get_category")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<CategoryResponseDTO> getCategory(@NonNull @RequestParam long id){
-
-        CategoryResponseDTO categoryResponseDTO =
-                categoryService.getCategory(id);
-        return new ResponseEntity<>(categoryResponseDTO, HttpStatus.OK);
+        return new ResponseEntity<>(categoryService.getCategory(id), HttpStatus.OK);
     }
 
     @GetMapping("/get_all_category")
@@ -75,53 +65,44 @@ public class CategoryController {
             @RequestParam(defaultValue = "0") Integer pageNo
             ,@RequestParam(defaultValue = "10") Integer pageSize
             ,@RequestParam(defaultValue = "id") String sortBy){
-
-        List<CategoryResponseDTO> categories =
-                categoryService.getAllCategories(pageNo,pageSize,sortBy);
-        return new ResponseEntity<>(categories, HttpStatus.OK);
+        return new ResponseEntity<>(categoryService.getAllCategories(pageNo,pageSize,sortBy), HttpStatus.OK);
     }
 
     @PutMapping("/update_category")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<String> updateCategory(@RequestParam long id
             ,@RequestBody CategoryUpdateDTO categoryUpdateDTO){
-
         Locale locale = LocaleContextHolder.getLocale();
-        String responseMessage = categoryService.updateCategory(id,categoryUpdateDTO, locale);
-        return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+        return new ResponseEntity<>(categoryService.updateCategory(id,categoryUpdateDTO, locale), HttpStatus.OK);
     }
 
     @PostMapping("/add_category_meta_data_field")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<String> addCategoryMetaDataField(@Valid @RequestBody CategoryMetaDataFieldValueDTO categoryMetaDataFieldValueDTO){
-
         Locale locale = LocaleContextHolder.getLocale();
-        String responseMessage = categoryService.addCategoryMetaDataField(categoryMetaDataFieldValueDTO, locale);
-        return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+        return new ResponseEntity<>(categoryService
+                .addCategoryMetaDataField(categoryMetaDataFieldValueDTO, locale), HttpStatus.OK);
     }
 
     @PutMapping("/update_category_meta_data_field")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<String> updateCategoryMetaDataField(@Valid @RequestBody CategoryMetaDataFieldValueDTO categoryMetaDataFieldValueDTO){
-
+    public ResponseEntity<String> updateCategoryMetaDataField
+            (@Valid @RequestBody CategoryMetaDataFieldValueDTO categoryMetaDataFieldValueDTO){
         Locale locale = LocaleContextHolder.getLocale();
-        String responseMessage = categoryService.addCategoryMetaDataField(categoryMetaDataFieldValueDTO, locale);
-        return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+        return new ResponseEntity<>(categoryService
+                .addCategoryMetaDataField(categoryMetaDataFieldValueDTO, locale), HttpStatus.OK);
     }
 
     @GetMapping("/get_all_category_seller")
     @PreAuthorize("hasAuthority('SELLER')")
     public ResponseEntity<List<SellerCategoryResponseDTO>> getAllCategorySeller(){
-
-        List<SellerCategoryResponseDTO> categories = categoryService.getAllSellerCategories();
-        return new ResponseEntity<>(categories, HttpStatus.OK);
+        return new ResponseEntity<>(categoryService.getAllSellerCategories(), HttpStatus.OK);
     }
 
     @GetMapping(value = {"/get_category_customer","/get_category_customer/{id}"})
     @PreAuthorize("hasAuthority('CUSTOMER')")
     public ResponseEntity<Set<Category>> getCategoryCustomer(@PathVariable("id") Optional<Long> optionalId){
-
-        Set<Category> categories = categoryService.getCustomerCategories(optionalId);
-        return new ResponseEntity<>(categories, HttpStatus.OK);
+        Locale locale = LocaleContextHolder.getLocale();
+        return new ResponseEntity<>(categoryService.getCustomerCategories(optionalId,locale), HttpStatus.OK);
     }
 }

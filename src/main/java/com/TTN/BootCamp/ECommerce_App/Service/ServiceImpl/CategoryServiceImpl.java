@@ -1,5 +1,6 @@
 package com.TTN.BootCamp.ECommerce_App.Service.ServiceImpl;
 
+import com.TTN.BootCamp.ECommerce_App.Controller.CustomerController;
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.CategoryDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.CategoryMetaDataFieldValueDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.MetaDataFieldDTO;
@@ -17,6 +18,8 @@ import com.TTN.BootCamp.ECommerce_App.Repository.CategoryMetaDataFieldRepo;
 import com.TTN.BootCamp.ECommerce_App.Repository.CategoryMetaDataFieldValuesRepo;
 import com.TTN.BootCamp.ECommerce_App.Repository.CategoryRepo;
 import com.TTN.BootCamp.ECommerce_App.Service.CategoryService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
@@ -25,13 +28,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.naming.NameNotFoundException;
 import java.util.*;
 
 @Component
 @Transactional
 public class CategoryServiceImpl implements CategoryService {
 
+    Logger logger = LoggerFactory.getLogger(CategoryServiceImpl.class);
     @Autowired
     private CategoryMetaDataFieldRepo categoryMetaDataFieldRepo;
 
@@ -65,7 +68,7 @@ public class CategoryServiceImpl implements CategoryService {
         Page<CategoryMetaDataField> pagedResultFields = categoryMetaDataFieldRepo.findAll(pageable);
         List<MetaDataFieldResponseDTO> metaDataFields = new ArrayList<>();
 
-//        logger.debug("AdminService: listAllSellers adding seller data to SellerResponseDTO");
+        logger.debug("AdminService: listAllSellers adding seller data to SellerResponseDTO");
         for (CategoryMetaDataField metaDataField : pagedResultFields) {
 
             MetaDataFieldResponseDTO metaDataFieldResponseDTO= new MetaDataFieldResponseDTO();
@@ -74,9 +77,7 @@ public class CategoryServiceImpl implements CategoryService {
             metaDataFields.add(metaDataFieldResponseDTO);
         }
 
-//        logger.debug("AdminService: listAllSellers returning list of SellerResponseDTO");
-
-//        logger.info("AdminService: listAllSellers ended execution");
+        logger.info("AdminService: listAllSellers ended execution");
         return metaDataFields;
     }
 
@@ -99,7 +100,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     public CategoryResponseDTO getCategory(long id){
-        Optional<Category> category = categoryRepo.findById((long) id); //.orElseThrow(() -> new BadRequestException());
+        Optional<Category> category = categoryRepo.findById((long) id);
 
             CategoryResponseDTO categoryResponseDTO= new CategoryResponseDTO();
             categoryResponseDTO.setId(category.get().getId());
@@ -116,7 +117,7 @@ public class CategoryServiceImpl implements CategoryService {
         Page<Category> pagedResultCategories = categoryRepo.findAll(pageable);
         List<CategoryResponseDTO> categories = new ArrayList<>();
 
-//        logger.debug("AdminService: listAllSellers adding seller data to SellerResponseDTO");
+        logger.debug("AdminService: listAllSellers adding seller data to SellerResponseDTO");
         for (Category category : pagedResultCategories) {
 
             CategoryResponseDTO categoryResponseDTO= new CategoryResponseDTO();
@@ -127,9 +128,7 @@ public class CategoryServiceImpl implements CategoryService {
             categories.add(categoryResponseDTO);
         }
 
-//        logger.debug("AdminService: listAllSellers returning list of SellerResponseDTO");
-
-//        logger.info("AdminService: listAllSellers ended execution");
+        logger.info("AdminService: listAllSellers ended execution");
         return categories;
     }
 
@@ -149,36 +148,14 @@ public class CategoryServiceImpl implements CategoryService {
 
     public String addCategoryMetaDataField
             (CategoryMetaDataFieldValueDTO categoryMetaDataFieldValueDTO, Locale locale){
-
-//        CategoryMetaDataFieldValues categoryMetaDataFieldValues= new CategoryMetaDataFieldValues();
-//
-//        Category category= categoryRepo.findByCategoryId(categoryMetaDataFieldValueDTO.getCategoryId());
-//        categoryMetaDataFieldValues.setCategory(category);
-//
-//        CategoryMetaDataField categoryMetaDataField= categoryMetaDataFieldRepo.findByFieldId(categoryMetaDataFieldValueDTO.getMetaDataFieldId());
-//        categoryMetaDataFieldValues.setCategoryMetaDataField(categoryMetaDataField);
-//
-//        categoryMetaDataFieldValues.setValue(categoryMetaDataFieldValueDTO.getValues().toString());
-//
-//        CategoryMetaDataCompositeKey categoryMetaDataCompositeKey = new CategoryMetaDataCompositeKey();
-//        categoryMetaDataCompositeKey.setCategoryId(category.getId());
-//        categoryMetaDataCompositeKey.setCategoryMetaDataFieldId(categoryMetaDataField.getId());
-//        categoryMetaDataFieldValues.setCategoryMetaDataCompositeKey(categoryMetaDataCompositeKey);
-//
-//        categoryMetaDataFieldValuesRepo.save(categoryMetaDataFieldValues);
-//
-//        return messageSource.getMessage("api.response.metadataCategoryAdded",null, locale);
-
-//        logger.info("CategoryService::addMetaValues execution started");
-
         Long categoryId = categoryMetaDataFieldValueDTO.getCategoryId();
         Long metadataId = categoryMetaDataFieldValueDTO.getMetaDataFieldId();
 
         Category category = categoryRepo.findById(categoryId).orElseThrow(() -> new BadRequestException(
-                messageSource.getMessage("api.error.invalidId", null, Locale.ENGLISH)
+                messageSource.getMessage("api.error.invalidId", null, locale)
         ));
         CategoryMetaDataField metaField = categoryMetaDataFieldRepo.findById(metadataId).orElseThrow(() -> new BadRequestException(
-                messageSource.getMessage("api.error.invalidId", null, Locale.ENGLISH)
+                messageSource.getMessage("api.error.invalidId", null, locale)
         ));
 
         CategoryMetaDataFieldValues fieldValue = new CategoryMetaDataFieldValues();
@@ -205,23 +182,14 @@ public class CategoryServiceImpl implements CategoryService {
         for (String value : categoryMetaDataFieldValueDTO.getValues()){
 
             if(check.isPresent() && check.get().contains(value)){
-                throw new BadRequestException(messageSource.getMessage("api.error.invalidFieldValue",null,Locale.ENGLISH));
+                throw new BadRequestException(messageSource
+                        .getMessage("api.error.invalidFieldValue",null,locale));
             }
 
             newValues = newValues.concat(value + ",");
         }
         fieldValue.setValue(newValues);
-
-
         categoryMetaDataFieldValuesRepo.save(fieldValue);
-
-        // create appropriate responseDTO
-//        MetaDataFieldValueResponseDTO metaFieldValueResponseDTO = new MetaDataFieldValueResponseDTO();
-//        metaFieldValueResponseDTO.set(category.getId());
-//        metaFieldValueResponseDTO.setMetaFieldId(metaField.getId());
-//        metaFieldValueResponseDTO.setValues(fieldValue.getValue());
-
-
          return messageSource.getMessage("api.response.metadataCategoryAdded",null, locale);
     }
 
@@ -263,7 +231,7 @@ public class CategoryServiceImpl implements CategoryService {
                 sellerResponse.setId(category.getId());
                 sellerResponse.setName(category.getName());
                 sellerResponse.setParent(category.getParentCategory());
-                // convert metadata and its values to appropriate responseDTO
+
                 List<MetaDataFieldValueResponseDTO> metaList = new ArrayList<>();
                 for (CategoryMetaDataFieldValues metadata: metadataList){
                     MetaDataFieldValueResponseDTO metaDataFieldValueResponseDTO = new MetaDataFieldValueResponseDTO();
@@ -279,13 +247,12 @@ public class CategoryServiceImpl implements CategoryService {
         return resultList;
     }
 
-    public Set<Category> getCustomerCategories(Optional<Long> optionalId){
+    public Set<Category> getCustomerCategories(Optional<Long> optionalId, Locale locale){
         if(optionalId.isPresent()){
-            // if ID is present, fetch its immediate children
+
             Category category = categoryRepo.findById(optionalId.get()).orElseThrow(() ->
-                    new BadRequestException("Invalid id"));
-//                    new BadRequestException(
-//                    messageSource.getMessage("api.error.invalidId", null, Locale.ENGLISH)));
+                    new BadRequestException(
+                    messageSource.getMessage("api.error.invalidId", null, locale)));
             Set<Category> childList = category.getSubCategories();
             return childList;
         }
