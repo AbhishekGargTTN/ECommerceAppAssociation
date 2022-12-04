@@ -4,6 +4,7 @@ import com.TTN.BootCamp.ECommerce_App.Entity.Category;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
@@ -26,4 +27,17 @@ public class ProductResponseDTO {
 
     private Category category;
 
+    @Override
+    public String toString() {
+        return "ProductResponseDTO{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", brand='" + brand + '\'' +
+                ", isCancellable=" + isCancellable +
+                ", isReturnable=" + isReturnable +
+                ", isActive=" + isActive +
+                ", category=" + category +
+                '}';
+    }
 }

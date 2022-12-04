@@ -105,7 +105,7 @@ public class CategoryController {
     public ResponseEntity<String> updateCategoryMetaDataField(@Valid @RequestBody CategoryMetaDataFieldValueDTO categoryMetaDataFieldValueDTO){
 
         Locale locale = LocaleContextHolder.getLocale();
-        String responseMessage = categoryService.updateCategoryMetaDataField(categoryMetaDataFieldValueDTO, locale);
+        String responseMessage = categoryService.addCategoryMetaDataField(categoryMetaDataFieldValueDTO, locale);
         return new ResponseEntity<>(responseMessage, HttpStatus.OK);
     }
 

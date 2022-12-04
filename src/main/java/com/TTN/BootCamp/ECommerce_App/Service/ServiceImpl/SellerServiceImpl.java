@@ -89,17 +89,43 @@ public class SellerServiceImpl implements SellerService {
     }
 
     public String updateProfile(String email, SellerUpdateDTO sellerUpdateDTO, Locale locale){
-//        logger.info("SellerService::updateProfile execution started.");
-
         User user = userRepo.findUserByEmail(email);
+        if(user == null) {
+            throw new UserNotFoundException(
+                    messageSource.getMessage("api.error.userNotFound",null,locale));
+        }
         Seller seller = user.getSeller();
+        if(seller == null){
+            throw new UserNotFoundException(
+                    messageSource.getMessage("api.error.userNotFound",null,locale));
+        }
         Address address = seller.getAddress();
-//        logger.debug("SellerService::updateProfile fetching details from request");
+        if(address == null){
+            throw new ResourceNotFoundException(
+                    messageSource.getMessage("api.error.resourceNotFound",null,locale));
+        }
 
         AddressUpdateDTO addressDTO = sellerUpdateDTO.getAddress();
-//        logger.debug("SellerService::updateProfile updating details");
-
-        BeanUtils.copyProperties(addressDTO, address, FilterProperties.getNullPropertyNames(addressDTO));
+        if(addressDTO!=null) {
+            if (addressDTO.getAddressLine() != null) {
+                address.setAddressLine(addressDTO.getAddressLine());
+            }
+            if (addressDTO.getCountry() != null) {
+                address.setCountry(addressDTO.getCountry());
+            }
+            if (addressDTO.getCity() != null) {
+                address.setCity(addressDTO.getCity());
+            }
+            if (addressDTO.getState() != null) {
+                address.setState(addressDTO.getState());
+            }
+            if (addressDTO.getLabel() != null) {
+                address.setLabel(addressDTO.getLabel());
+            }
+            if (addressDTO.getZipCode() != null) {
+                address.setZipCode(addressDTO.getZipCode());
+            }
+        }
 
         address.setSeller(seller);
         addressRepo.save(address);
@@ -109,8 +135,7 @@ public class SellerServiceImpl implements SellerService {
 
         userRepo.save(user);
         sellerRepo.save(seller);
-//        logger.info("SellerService::updateProfile execution ended.");
-        return messageSource.getMessage("api.response.updateSuccess",null, Locale.ENGLISH);
+        return messageSource.getMessage("api.response.updateSuccess",null,locale);
     }
 
     public String updatePassword(String email, String password, Locale locale){

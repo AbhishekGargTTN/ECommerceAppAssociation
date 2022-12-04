@@ -2,7 +2,6 @@
 package com.TTN.BootCamp.ECommerce_App.Controller;
 
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.AddressDTO;
-import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.CustomerDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.PasswordDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.CustomerResponseDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.AddressUpdateDTO;
@@ -15,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;

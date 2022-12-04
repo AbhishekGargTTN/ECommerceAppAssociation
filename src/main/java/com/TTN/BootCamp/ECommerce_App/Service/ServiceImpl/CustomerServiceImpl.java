@@ -161,7 +161,7 @@ public class CustomerServiceImpl implements CustomerService {
 
         addressRepo.save(address);
 
-        return messageSource.getMessage("api.response.updateSuccess", null, locale);
+        return messageSource.getMessage("api.response.addedSuccess", null, locale);
     }
 
     public String deleteAddress(String email, long id, Locale locale) {
