@@ -36,6 +36,8 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .antMatchers("/api/forgot_password").permitAll()
                 .antMatchers("/api/reset_password").permitAll()
                 .antMatchers("/api/registration").permitAll()
+                .antMatchers("/api/add_image").hasAnyAuthority("CUSTOMER","SELLER")
+                .antMatchers("/api/get_image").authenticated()
                 .antMatchers("/api/logout").authenticated()
                 .anyRequest().authenticated()
                 .and()

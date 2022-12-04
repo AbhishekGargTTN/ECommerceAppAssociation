@@ -3,6 +3,7 @@ package com.TTN.BootCamp.ECommerce_App.Service.ServiceImpl;
 import com.TTN.BootCamp.ECommerce_App.Config.FilterProperties;
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.AddressDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.CustomerDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.CustomerResponseDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.AddressUpdateDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.CustomerUpdateDTO;
 import com.TTN.BootCamp.ECommerce_App.Entity.Address;
@@ -51,29 +52,34 @@ public class CustomerServiceImpl implements CustomerService {
     @Autowired
     MessageSource messageSource;
 
-    public CustomerDTO showCustomerProfile(String email, Locale locale) throws IOException {
+    public CustomerResponseDTO showCustomerProfile(String email, Locale locale) throws IOException {
 
-        User user= userRepo.findUserByEmail(email);
+        User user = userRepo.findUserByEmail(email);
 
-        if(user == null) {
+        if (user == null) {
             throw new UserNotFoundException(
-                    messageSource.getMessage("api.error.userNotFound",null,locale));
+                    messageSource.getMessage("api.error.userNotFound", null, locale));
         }
         Customer customer = user.getCustomer();
-        if(customer == null){
+        if (customer == null) {
             throw new UserNotFoundException(
-                    messageSource.getMessage("api.error.userNotFound",null,locale));
+                    messageSource.getMessage("api.error.userNotFound", null, locale));
         }
-        CustomerDTO customerDTO  = new CustomerDTO();
+        CustomerResponseDTO customerDTO = new CustomerResponseDTO();
 
-        customerDTO.setFirstName(user.getFirstName());
-        customerDTO.setMiddleName(user.getMiddleName());
-        customerDTO.setLastName(user.getLastName());
+        String fullName;
+        if (user.getMiddleName() == null) {
+            fullName = user.getFirstName() + " " + user.getLastName();
+        } else {
+            fullName = user.getFirstName() + " " + user.getMiddleName() + " " + user.getLastName();
+        }
+        customerDTO.setFullName(fullName);
+        customerDTO.setId(user.getCustomer().getId());
         customerDTO.setEmail(user.getEmail());
         customerDTO.setActive(user.isActive());
         customerDTO.setContact(user.getCustomer().getContact());
 
-        String path= "images/"+user.getId()+".jpg";
+        String path = "images/" + user.getId() + ".jpg";
         var imgFile = new ClassPathResource(path);
         byte[] bytes = StreamUtils.copyToByteArray(imgFile.getInputStream());
 
@@ -82,7 +88,7 @@ public class CustomerServiceImpl implements CustomerService {
         return customerDTO;
     }
 
-    public String updateProfile(String email, CustomerUpdateDTO customerDTO, Locale locale){
+    public String updateProfile(String email, CustomerUpdateDTO customerDTO, Locale locale) {
         User user = userRepo.findUserByEmail(email);
         Customer customer = user.getCustomer();
 
@@ -91,59 +97,58 @@ public class CustomerServiceImpl implements CustomerService {
 
         userRepo.save(user);
         customerRepo.save(customer);
-        return messageSource.getMessage("api.response.updateSuccess",null, locale);
+        return messageSource.getMessage("api.response.updateSuccess", null, locale);
     }
 
-    public String updatePassword(String email, String password, Locale locale){
+    public String updatePassword(String email, String password, Locale locale) {
         User user = userRepo.findUserByEmail(email);
         user.setPassword(passwordEncoder.encode(password));
         userRepo.save(user);
         mailService.sendSuccessfulChangeMail(user, locale);
-        return messageSource.getMessage("api.response.updateSuccess",null, locale);
+        return messageSource.getMessage("api.response.updateSuccess", null, locale);
     }
 
 
     public String updateAddress(String email, AddressUpdateDTO addressDTO, long id, Locale locale) {
-        User user= userRepo.findUserByEmail(email);
+        User user = userRepo.findUserByEmail(email);
         List<Address> addresses = user.getCustomer().getAddresses();
-        Address address= addressRepo.findById(id).orElseThrow(
-                () ->  new ResourceNotFoundException(
-                        messageSource.getMessage("api.error.addressNotFound",null,locale)));
+        Address address = addressRepo.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException(
+                        messageSource.getMessage("api.error.addressNotFound", null, locale)));
 
-        if(addresses.contains(address)) {
+        if (addresses.contains(address)) {
             BeanUtils.copyProperties(addressDTO, address, FilterProperties.getNullPropertyNames(addressDTO));
             addressRepo.save(address);
-        return messageSource.getMessage("api.response.updateSuccess",null,locale);
+            return messageSource.getMessage("api.response.updateSuccess", null, locale);
 
-        }
-        else {
+        } else {
             throw new ResourceNotFoundException(
-                    messageSource.getMessage("api.error.addressNotFound",null,locale));
+                    messageSource.getMessage("api.error.addressNotFound", null, locale));
         }
     }
 
-    public List<Address> showCustomerAddresses(String email, Locale locale){
+    public List<Address> showCustomerAddresses(String email, Locale locale) {
 
-        User user= userRepo.findUserByEmail(email);
+        User user = userRepo.findUserByEmail(email);
 
-        if(user == null) {
+        if (user == null) {
             throw new UserNotFoundException(
-                    messageSource.getMessage("api.error.userNotFound",null,locale));
+                    messageSource.getMessage("api.error.userNotFound", null, locale));
         }
         Customer customer = user.getCustomer();
-        if(customer == null){
+        if (customer == null) {
             throw new UserNotFoundException(
-                    messageSource.getMessage("api.error.userNotFound",null,locale));
+                    messageSource.getMessage("api.error.userNotFound", null, locale));
         }
 
-        List<Address> addresses= customer.getAddresses();
+        List<Address> addresses = customer.getAddresses();
 
         return addresses;
     }
 
     public String addAddress(String email, AddressDTO addressDTO, Locale locale) {
-        User user= userRepo.findUserByEmail(email);
-        Customer customer= user.getCustomer();
+        User user = userRepo.findUserByEmail(email);
+        Customer customer = user.getCustomer();
 
         Address address = new Address();
         address.setCity(addressDTO.getCity());
@@ -156,24 +161,27 @@ public class CustomerServiceImpl implements CustomerService {
 
         addressRepo.save(address);
 
-        return messageSource.getMessage("api.response.updateSuccess",null,locale);
+        return messageSource.getMessage("api.response.updateSuccess", null, locale);
     }
 
     public String deleteAddress(String email, long id, Locale locale) {
-        User user= userRepo.findUserByEmail(email);
-        List<Address> addresses = user.getCustomer().getAddresses();
-        Address address= addressRepo.findById(id).orElseThrow(
-                () ->  new ResourceNotFoundException(
-                        messageSource.getMessage("api.error.addressNotFound",null,locale)
-                )
-        );
+        User user = userRepo.findUserByEmail(email);
+        Customer loggedCustomer = user.getCustomer();
+        Optional<Address> address = addressRepo.findById(id);
+        Address reqdAddress = address.get();
 
-        if(addresses.contains(address)) {
-            addressRepo.delete(address);
-        return messageSource.getMessage("api.response.addressDelete",null,locale);
+        if (address.isPresent()) {
+            if (reqdAddress.getCustomer() == loggedCustomer) {
+//                logger.debug("CustomerService::deleteAddress deleting the address");
+                addressRepo.delete(reqdAddress);
+//                logger.info("CustomerService::deleteAddress execution ended.");
+                return messageSource.getMessage("api.response.addressDelete", null, locale);
+            }
+//            logger.error("CustomerService::deleteAddress exception occurred while deleting");
+            throw new ResourceNotFoundException(messageSource.getMessage("api.error.addressNotFound", null, locale));
+
         }
-        else {
-            return messageSource.getMessage("api.error.addressNotFound",null,locale);
-        }
+//        logger.error("CustomerService::deleteAddress exception occurred while deleting");
+        throw new ResourceNotFoundException(messageSource.getMessage("api.error.addressNotFound", null, locale));
     }
 }

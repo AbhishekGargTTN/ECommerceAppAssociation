@@ -11,4 +11,6 @@ public class CustomerResponseDTO {
     private String fullName;
     private String email;
     private boolean isActive;
+    private String contact;
+    private byte[] image;
 }

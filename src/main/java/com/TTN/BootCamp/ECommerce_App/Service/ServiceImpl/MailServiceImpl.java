@@ -193,4 +193,17 @@ public class MailServiceImpl implements MailService {
         logger.info("EmailService::sendAwaitingApprovalMail execution ended.");
 
     }
+
+    public void sendUnlockedMail(User user, Locale locale){
+        logger.info("MailService: sendUnlockedMail started execution");
+        String emailSubject= messageSource
+                .getMessage("api.email.unlockSubject",null, locale);
+
+        String emailBody = messageSource
+                .getMessage("api.email.unlockedMailBody"
+                        ,new String[]{user.getFirstName()}, locale);
+
+        sendEmail(user.getEmail(), emailBody, emailSubject);
+        logger.info("MailService: sendUnlockedMail ended execution");
+    }
 }

@@ -173,4 +173,29 @@ public class AdminServiceImpl implements AdminService {
         }
 
     }
+
+    public String unlockUser(Long userId, Locale locale){
+        logger.info("AdminService: activateUser started execution");
+        Optional<User> user = userRepo.findById(userId);
+        if(user.isPresent()){
+            if(!user.get().isLocked()){
+                logger.info("AdminService: activateUser ended execution");
+                return messageSource.getMessage("api.response.userAlreadyUnlocked",null, locale);
+            }
+            else {
+                logger.debug("AdminService: activateUser setting account account status as active");
+                user.get().setLocked(false);
+                userRepo.save(user.get());
+                mailService.sendUnlockedMail(user.get(), locale);
+                logger.info("AdminService: activateUser ended execution");
+                return messageSource.getMessage("api.response.userAccountUnlocked",null, locale);
+            }
+        }
+        else{
+            logger.error("AdminService: activateUser exception occurred while execution-- User not found");
+            throw new UserNotFoundException(messageSource
+                    .getMessage("api.error.userNotFound",null, locale));
+        }
+
+    }
 }

@@ -2,6 +2,7 @@ package com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@ToString
 public class CustomerDTO extends UserDTO{
 
     private long id;

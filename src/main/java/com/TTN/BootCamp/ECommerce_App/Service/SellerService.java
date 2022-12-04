@@ -1,5 +1,6 @@
 package com.TTN.BootCamp.ECommerce_App.Service;
 
+import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.SellerResponseDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.AddressUpdateDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.SellerDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.SellerUpdateDTO;
@@ -11,7 +12,7 @@ import java.util.Locale;
 @Service
 public interface SellerService {
 
-    public SellerDTO showSellerProfile(String email, Locale locale) throws IOException;
+    public SellerResponseDTO showSellerProfile(String email, Locale locale) throws IOException;
 
     public String updateProfile(String email, SellerUpdateDTO sellerDTO, Locale locale);
 

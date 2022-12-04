@@ -3,6 +3,7 @@ package com.TTN.BootCamp.ECommerce_App.Controller;
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.AddressDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.CustomerDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.PasswordDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.CustomerResponseDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.AddressUpdateDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.CustomerUpdateDTO;
 import com.TTN.BootCamp.ECommerce_App.Entity.Address;
@@ -34,11 +35,11 @@ public class CustomerController {
 
     @GetMapping(path="/profile")
     @PreAuthorize("hasAuthority('CUSTOMER')")
-    public ResponseEntity<CustomerDTO> viewProfile(Authentication authentication) throws IOException {
+    public ResponseEntity<CustomerResponseDTO> viewProfile(Authentication authentication) throws IOException {
 
         logger.info("SellerController: viewProfile started execution");
         Locale locale = LocaleContextHolder.getLocale();
-        CustomerDTO customer = customerService.showCustomerProfile(authentication.getName(), locale);
+        CustomerResponseDTO customer = customerService.showCustomerProfile(authentication.getName(), locale);
         logger.info("SellerController: viewProfile ended execution ");
 
         return new ResponseEntity<>(customer, HttpStatus.OK);

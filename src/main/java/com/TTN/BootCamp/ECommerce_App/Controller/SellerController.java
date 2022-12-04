@@ -1,5 +1,6 @@
 package com.TTN.BootCamp.ECommerce_App.Controller;
 
+import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.SellerResponseDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.AddressUpdateDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.PasswordDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.SellerDTO;
@@ -34,11 +35,11 @@ public class SellerController {
 
     @GetMapping(path="/profile")
     @PreAuthorize("hasAuthority('SELLER')")
-    public ResponseEntity<SellerDTO> viewProfile(Authentication authentication) throws IOException {
+    public ResponseEntity<SellerResponseDTO> viewProfile(Authentication authentication) throws IOException {
 
         logger.info("SellerController: viewProfile started execution");
         Locale locale = LocaleContextHolder.getLocale();
-        SellerDTO seller = sellerService.showSellerProfile(authentication.getName(), locale);
+        SellerResponseDTO seller = sellerService.showSellerProfile(authentication.getName(), locale);
         logger.info("SellerController: viewProfile ended execution ");
         return new ResponseEntity<>(seller, HttpStatus.OK);
     }

@@ -82,10 +82,11 @@ public class ProductController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping(path ="/variation")
+    @PostMapping("/add_variation")
     @PreAuthorize("hasAuthority('SELLER')")
     public ResponseEntity<String> addProductVariation( @RequestBody ProductVariationDTO productVariationDTO){
         Locale locale = LocaleContextHolder.getLocale();
+        System.out.println(productVariationDTO);
         String response = productService.addProductVariation(productVariationDTO, locale);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -142,7 +143,7 @@ public class ProductController {
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping("/activate_product")
+    @PutMapping("/activate_product")
     public ResponseEntity<String> activateProduct(@RequestParam Long id){
         Locale locale = LocaleContextHolder.getLocale();
         String response = productService.activateProduct(id, locale);
@@ -150,7 +151,7 @@ public class ProductController {
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping("/deactivate_product")
+    @PutMapping("/deactivate_product")
     public ResponseEntity<String> deactivateProduct(@RequestParam Long id){
         Locale locale = LocaleContextHolder.getLocale();
         String response = productService.deactivateProduct(id, locale);

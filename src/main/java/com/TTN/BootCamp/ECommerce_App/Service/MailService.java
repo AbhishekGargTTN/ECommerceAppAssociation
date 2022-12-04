@@ -31,4 +31,6 @@ public interface MailService {
     public void sendNewProductMail(Product product);
 
     public void sendAwaitingApprovalMail(User user);
+
+    public void sendUnlockedMail(User user, Locale locale);
 }

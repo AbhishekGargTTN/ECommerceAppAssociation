@@ -1,9 +1,8 @@
 package com.TTN.BootCamp.ECommerce_App.Service.ServiceImpl;
 
 import com.TTN.BootCamp.ECommerce_App.Config.FilterProperties;
-import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.AddressDTO;
+import com.TTN.BootCamp.ECommerce_App.DTO.ResponseDTO.SellerResponseDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.AddressUpdateDTO;
-import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.SellerDTO;
 import com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO.SellerUpdateDTO;
 import com.TTN.BootCamp.ECommerce_App.Entity.Address;
 import com.TTN.BootCamp.ECommerce_App.Entity.Seller;
@@ -16,8 +15,6 @@ import com.TTN.BootCamp.ECommerce_App.Repository.UserRepo;
 import com.TTN.BootCamp.ECommerce_App.Service.MailService;
 import com.TTN.BootCamp.ECommerce_App.Service.SellerService;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.io.ClassPathResource;
@@ -26,11 +23,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StreamUtils;
 
-import java.beans.PropertyDescriptor;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Locale;
-import java.util.Set;
 
 import static com.TTN.BootCamp.ECommerce_App.Config.FilterProperties.getNullPropertyNames;
 
@@ -55,7 +49,7 @@ public class SellerServiceImpl implements SellerService {
     @Autowired
     MessageSource messageSource;
 
-    public SellerDTO showSellerProfile(String email, Locale locale) throws IOException {
+    public SellerResponseDTO showSellerProfile(String email, Locale locale) throws IOException {
 
         User user= userRepo.findUserByEmail(email);
 
@@ -68,11 +62,16 @@ public class SellerServiceImpl implements SellerService {
             throw new UserNotFoundException(
                     messageSource.getMessage("api.error.userNotFound",null,locale));
         }
-        SellerDTO sellerDTO  = new SellerDTO();
+        SellerResponseDTO sellerDTO  = new SellerResponseDTO();
 
-        sellerDTO.setFirstName(user.getFirstName());
-        sellerDTO.setMiddleName(user.getMiddleName());
-        sellerDTO.setLastName(user.getLastName());
+        String fullName;
+        if (user.getMiddleName() == null) {
+            fullName = user.getFirstName() + " " + user.getLastName();
+        } else {
+            fullName = user.getFirstName() + " " + user.getMiddleName() + " " + user.getLastName();
+        }
+        sellerDTO.setFullName(fullName);
+        sellerDTO.setId(user.getId());
         sellerDTO.setEmail(user.getEmail());
         sellerDTO.setActive(user.isActive());
         sellerDTO.setCompanyContact(seller.getCompanyContact());
@@ -84,49 +83,34 @@ public class SellerServiceImpl implements SellerService {
         byte[] bytes = StreamUtils.copyToByteArray(imgFile.getInputStream());
 
         sellerDTO.setImage(bytes);
-
-        AddressDTO address= new AddressDTO();
-        address.setCity(seller.getAddress().getCity());
-        address.setState(seller.getAddress().getState());
-        address.setCountry(seller.getAddress().getCountry());
-        address.setAddressLine(seller.getAddress().getAddressLine());
-        address.setZipCode(seller.getAddress().getZipCode());
-        address.setLabel(seller.getAddress().getLabel());
-        sellerDTO.setAddress(address);
+        sellerDTO.setAddress(seller.getAddress());
 
         return sellerDTO;
     }
 
-    public String updateProfile(String email, SellerUpdateDTO sellerDTO, Locale locale){
+    public String updateProfile(String email, SellerUpdateDTO sellerUpdateDTO, Locale locale){
+//        logger.info("SellerService::updateProfile execution started.");
+
         User user = userRepo.findUserByEmail(email);
-        if(user == null) {
-            throw new UserNotFoundException(
-                    messageSource.getMessage("api.error.userNotFound",null,locale));
-        }
         Seller seller = user.getSeller();
-        if(seller == null){
-            throw new UserNotFoundException(
-                    messageSource.getMessage("api.error.userNotFound",null,locale));
-        }
         Address address = seller.getAddress();
-        if(address == null){
-            throw new ResourceNotFoundException(
-                    messageSource.getMessage("api.error.resourceNotFound",null,locale));
-        }
+//        logger.debug("SellerService::updateProfile fetching details from request");
 
-        AddressUpdateDTO addressDTO = sellerDTO.getAddress();
+        AddressUpdateDTO addressDTO = sellerUpdateDTO.getAddress();
+//        logger.debug("SellerService::updateProfile updating details");
 
-        BeanUtils.copyProperties(addressDTO, address, getNullPropertyNames(addressDTO));
+        BeanUtils.copyProperties(addressDTO, address, FilterProperties.getNullPropertyNames(addressDTO));
 
         address.setSeller(seller);
         addressRepo.save(address);
 
-        BeanUtils.copyProperties(sellerDTO, user, getNullPropertyNames(sellerDTO));
-        BeanUtils.copyProperties(sellerDTO, seller, getNullPropertyNames(sellerDTO));
+        BeanUtils.copyProperties(sellerUpdateDTO, user, FilterProperties.getNullPropertyNames(sellerUpdateDTO));
+        BeanUtils.copyProperties(sellerUpdateDTO, seller, FilterProperties.getNullPropertyNames(sellerUpdateDTO));
 
         userRepo.save(user);
         sellerRepo.save(seller);
-        return messageSource.getMessage("api.response.updateSuccess",null,locale);
+//        logger.info("SellerService::updateProfile execution ended.");
+        return messageSource.getMessage("api.response.updateSuccess",null, Locale.ENGLISH);
     }
 
     public String updatePassword(String email, String password, Locale locale){

@@ -2,6 +2,7 @@ package com.TTN.BootCamp.ECommerce_App.DTO.UpdateDTO;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
@@ -9,7 +10,23 @@ import javax.validation.constraints.Size;
 
 @Getter
 @Setter
-public class SellerUpdateDTO extends UserUpdateDTO {
+@ToString
+public class SellerUpdateDTO{
+
+    @Size(min = 2, max = 30, message = "Must contain 2-30 characters.")
+    @Pattern(regexp="(^[A-Za-z]*$)",message = "Invalid Input. " +
+            "Name can only contain alphabets.")
+    private String firstName;
+
+    @Size(min = 2, max = 30, message = "Must contain 2-30 characters.")
+    @Pattern(regexp="(^[A-Za-z]*$)",message = "Invalid Input. " +
+            "Name can only contain alphabets.")
+    private String middleName;
+
+    @Size(min = 2, max = 30, message = "Must contain 2-30 characters.")
+    @Pattern(regexp="(^[A-Za-z]*$)",message = "Invalid Input. " +
+            "Name can only contain alphabets.")
+    private String lastName;
 
     @Size(max=30, message = "Enter a valid company name.")
     private String companyName;

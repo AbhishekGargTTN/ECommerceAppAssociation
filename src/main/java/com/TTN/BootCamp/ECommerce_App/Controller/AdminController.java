@@ -71,4 +71,14 @@ public class AdminController {
         logger.info("AdminController: deactivateUser ended execution with response : "+ response);
         return new ResponseEntity<String>(response,HttpStatus.OK);
     }
+
+    @PatchMapping(path="/unlock_user")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<String>  unlockUser(@RequestParam("id") Long id){
+        logger.info("AdminController: deactivateUser started execution");
+        Locale locale = LocaleContextHolder.getLocale();
+        String response = adminService.unlockUser(id, locale);
+        logger.info("AdminController: deactivateUser ended execution with response : "+ response);
+        return new ResponseEntity<String>(response,HttpStatus.OK);
+    }
 }

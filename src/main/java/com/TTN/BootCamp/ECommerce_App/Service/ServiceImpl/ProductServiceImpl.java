@@ -77,7 +77,7 @@ public class ProductServiceImpl implements ProductService {
             product.setCategory(category);
             product.setUser(user);
             productRepo.save(product);
-            mailService.sendNewProductMail(product);
+//            mailService.sendNewProductMail(product);
             return messageSource
                     .getMessage("api.response.addedSuccess",null, locale);
         }
@@ -185,9 +185,6 @@ public class ProductServiceImpl implements ProductService {
         }
 
         Category associatedCategory = product.get().getCategory();
-
-        // check if provided field and their values
-        // are among the existing metaField-values defined for the category
 
         Map<String, Set<String>> requestMetadata = productVariationDTO.getMetadata();
         List<String> requestKeySet = requestMetadata.keySet().stream().collect(Collectors.toList());
@@ -369,11 +366,9 @@ public class ProductServiceImpl implements ProductService {
             throw new BadRequestException(messageSource.getMessage("api.error.productAlreadyActive",null,locale));
 
         }else{
-            // update status & save
             product.get().setActive(true);
             productRepo.save(product.get());
 
-            // trigger mail
             ProductResponseDTO productResponseDTO = new ProductResponseDTO();
             BeanUtils.copyProperties(product.get(),productResponseDTO);
             User productOwner = product.get().getUser();
@@ -432,9 +427,7 @@ public class ProductServiceImpl implements ProductService {
         Category category = categoryRepo.findById(id).orElseThrow(() -> new BadRequestException(
                 messageSource.getMessage("api.error.invalidId", null, locale)
         ));
-
-        // check if category is a leaf node
-        if (category.getSubCategories()!=null){
+        if (!category.getSubCategories().isEmpty()){
             throw new BadRequestException(messageSource.getMessage("api.error.notLeafNode",null,locale));
         }
 

@@ -17,4 +17,6 @@ public interface AdminService {
     public String activateUser(Long userId, Locale locale);
 
     public String deactivateUser(Long userId, Locale locale);
+
+    public String unlockUser(Long userId, Locale locale);
 }
