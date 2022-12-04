@@ -4,12 +4,11 @@ import lombok.*;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.persistence.Entity;
 import java.io.Serializable;
 
 @Embeddable
-@Getter
-@Setter
-@ToString
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class CategoryMetaDataCompositeKey implements Serializable {

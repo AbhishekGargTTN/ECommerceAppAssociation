@@ -354,11 +354,11 @@ public class UserServiceImpl implements UserService {
         }
 
     }
-    String filepath= "src/main/resources/images";
+//    String filepath= "src/main/resources/images";
     public String uploadImage( MultipartFile file, String email, Locale locale){
 
         User user= userRepo.findUserByEmail(email);
-        File directory = new File(filepath);
+        File directory = new File(FILE_PATH);
         if (!directory.exists()) {
             try {
                 directory.mkdir();
@@ -367,7 +367,7 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-        String fileName = filepath+File.separator+user.getId()+".jpg";
+        String fileName = FILE_PATH+File.separator+user.getId()+".jpg";
 
         final String path = System.getProperty("user.dir") + File.separator + fileName;
 

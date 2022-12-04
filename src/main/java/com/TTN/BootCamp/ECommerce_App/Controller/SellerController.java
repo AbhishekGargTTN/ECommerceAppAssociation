@@ -64,8 +64,8 @@ public class SellerController {
             throw new PasswordDoNotMatchException(
                     messageSource.getMessage("api.error.passwordDoNotMatch",null,locale));
         }
-            String response = sellerService
-                    .updatePassword(authentication.getName(), passwordDTO.getPassword(), locale);
+        String response = sellerService
+                .updatePassword(authentication.getName(), passwordDTO.getPassword(), locale);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
 

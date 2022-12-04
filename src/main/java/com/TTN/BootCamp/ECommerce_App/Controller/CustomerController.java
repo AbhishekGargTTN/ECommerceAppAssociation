@@ -1,3 +1,4 @@
+
 package com.TTN.BootCamp.ECommerce_App.Controller;
 
 import com.TTN.BootCamp.ECommerce_App.DTO.RequestDTO.AddressDTO;
@@ -64,8 +65,8 @@ public class CustomerController {
         if(!passwordDTO.getPassword().equals(passwordDTO.getConfirmPassword())) {
             throw new PasswordDoNotMatchException("Password do not match.");
         }
-            String response = customerService
-                    .updatePassword(authentication.getName(), passwordDTO.getPassword(), locale);
+        String response = customerService
+                .updatePassword(authentication.getName(), passwordDTO.getPassword(), locale);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
 

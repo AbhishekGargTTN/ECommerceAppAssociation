@@ -115,21 +115,21 @@ public class ProductServiceImpl implements ProductService {
 
         if(products!=null){
 
-        for(Product product: products){
+            for(Product product: products){
 
-            ProductResponseDTO productResponseDTO = new ProductResponseDTO();
-            productResponseDTO.setId(product.getId());
-            productResponseDTO.setName(product.getName());
-            productResponseDTO.setBrand(product.getBrand());
-            productResponseDTO.setDescription(product.getDescription());
-            productResponseDTO.setActive(product.isActive());
-            productResponseDTO.setCancellable(product.isCancellable());
-            productResponseDTO.setReturnable(product.isReturnable());
-            productResponseDTO.setCategory(product.getCategory());
-            productResponseDTOList.add(productResponseDTO);
+                ProductResponseDTO productResponseDTO = new ProductResponseDTO();
+                productResponseDTO.setId(product.getId());
+                productResponseDTO.setName(product.getName());
+                productResponseDTO.setBrand(product.getBrand());
+                productResponseDTO.setDescription(product.getDescription());
+                productResponseDTO.setActive(product.isActive());
+                productResponseDTO.setCancellable(product.isCancellable());
+                productResponseDTO.setReturnable(product.isReturnable());
+                productResponseDTO.setCategory(product.getCategory());
+                productResponseDTOList.add(productResponseDTO);
 
-        }
-        return productResponseDTOList;
+            }
+            return productResponseDTOList;
         }
         throw new ResourceNotFoundException(messageSource
                 .getMessage("api.error.resourceNotFound",null, locale));
